@@ -1,0 +1,29 @@
+EOS_Cluster:
+  pve:
+    PVE-EOS-01:
+      ansible_host: 192.168.6.30
+    PVE-EOS-02:
+      ansible_host: 192.168.6.31
+    PVE-EOS-03:
+      ansible_host: 192.168.6.32
+  vms:
+    pihole:
+      pihole-01:
+        ansible_host: 192.168.6.10
+      pihole-02:
+        ansible_host: 192.168.6.11
+      pihole-03:
+        ansible_host: 192.168.6.12
+    docker_swarm:
+      managers:
+        dsp-man-01:
+        dsp-man-02:
+        dsp-man-03:
+      workers:
+        gpu:
+          dsp-w-gpu-01:
+          dsp-w-gpu-02:
+          dsp-w-gpu-03:
+        vpn:
+          dsp-w-vpn-01:
+          dsp-w-vpn-02:
