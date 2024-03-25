@@ -7,8 +7,7 @@ services:
       - '3000:3000'
     environment:
       - TZ=America/Chicago
-      - UID=1000
-      - GID=999
+      - UID=0
     volumes:
       - '/mnt/ceph/grafana_data:/var/lib/grafana'
     depends_on:
