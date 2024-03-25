@@ -11,7 +11,8 @@ services:
     deploy:
       mode: global
       placement:
-        constraints: [node.platform.os == linux]
+        constraints: 
+          - "node.platform.os == linux"
       labels:
           - "shepherd.updates=true"
 
@@ -26,12 +27,13 @@ services:
       - portainer_data:/data
     networks:
       - agent_network
-      - proxiable
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - "node.role == manager"
       labels:
           - "shepherd.updates=true"
 
@@ -39,6 +41,8 @@ networks:
   agent_network:
     driver: overlay
     attachable: true
+  local_proxy:
+    external: true
 
 volumes:
   portainer_data:

@@ -2,3 +2,5 @@
 *id_rsa*
 Ansible/credentials/
 Ansible/playbooks/docker_secrets.yaml
+*.cert
+*.key
