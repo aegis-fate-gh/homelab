@@ -131,3 +131,5 @@ networks:
   monitoring:
     driver: overlay
     attachable: true
+  proxy:
+    external: true
