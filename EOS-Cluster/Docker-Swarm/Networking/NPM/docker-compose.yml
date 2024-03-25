@@ -41,3 +41,5 @@ volumes:
 networks:
   proxiable:
     name: proxiable
+    driver: overlay
+    attachable: true
