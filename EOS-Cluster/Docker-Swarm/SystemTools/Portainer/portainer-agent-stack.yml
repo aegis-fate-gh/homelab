@@ -12,6 +12,8 @@ services:
       mode: global
       placement:
         constraints: [node.platform.os == linux]
+      labels:
+          - "shepherd.updates=true"
 
   portainer:
     image: portainer/portainer-ce:2.19.4
@@ -29,6 +31,8 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == manager]
+      labels:
+          - "shepherd.updates=true"
 
 networks:
   agent_network:
