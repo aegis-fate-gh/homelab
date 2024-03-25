@@ -1,0 +1,17 @@
+---
+- name: Set up Docker data folders
+  hosts: starbase-01
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Docker volumes
+      ansible.builtin.file:
+        path: /mnt/ceph/{{ item }}
+        state: directory
+        recurse: yes
+        owner: ansible
+        group: docker
+        mode: '0755'
+      loop:
+        - portainer_data

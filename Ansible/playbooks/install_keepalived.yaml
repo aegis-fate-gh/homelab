@@ -1,0 +1,19 @@
+- name: Install keepalived on the manager nodes
+  hosts: pihole, managers
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Update and upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Install the keepalived package
+      ansible.builtin.apt:
+        pkg:
+          - keepalived
+
+    - name: Create the keepalived config file
+      ansible.builtin.file:
+        path: /etc/keepalived/keepalived.conf
+        state: touch

@@ -1,0 +1,20 @@
+- name: Set up the Qemu Guest Agent
+  hosts: vms
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Update and upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Install the qemu package
+      ansible.builtin.apt:
+        pkg:
+          - qemu-guest-agent
+
+    - name: Start the service, if not started
+      ansible.builtin.systemd_service:
+        name: qemu-guest-agent
+        state: started
+    

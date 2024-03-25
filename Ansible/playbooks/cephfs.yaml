@@ -1,0 +1,18 @@
+---
+- name: Set up CephFS directories on Docker hosts
+  hosts: docker
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Create the directory for ceph configs
+      ansible.builtin.file:
+        path: /etc/ceph
+        state: directory
+        mode: '0755'
+
+    - name: Create the directory to mount cephfs
+      ansible.builtin.file:
+        path: /mnt/ceph
+        state: directory
+        mode: '0755'

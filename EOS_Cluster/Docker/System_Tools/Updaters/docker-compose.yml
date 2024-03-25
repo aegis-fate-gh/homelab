@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  shepherd:
+    image: containrrr/shepherd
+    environment:
+      RUN_ONCE_AND_EXIT: "true"
+      TZ: "America/Chicago"
+      VERBOSE: "true"
+      FILTER_SERVICES: "label=shepherd.updates=true"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      replicas: 0
+      restart_policy:
+        condition: none
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "swarm.cronjob.enable=true"
+        # Start service every day at 3am
+        - "swarm.cronjob.schedule=0 0 3 * * *"
+        - "swarm.cronjob.skip-running=true"
+
+  prune-nodes:
+    image: docker
+    command: ["docker", "system", "prune", "-f"]
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      mode: global
+      labels:
+        - "swarm.cronjob.enable=true"
+        # Start service every day at 4am
+        - "swarm.cronjob.schedule=0 0 4 * * *"
+        - "swarm.cronjob.skip-running=false"
+      restart_policy:
+        condition: none
+
+  scheduler:
+    image: crazymax/swarm-cronjob:latest
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - "TZ=America/Chicago"
+      - "LOG_LEVEL=info"
+      - "LOG_JSON=false"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager

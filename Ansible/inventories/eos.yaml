@@ -1,0 +1,50 @@
+pve:
+  hosts:
+    pve-eos-01:
+      ansible_host: 192.168.6.30
+    pve-eos-02:
+      ansible_host: 192.168.6.31
+    pve-eos-03:
+      ansible_host: 192.168.6.32
+vms:
+  children:
+    pihole:
+      hosts:
+        dns-01:
+          ansible_host: 192.168.6.10
+        dns-02:
+          ansible_host: 192.168.6.11
+        dns-03:
+          ansible_host: 192.168.6.12
+    docker:
+      children:
+        standalone:
+          hosts:
+            jurassic-park-01:
+              ansible_host: 192.168.6.100
+        swarm:
+          children:
+            managers:
+              hosts:
+                starbase-01: 
+                  ansible_host: 192.168.6.40
+                starbase-02: 
+                  ansible_host: 192.168.6.41
+                starbase-03: 
+                  ansible_host: 192.168.6.42
+            workers:
+              children:
+                gpu:
+                  hosts:
+                    sovereign-01: 
+                      ansible_host: 192.168.6.50
+                    sovereign-02: 
+                      ansible_host: 192.168.6.51
+                    sovereign-03: 
+                      ansible_host: 192.168.6.52
+                vpn:
+                  hosts:
+                    defiant-01: 
+                      ansible_host: 192.168.27.60
+                    defiant-02: 
+                      ansible_host: 192.168.27.61

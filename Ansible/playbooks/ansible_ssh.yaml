@@ -1,0 +1,13 @@
+---
+- name: Set up ansible user ssh access
+  hosts: vms
+  remote_user: ansible
+  vars_files:
+    - /credentials/credentials.yaml
+
+  tasks:
+  - name: Set ansible ssh key
+    ansible.posix.authorized_key:
+      user: ansible
+      state: present
+      key: "{{ lookup('file', '../credentials/id_rsa.pub') }}"

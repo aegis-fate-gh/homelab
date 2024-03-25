@@ -1,5 +1,7 @@
 Bios Settings
 
+Boot > CSM - Disabled
+
 Advanced
     CPU Configuration > SVM - Enabled
 
