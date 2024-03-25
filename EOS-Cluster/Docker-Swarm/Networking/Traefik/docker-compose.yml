@@ -32,4 +32,4 @@ networks:
   local_proxy:
     name: local_proxy
     driver: overlay
-    attachable: true
+    external: true

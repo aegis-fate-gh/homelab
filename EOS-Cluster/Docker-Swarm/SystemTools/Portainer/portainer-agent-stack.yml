@@ -18,7 +18,9 @@ services:
 
   portainer:
     image: portainer/portainer-ce:2.19.4
-    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    command: 
+      - -H tcp://tasks.agent:9001 
+      - --tlsskipverify
     ports:
       - "9443:9443"
       - "9000:9000"
@@ -36,6 +38,9 @@ services:
           - "node.role == manager"
       labels:
           - "shepherd.updates=true"
+          - "traefik.enable=true"
+          - "traefik.http.routers.portainer-rtr.entrypoints=web"
+          - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.home.arpa`)"
 
 networks:
   agent_network:
