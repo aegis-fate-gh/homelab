@@ -25,7 +25,7 @@ services:
           - "shepherd.updates=true"
 
 networks:
-  proxiable:
+  local_proxy:
     name: local_proxy
     driver: overlay
     attachable: true
