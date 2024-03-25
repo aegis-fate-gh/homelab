@@ -19,8 +19,8 @@ services:
       # Uncomment this if IPv6 is not enabled on your host
       DISABLE_IPV6: 'true'
     volumes:
-      - 'npm_data/npm:/data'
-      - 'npm_data/npm-letsencrypt:/etc/letsencrypt'
+      - '/mnt/ceph/npm_data/npm:/data'
+      - '/mnt/ceph/npm_data/npm-letsencrypt:/etc/letsencrypt'
     restart: always
     networks:
       - proxiable
@@ -37,9 +37,6 @@ services:
 volumes:
   npm_data:
     driver: local
-    driver_opts:
-      type: none
-      device: "/mnt/ceph/npm_data"
 
 networks:
   proxiable:
