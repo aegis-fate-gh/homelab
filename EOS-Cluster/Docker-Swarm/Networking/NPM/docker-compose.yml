@@ -39,7 +39,7 @@ volumes:
     driver: local
 
 networks:
-  proxiable:
+  external_proxy:
     name: external_proxy
     driver: overlay
     attachable: true
