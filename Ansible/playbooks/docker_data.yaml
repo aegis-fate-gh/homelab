@@ -17,3 +17,7 @@
         - portainer_data
         - npm_data/npm
         - npm_data/npm-letsencrypt
+        - grafana_data
+        - influxdb_data
+        - chronograf_data
+        - loki_data

@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  grafana:
+    image: grafana/grafana-oss
+    ports:
+      - '3000:3000'
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - '/mnt/ceph/grafana_data:/var/lib/grafana'
+    depends_on:
+      - influxdb
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+      restart_policy:
+        condition: unless-stopped
+    networks:
+      - monitoring
+      - proxy
+
+  influxdb:
+    image: influxdb:1.8.10
+    secrets:
+      - source: influxdb_user
+        target: influx_user
+      - source: influxdb_password
+        target: influx_password
+    environment:
+      - TZ=America/Chicago
+      - INFLUXDB_USERNAME=/run/secrets/influx_user
+      - INFLUXDB_PASSWORD=/run/secrets/influx_password
+    ports:
+      - '8086:8086'
+    volumes:
+      - '/mnt/ceph/influxdb_data:/var/lib/influxdb'
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+      restart_policy:
+        condition: always
+    networks:
+      - monitoring
+      - proxy
+
+  chronograf:
+    image: chronograf:latest
+    ports:
+      - '8888:8888'
+    volumes:
+      - '/mnt/ceph/chronograf_data:/var/lib/chronograf'
+    depends_on:
+      - influxdb
+    secrets:
+      - source: influxdb_user
+        target: influx_user
+      - source: influxdb_password
+        target: influx_password
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_USERNAME=/run/secrets/influx_user
+      - INFLUXDB_PASSWORD=/run/secrets/influx_password
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+      restart_policy:
+        condition: unless-stopped
+    networks:
+      - monitoring
+
+  loki:
+    image: grafana/loki:2.7.5
+    ports:
+      - '3100:3100'
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - '/mnt/ceph/loki_data:/etc/loki'
+    command: -config.file=/etc/loki/local-config.yaml
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+      restart_policy:
+        condition: unless-stopped
+    networks:
+      - monitoring
+      - proxy
+
+volumes:
+  grafana_data:
+    driver: local
+  influxdb_data:
+    driver: local
+  chronograf_data:
+    driver: local
+  loki_data:
+    driver: local
+
+secrets:
+  influxdb_user:
+    external: true
+  influxdb_password:
+    external: true
+
+networks:
+  monitoring:
+    driver: overlay
+    attachable: true
