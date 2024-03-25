@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  updater:
+    image: oznu/cloudflare-ddns:latest
+    environment:
+      - API_KEY_FILE=/run/secrets/api_key
+      - ZONE=sch-apps.com
+      - PROXIED=true
+      - RRTYPE=A
+    secrets:
+      - source: cloudflare_api_key
+        target: api_key
+    deploy:
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
+          cpus: '0.25'
+          memory: 300M
+      restart_policy:
+        condition: on-failure
+
+secrets:
+  cloudflare_api_key:
+    external: true
