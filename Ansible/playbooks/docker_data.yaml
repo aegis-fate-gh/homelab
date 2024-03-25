@@ -5,7 +5,7 @@
   become: true
 
   tasks:
-    - name: Docker volumes
+    - name: Create docker volumes
       ansible.builtin.file:
         path: /mnt/ceph/{{ item }}
         state: directory
@@ -17,7 +17,17 @@
         - portainer_data
         - npm_data/npm
         - npm_data/npm-letsencrypt
-        - grafana_data
         - influxdb_data
         - chronograf_data
         - loki_data
+
+    - name: Create docker volumes with insecure permissions
+      ansible.builtin.file:
+        path: /mnt/ceph/{{ item }}
+        state: directory
+        recurse: yes
+        owner: ansible
+        group: docker
+        mode: '1777'
+      loop:
+        - grafana_data
