@@ -20,8 +20,6 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-      restart_policy:
-        condition: unless-stopped
     networks:
       - monitoring
       - proxy
@@ -50,8 +48,6 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-      restart_policy:
-        condition: always
     networks:
       - monitoring
       - proxy
@@ -82,8 +78,6 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-      restart_policy:
-        condition: unless-stopped
     networks:
       - monitoring
 
@@ -105,8 +99,6 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-      restart_policy:
-        condition: unless-stopped
     networks:
       - monitoring
       - proxy
