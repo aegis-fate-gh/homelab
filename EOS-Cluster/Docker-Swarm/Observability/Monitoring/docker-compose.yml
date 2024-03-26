@@ -69,6 +69,7 @@ services:
       - INFLUXDB_URL=http://influxdb:8086
       - INFLUXDB_USERNAME=/run/secrets/influx_user
       - INFLUXDB_PASSWORD=/run/secrets/influx_password
+      - TZ=America/Chicago
     deploy:
       mode: replicated
       replicas: 1

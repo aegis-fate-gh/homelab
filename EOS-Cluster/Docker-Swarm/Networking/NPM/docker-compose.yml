@@ -21,7 +21,6 @@ services:
     volumes:
       - '/mnt/ceph/npm_data/npm:/data'
       - '/mnt/ceph/npm_data/npm-letsencrypt:/etc/letsencrypt'
-    restart: always
     networks:
       - proxy
     deploy:
