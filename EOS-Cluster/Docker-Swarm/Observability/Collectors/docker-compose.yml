@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  grafana:
+    image: telegraf
+    hostname: "{{.NODE.ID}}"
+    volumes:
+    - '/mnt/ceph/telegraf_data/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+    - '8125:8125'
+    deploy:
+      mode: global
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
+volumes:
+  telegraf_data:
+    driver: local
+
+networks:
+  monitoring:
+    external: true
