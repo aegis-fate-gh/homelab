@@ -2,7 +2,7 @@ version: '3'
 
 services:
   telegraf:
-    image: telegraf-jp
+    image: telegraf
     restart: always
     container_name: telegraf
     environment:
