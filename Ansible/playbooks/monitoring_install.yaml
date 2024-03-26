@@ -1,0 +1,22 @@
+---
+- name: Set up the Monitoring tools on the non docker hosts
+  hosts: pihole, pve
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Update and upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Install the telegraf package
+      ansible.builtin.apt:
+        pkg:
+          - telegraf
+
+    - name: Stop the service, if it's running
+      ansible.builtin.systemd_service:
+        name: telegraf
+        state: stopped
+
+    

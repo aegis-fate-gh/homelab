@@ -16,24 +16,8 @@ services:
     networks:
       - monitoring
 
-  promtail:
-    image: grafana/promtail:latest
-    volumes:
-      - '/mnt/ceph/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml'
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    command: -config.file=/etc/promtail/docker-config.yaml
-    deploy:
-      mode: global
-      labels:
-        - "shepherd.updates=true"
-    networks:
-      - monitoring
-
 volumes:
   telegraf_data:
-    driver: local
-  promtail_data:
     driver: local
 
 networks:

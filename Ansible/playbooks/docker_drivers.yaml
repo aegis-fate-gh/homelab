@@ -1,0 +1,12 @@
+---
+- name: Set up docker drivers on the needed nodes
+  hosts: docker
+  remote_user: ansible
+  become: true
+
+# https://grafana.com/docs/loki/latest/send-data/docker-driver/
+
+  tasks:
+    - name: Create Drivers
+      ansible.builtin.shell: |
+        docker plugin install grafana/loki-docker-driver:2.9.4 --alias loki --grant-all-permissions

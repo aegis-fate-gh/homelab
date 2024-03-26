@@ -20,6 +20,9 @@
         - influxdb_data
         - chronograf_data
         - loki_data
+        - telegraf_data
+        - promtail_data
+        - promtail_data/positions
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
