@@ -3,6 +3,7 @@ version: '3.8'
 services:
   telegraf:
     image: telegraf
+    hostname: "{{.Node.Hostname}}"
     volumes:
     - '/mnt/ceph/telegraf_data/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
     - /var/run/docker.sock:/var/run/docker.sock:ro
