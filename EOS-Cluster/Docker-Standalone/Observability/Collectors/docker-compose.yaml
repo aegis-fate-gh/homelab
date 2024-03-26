@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  telegraf:
+    image: telegraf
+    environment:
+      - "TZ=America/Chicago"
+    hostname: "{{.Node.Hostname}}"
+    volumes:
+    - '/var/lib/docker/volumes/telegraf_data/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
+    - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+    - '8125:8125'
+    networks:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail:latest
+    environment:
+      - "TZ=America/Chicago"
+    volumes:
+      - '/var/lib/docker/volumes/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml'
+      - '/var/lib/docker/volumes/promtail_data/positions:/positions'
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/docker-config.yaml
+    networks:
+      - monitoring
