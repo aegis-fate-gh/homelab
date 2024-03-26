@@ -10,7 +10,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
-      - 'folding_at_home/node1:/config'
+      - '/mnt/ceph/folding_at_home/node1:/config'
     ports:
       - 7396:7396
       - 36330:36330 #optional
@@ -32,7 +32,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
-      - 'folding_at_home/node2:/config'
+      - '/mnt/ceph/folding_at_home/node2:/config'
     ports:
       - 7397:7396
       - 36331:36330 #optional
@@ -54,7 +54,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
-      - 'folding_at_home/node3:/config'
+      - '/mnt/ceph/folding_at_home/node3:/config'
     ports:
       - 7398:7396
       - 36332:36330 #optional
