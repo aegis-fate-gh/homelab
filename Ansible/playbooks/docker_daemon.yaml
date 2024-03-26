@@ -1,0 +1,39 @@
+---
+- name: Set up docker daemon file
+  hosts: jurassic-park-01
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Stop the service to apply the updates
+      ansible.builtin.systemd_service:
+        name: docker
+        state: stopped
+
+    - name: Existing file
+      ansible.builtin.file:
+        path: /etc/docker/daemon.json
+        state: absent
+
+    - name: Create the docker daemon.json file
+      ansible.builtin.file:
+        path: /etc/docker/daemon.json
+        state: touch
+        mode: '0755'
+
+# https://gist.github.com/ruanbekker/c6fa9bc6882e6f324b4319c5e3622460?permalink_comment_id=4327203#gistcomment-4327203
+    - name: Add in needed logging configs for Promtail
+      ansible.builtin.blockinfile:
+        path: /etc/docker/daemon.json
+        block: |
+          {
+            "log-driver": "json-file",
+            "log-opts": {
+              "labels-regex": "^.+"
+            }
+          }
+    
+    - name: Restart the service to apply the updates
+      ansible.builtin.systemd_service:
+        name: docker
+        state: restarted
