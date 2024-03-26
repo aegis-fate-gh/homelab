@@ -18,7 +18,7 @@ services:
       mode: replicated
       replicas: 1
       restart_policy:
-        condition: "no"
+        condition: "none"
       placement:
         constraints: 
           - "node.hostname == sovereign-01"
@@ -40,7 +40,7 @@ services:
       mode: replicated
       replicas: 1
       restart_policy:
-        condition: "no"
+        condition: "none"
       placement:
         constraints: 
           - "node.hostname == sovereign-02"
@@ -62,7 +62,7 @@ services:
       mode: replicated
       replicas: 1
       restart_policy:
-        condition: "no"
+        condition: "none"
       placement:
         constraints: 
           - "node.hostname == sovereign-03"
