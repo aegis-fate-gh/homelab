@@ -23,6 +23,9 @@
         - telegraf_data
         - promtail_data
         - promtail_data/positions
+        - folding_at_home/node1
+        - folding_at_home/node2
+        - folding_at_home/node3
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:

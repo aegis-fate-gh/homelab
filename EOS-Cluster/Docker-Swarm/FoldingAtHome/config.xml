@@ -1,0 +1,20 @@
+<config>
+  <!-- Set with your user, passkey, team-->
+  <user value="Stephenh2"/>
+  <passkey value="Add Here"/>
+  <team value="0"/>
+
+  <power value="full"/>
+  <exit-when-done v='true'/>
+
+  <web-enable v='false'/>
+  <disable-viz v='true'/>
+  <gui-enabled v='false'/>
+
+  <!-- 1 slots for GPUs, 1 CPU core-->
+  <slot id='0' type='GPU'> <max-units v='5'/> </slot>
+
+  <!-- 8-1 = 7 for decomposition -->
+  <slot id='1' type='SMP'> <cpus v='7'/> <max-units v='1'/> </slot>
+
+</config>
