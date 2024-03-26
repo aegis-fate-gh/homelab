@@ -3,6 +3,7 @@ version: '3'
 services:
   telegraf:
     image: telegraf
+    restart: always
     container_name: telegraf
     environment:
       - "TZ=America/Chicago"
@@ -15,6 +16,7 @@ services:
 
   promtail:
     image: grafana/promtail:latest
+    restart: always
     container_name: promtail
     environment:
       - "TZ=America/Chicago"
