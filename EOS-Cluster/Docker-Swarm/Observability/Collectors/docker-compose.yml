@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  grafana:
+  telegraf:
     image: telegraf
     volumes:
     - '/mnt/ceph/telegraf_data/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
