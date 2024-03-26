@@ -20,10 +20,6 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://loki:3100/loki/api/v1/push"
     networks:
       - monitoring
       - proxy
@@ -52,10 +48,6 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://loki:3100/loki/api/v1/push"
     networks:
       - monitoring
       - proxy
@@ -87,10 +79,6 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://loki:3100/loki/api/v1/push"
     networks:
       - monitoring
 
@@ -112,10 +100,6 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://loki:3100/loki/api/v1/push"
     networks:
       - monitoring
       - proxy
