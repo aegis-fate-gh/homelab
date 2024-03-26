@@ -1,8 +1,9 @@
-version: '3.8'
+version: '3'
 
 services:
   telegraf:
     image: telegraf
+    container_name: telegraf
     environment:
       - "TZ=America/Chicago"
     hostname: "{{.Node.Hostname}}"
@@ -24,6 +25,7 @@ services:
 
   promtail:
     image: grafana/promtail:latest
+    container_name: promtail
     environment:
       - "TZ=America/Chicago"
     volumes:
