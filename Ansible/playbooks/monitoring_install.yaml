@@ -1,6 +1,6 @@
 ---
 - name: Set up the Monitoring tools on the non docker hosts
-  hosts: pihole, pve
+  hosts: vms
   remote_user: ansible
   become: true
 
@@ -8,15 +8,44 @@
     - name: Update and upgrade all packages
       ansible.builtin.apt:
         upgrade: dist
+    
+    - name: Create the directory for the Docker gpg key
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
 
-    - name: Install the telegraf package
+    - name: Install the needed packages
       ansible.builtin.apt:
         pkg:
           - telegraf
+    
+    - name: Add the Grafana Labs GPG key
+      ansible.builtin.apt_key:
+        url: https://apt.grafana.com/gpg.key
+        keyring: /etc/apt/keyrings/grafana.gpg
+        state: present
+
+    - name: Add Grafana labs repository
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main
+        filename: grafana
+        state: present
+
+    - name: Install the needed packages for promtail
+      ansible.builtin.apt:
+        pkg:
+          - promtail
 
     - name: Stop the service, if it's running
       ansible.builtin.systemd_service:
         name: telegraf
+        state: stopped
+
+    - name: Stop the service, if it's running
+      ansible.builtin.systemd_service:
+        name: promtail
         state: stopped
 
     
