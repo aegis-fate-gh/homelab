@@ -12,12 +12,6 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock
     ports:
     - '8125:8125'
-    deploy:
-      mode: global
-      labels:
-        - "shepherd.updates=true"
-    networks:
-      - monitoring
 
   promtail:
     image: grafana/promtail:latest
@@ -31,19 +25,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/log:/var/log
     command: -config.file=/etc/promtail/docker-config.yaml
-    deploy:
-      mode: global
-      labels:
-        - "shepherd.updates=true"
-    networks:
-      - monitoring
 
 volumes:
   telegraf_data:
     driver: local
   promtail_data:
     driver: local
-
-networks:
-  monitoring:
-    external: true
