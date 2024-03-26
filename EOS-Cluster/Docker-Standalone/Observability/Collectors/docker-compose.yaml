@@ -3,6 +3,7 @@ version: '3'
 services:
   telegraf:
     image: telegraf
+    container_name: telegraf
     environment:
       - "TZ=America/Chicago"
     hostname: "{{.Node.Hostname}}"
@@ -11,11 +12,10 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock
     ports:
     - '8125:8125'
-    networks:
-      - monitoring
 
   promtail:
     image: grafana/promtail:latest
+    container_name: promtail
     environment:
       - "TZ=America/Chicago"
     volumes:
@@ -25,5 +25,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/log:/var/log
     command: -config.file=/etc/promtail/docker-config.yaml
-    networks:
-      - monitoring

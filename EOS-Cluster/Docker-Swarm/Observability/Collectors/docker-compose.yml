@@ -1,9 +1,8 @@
-version: '3'
+version: '3.8'
 
 services:
   telegraf:
     image: telegraf
-    container_name: telegraf
     environment:
       - "TZ=America/Chicago"
     hostname: "{{.Node.Hostname}}"
@@ -12,22 +11,45 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock
     ports:
     - '8125:8125'
+    deploy:
+      mode: global
+      labels:
+        - "shepherd.updates=true"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+    networks:
+      - monitoring
 
   promtail:
     image: grafana/promtail:latest
-    container_name: promtail
     environment:
       - "TZ=America/Chicago"
     volumes:
       - '/mnt/ceph/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml'
-      - '/mnt/ceph/promtail_data/positions:/positions'
+      - '/mnt/ceph/promtail_data/positions:/etc/promtail/docker-config.yaml'
       - /var/lib/docker/containers:/var/lib/docker/containers
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/log:/var/log
     command: -config.file=/etc/promtail/docker-config.yaml
+    deploy:
+      mode: global
+      labels:
+        - "shepherd.updates=true"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+    networks:
+      - monitoring
 
 volumes:
   telegraf_data:
     driver: local
   promtail_data:
     driver: local
+
+networks:
+  monitoring:
+    external: true
