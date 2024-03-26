@@ -24,7 +24,7 @@ services:
       - "TZ=America/Chicago"
     volumes:
       - '/mnt/ceph/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml'
-      - '/mnt/ceph/promtail_data/positions:/etc/promtail/docker-config.yaml'
+      - '/mnt/ceph/promtail_data/positions:/positions'
       - /var/lib/docker/containers:/var/lib/docker/containers
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/log:/var/log
