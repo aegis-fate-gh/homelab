@@ -15,6 +15,10 @@ services:
       mode: global
       labels:
         - "shepherd.updates=true"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
     networks:
       - monitoring
 
@@ -33,6 +37,16 @@ services:
       mode: global
       labels:
         - "shepherd.updates=true"
+    logging:
+      driver: loki
+      options:
+        loki-url: http://loki:3100/loki/api/v1/push
+        loki-relabel-config: |
+          - action: labelmap
+            regex: swarm_stack
+            replacement: namespace
+          - action: labelmap
+            regex: swarm_(service)
     networks:
       - monitoring
 
