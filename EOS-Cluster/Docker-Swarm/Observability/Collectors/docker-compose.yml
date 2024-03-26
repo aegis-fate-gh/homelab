@@ -28,8 +28,9 @@ services:
       - "TZ=America/Chicago"
     volumes:
       - '/mnt/ceph/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml'
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers
       - /var/run/docker.sock:/var/run/docker.sock
+      - - /var/log:/var/log
     command: -config.file=/etc/promtail/docker-config.yaml
     deploy:
       mode: global
