@@ -121,6 +121,7 @@ secrets:
 
 networks:
   monitoring:
+    name: monitoring
     driver: overlay
     attachable: true
   proxy:

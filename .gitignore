@@ -4,3 +4,4 @@ Ansible/credentials/
 Ansible/playbooks/docker_secrets.yaml
 *.cert
 *.key
+telegraf_*.conf
