@@ -96,7 +96,7 @@ services:
       labels:
         - shepherd.updates=true
         - homepage.group=Media
-        - homepage.name=Radarr
+        - homepage.name=radarr
         - homepage.icon=radarr.png
         - homepage.href=http://192.168.6.7:7878
         - homepage.description=Media server
