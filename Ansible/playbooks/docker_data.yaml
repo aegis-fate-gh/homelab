@@ -34,6 +34,7 @@
         - sonarr_data
         - radarr_data
         - qbittorrent_data
+        - plex_data
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
