@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  qbittorrent:
+    image: ghcr.io/hotio/qbittorrent
+    ports:
+      - "8080:8080"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/Chicago
+      - WEBUI_PORTS=8080/tcp,8080/udp
+    volumes:
+      - '/mnt/ceph/qbittorrent_data:/config'
+      - /<host_folder_data>:/data
+    networks:
+      - media
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == vpn"
+      labels:
+        - "shepherd.updates=true"
+  
+volumes:
+  qbittorrent_data:
+    driver: local
+
+networks:
+  media:
+    external: true

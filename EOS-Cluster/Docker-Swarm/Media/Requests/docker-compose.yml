@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  overseerr:
+    image: ghcr.io/hotio/overseerr
+    environment:
+      - PUID=1000
+      - PGID=999
+      - TZ=America/Chicago
+    volumes:
+      - '/mnt/ceph/overseerr_data:/config'
+    ports:
+      - 5055:5055
+    restart: unless-stopped
+    networks:
+      - media
+      - proxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == vpn"
+      labels:
+        - "shepherd.updates=true"
+
+  jellyseerr:
+    image: ghcr.io/hotio/jellyseerr
+    ports:
+      - "5056:5055"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/Chicago
+    volumes:
+      - '/mnt/ceph/jellyseerr_data:/config'
+    networks:
+      - media
+      - proxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == vpn"
+      labels:
+        - "shepherd.updates=true"
+
+volumes:
+  overseerr_data:
+    driver: local
+  jellyseerr_data:
+    driver: local
+
+networks:
+  media:
+    external: true
+  proxy:
+    external: true

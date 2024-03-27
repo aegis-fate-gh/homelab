@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  prowlarr:
+    image: ghcr.io/hotio/prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/Chicago
+    volumes:
+      - '/mnt/ceph/prowlarr_data:/config'
+    ports:
+      - 9696:9696
+    networks:
+      - media
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == vpn"
+      labels:
+        - "shepherd.updates=true"
+
+  bazarr:
+    image: ghcr.io/hotio/bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/Chicago
+    volumes:
+      - '/mnt/ceph/bazarr_data:/config'
+      - '/mnt/samba/media:/media'
+    ports:
+      - 6767:6767
+    networks:
+      - media
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == vpn"
+      labels:
+        - "shepherd.updates=true"
+
+  sonarr:
+    image: ghcr.io/hotio/sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/Chicago
+    volumes:
+      - '/mnt/ceph/sonarr_data:/config'
+      - '/mnt/samba/media:/media'
+    ports:
+      - 8989:8989
+    networks:
+      - media
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == vpn"
+      labels:
+        - "shepherd.updates=true"
+
+  radarr:
+    image: ghcr.io/hotio/radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/Chicago
+    volumes:
+      - '/mnt/ceph/radarr_data:/config'
+      - '/mnt/samba/media:/media'
+    ports:
+      - 7878:7878
+    networks:
+      - media
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == vpn"
+      labels:
+        - "shepherd.updates=true"
+
+volumes:
+  prowlarr_data:
+    driver: local
+  bazarr_data:
+    driver: local
+  sonarr_data:
+    driver: local
+  radarr_data:
+    driver: local
+
+networks:
+  media:
+    name: media
+    driver: overlay
+    attachable: true

@@ -26,6 +26,14 @@
         - folding_at_home/node1
         - folding_at_home/node2
         - folding_at_home/node3
+        - jellyfin_data
+        - overseerr_data
+        - jellyseerr_data
+        - prowlarr_data
+        - bazarr_data
+        - sonarr_data
+        - radarr_data
+        - qbittorrent_data
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
