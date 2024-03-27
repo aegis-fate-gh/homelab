@@ -36,8 +36,8 @@ services:
       resources:
         reservations:
           devices:
-            - driver: nvidia
-              capabilities: [gpu]
+            - capabilities: [gpu]
+              driver: nvidia
 
 volumes:
   plex_data:
