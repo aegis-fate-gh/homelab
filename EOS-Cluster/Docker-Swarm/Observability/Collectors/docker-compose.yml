@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-  telegraf:
+  telegraf-standard:
     image: telegraf
     environment:
       - "TZ=America/Chicago"
     hostname: "{{.Node.Hostname}}"
     volumes:
-    - '/mnt/ceph/telegraf_data/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
+    - '/mnt/ceph/telegraf_data/standard/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
     - /var/run/docker.sock:/var/run/docker.sock
     ports:
     - '8125:8125'
@@ -15,6 +15,29 @@ services:
       mode: global
       labels:
         - "shepherd.updates=true"
+      placement:
+        constraints: 
+          - "node.labels.nvidia != true"
+    networks:
+      - monitoring
+
+  telegraf-gpu:
+    image: telegraf
+    environment:
+      - "TZ=America/Chicago"
+    hostname: "{{.Node.Hostname}}"
+    volumes:
+    - '/mnt/ceph/telegraf_data/gpu/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
+    - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+    - '8125:8125'
+    deploy:
+      mode: global
+      labels:
+        - "shepherd.updates=true"
+      placement:
+        constraints: 
+          - "node.labels.nvidia == true"
     networks:
       - monitoring
 

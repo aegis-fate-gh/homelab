@@ -21,6 +21,8 @@
         - chronograf_data
         - loki_data
         - telegraf_data
+        - telegraf_data/gpu
+        - telegraf_data/standard
         - promtail_data
         - promtail_data/positions
         - folding_at_home/node1

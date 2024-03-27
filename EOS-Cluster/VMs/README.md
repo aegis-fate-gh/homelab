@@ -53,6 +53,7 @@ nano /etc/nvidia-container-runtime/config.toml
 
 And uncomment "swarm-resource = "DOCKER_RESOURCE_GPU" "
 
+Via this: https://gist.github.com/coltonbh/374c415517dbeb4a6aa92f462b9eb287
 Next run the below to get the GPU UUID:
 nvidia-smi -a | grep UUID
 
