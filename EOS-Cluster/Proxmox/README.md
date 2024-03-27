@@ -30,7 +30,5 @@ Ceph FS Configuration
 CloudInit Prep
 1. Do the following on each node: apt update -y && apt install libguestfs-tools -y
 
-
-Using CloudInit Images:
-1. wget https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
-2. virt-customize -a ubuntu-22.04-server-cloudimg-amd64.img --install qemu-guest-agent
+Testing Ceph Performance:
+https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/1.3/html/administration_guide/benchmarking_performance
