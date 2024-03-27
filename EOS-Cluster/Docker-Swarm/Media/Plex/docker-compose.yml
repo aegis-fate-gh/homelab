@@ -33,6 +33,10 @@ services:
           - "node.labels.nvidia == true"
       labels:
         - "shepherd.updates=true"
+      resources:
+        devices:
+          - driver: nvidia
+            capabilities: [gpu]
 
 volumes:
   plex_data:
