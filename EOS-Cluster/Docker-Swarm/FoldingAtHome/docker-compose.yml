@@ -2,11 +2,12 @@ version: "3.8"
 
 services:
   sovereign-01:
-    image: lscr.io/linuxserver/foldingathome:latest
+    image: foldingathome/fah-gpu:latest
     environment:
       - PUID=1000
       - PGID=999
       - TZ=America/Chicago
+      - ENABLE_GPU=true
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
@@ -22,13 +23,15 @@ services:
       placement:
         constraints: 
           - "node.hostname == sovereign-01"
+      
 
   sovereign-02:
-    image: lscr.io/linuxserver/foldingathome:latest
+    image: foldingathome/fah-gpu:latest
     environment:
       - PUID=1000
       - PGID=999
       - TZ=America/Chicago
+      - ENABLE_GPU=true
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
@@ -46,11 +49,12 @@ services:
           - "node.hostname == sovereign-02"
 
   sovereign-03:
-    image: lscr.io/linuxserver/foldingathome:latest
+    image: foldingathome/fah-gpu:latest
     environment:
       - PUID=1000
       - PGID=999
       - TZ=America/Chicago
+      - ENABLE_GPU=true
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
