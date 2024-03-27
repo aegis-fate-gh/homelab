@@ -7,16 +7,22 @@ services:
       - 3200:3000
     volumes:
       - /mnt/ceph/homepage_data:/app/config # Make sure your local config directory exists
-      - /var/run/docker.sock:/var/run/docker.sock # optional, for docker integrations
+    networks:
+      - dockerproxy
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints: 
-          - "node.role == manager"
+          - "node.role == worker"
+          - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
 
 volumes:
   homepage_data:
     driver: local
+
+networks:
+  dockerproxy:
+    external: true
