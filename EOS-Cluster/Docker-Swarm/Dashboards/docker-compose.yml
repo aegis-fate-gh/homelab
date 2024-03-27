@@ -4,8 +4,8 @@ services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
     environment:
-      - PUID=0
-      - GUID=0
+      - PUID=1000
+      - GUID=999
     ports:
       - 3200:3000
     volumes:
