@@ -94,7 +94,15 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - "shepherd.updates=true"
+        - shepherd.updates=true
+        - homepage.group=Media
+        - homepage.name=Radarr
+        - homepage.icon=radarr.png
+        - homepage.href=http://192.168.6.7:7878/
+        - homepage.description=Media server
+        - homepage.widget.type=emby
+        - homepage.widget.url=http://192.168.6.7:7878/
+        - homepage.widget.key=139cff2c5dc946b6ae4e9d9c74cc9408
 
 volumes:
   prowlarr_data:
