@@ -30,7 +30,7 @@ services:
     - '/mnt/ceph/telegraf_data/gpu/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
     - /var/run/docker.sock:/var/run/docker.sock
     ports:
-    - '8125:8125'
+    - '8126:8125'
     deploy:
       mode: global
       labels:
