@@ -22,7 +22,15 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - "shepherd.updates=true"
+        - shepherd.updates=true
+        - homepage.group=Media Acquisition
+        - homepage.name=Prowlarr
+        - homepage.icon=prowlarr.png
+        - homepage.href=http://192.168.6.7:9696/
+        - homepage.description=Subtitle Acquisition
+        - homepage.widget.type=prowlarr
+        - homepage.widget.url=http://192.168.6.7:9696
+        - homepage.widget.key=3978745a0b7b4009bf63a40486a1615c
 
   bazarr:
     image: ghcr.io/hotio/bazarr
@@ -46,7 +54,15 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - "shepherd.updates=true"
+        - shepherd.updates=true
+        - homepage.group=Media Acquisition
+        - homepage.name=Bazarr
+        - homepage.icon=bazarr.png
+        - homepage.href=http://192.168.6.7:6767/
+        - homepage.description=Subtitle Acquisition
+        - homepage.widget.type=bazarr
+        - homepage.widget.url=http://192.168.6.7:6767
+        - homepage.widget.key=845515585f029aa30d8ff949fff0182a
 
   sonarr:
     image: ghcr.io/hotio/sonarr
@@ -70,7 +86,15 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - "shepherd.updates=true"
+        - shepherd.updates=true
+        - homepage.group=Media Acquisition
+        - homepage.name=Sonarr
+        - homepage.icon=sonarr.png
+        - homepage.href=http://192.168.6.7:8989/
+        - homepage.description=Show Acquisition
+        - homepage.widget.type=sonarr
+        - homepage.widget.url=http://192.168.6.7:8989
+        - homepage.widget.key=f979c4c17c0c48ccac97ad8f4fcdf36a
 
   radarr:
     image: ghcr.io/hotio/radarr
@@ -95,7 +119,7 @@ services:
           - "node.labels.connection == vpn"
       labels:
         - shepherd.updates=true
-        - homepage.group=Media
+        - homepage.group=Media Acquisition
         - homepage.name=radarr
         - homepage.icon=radarr.png
         - homepage.href=http://192.168.6.7:7878/
