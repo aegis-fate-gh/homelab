@@ -34,10 +34,9 @@ services:
       labels:
         - "shepherd.updates=true"
       resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [gpu]
+        generic_resources:
+          - discrete_resource_spec:
+            kind: "NVIDIA-GPU"
 
 volumes:
   plex_data:
