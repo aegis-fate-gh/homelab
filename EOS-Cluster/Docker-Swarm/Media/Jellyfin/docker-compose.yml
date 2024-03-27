@@ -2,8 +2,12 @@ version: '3.8'
 
 services:
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
+    image: jellyfin/jellyfin:latest
+    ports:
+      - 8096:8096
+      - 8920:8920 #optional
+      - 7359:7359/udp #optional
+      - 1901:1900/udp #optional
     environment:
       - PUID=1000
       - PGID=1000
@@ -15,11 +19,9 @@ services:
       - '/mnt/ceph/jellyfin_data:/config'
       - '/mnt/samba/media:/media'
       - '/mnt/samba/cloud-storage/dropbox:/dropbox'
-    ports:
-      - 8096:8096
-      - 8920:8920 #optional
-      - 7359:7359/udp #optional
-      - 1901:1900/udp #optional
+    networks:
+      - media
+      - proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -36,4 +38,6 @@ volumes:
 
 networks:
   media:
+    external: true
+  proxy:
     external: true
