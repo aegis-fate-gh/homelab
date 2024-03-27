@@ -8,9 +8,7 @@ services:
     hostname: "{{.Node.Hostname}}"
     volumes:
     - '/mnt/ceph/telegraf_data/standard/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
-    - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-    - '8125:8125'
+    - /var/run/docker.sock:/var/run/docker.sock:ro
     deploy:
       mode: global
       labels:
@@ -25,13 +23,13 @@ services:
     image: telegraf
     environment:
       - "TZ=America/Chicago"
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=utility
     hostname: "{{.Node.Hostname}}"
     volumes:
     - '/mnt/ceph/telegraf_data/gpu/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
-    - /var/run/docker.sock:/var/run/docker.sock
-    - /usr/bin/nvidia-smi:/usr/bin/nvidia-smi
-    ports:
-    - '8126:8125'
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /usr/bin/nvidia-smi:/usr/bin/nvidia-smi:ro
     deploy:
       mode: global
       labels:
@@ -47,11 +45,11 @@ services:
     environment:
       - "TZ=America/Chicago"
     volumes:
-      - '/mnt/ceph/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml'
+      - '/mnt/ceph/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml:ro'
       - '/mnt/ceph/promtail_data/positions:/positions'
-      - /var/lib/docker/containers:/var/lib/docker/containers
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/log:/var/log
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log:/var/log:ro
     command: -config.file=/etc/promtail/docker-config.yaml
     deploy:
       mode: global
