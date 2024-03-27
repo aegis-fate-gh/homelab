@@ -10,7 +10,7 @@ services:
       - 1901:1900/udp #optional
     environment:
       - PUID=1000
-      - PGID=1000
+      - PGID=999
       - TZ=America/Chicago
       - JELLYFIN_PublishedServerUrl=192.168.6.7 #optional
       - NVIDIA_VISIBLE_DEVICES=all

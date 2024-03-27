@@ -5,7 +5,7 @@ services:
     image: ghcr.io/hotio/prowlarr
     environment:
       - PUID=1000
-      - PGID=1000
+      - PGID=999
       - UMASK=002
       - TZ=America/Chicago
     volumes:
@@ -28,7 +28,7 @@ services:
     image: ghcr.io/hotio/bazarr
     environment:
       - PUID=1000
-      - PGID=1000
+      - PGID=999
       - UMASK=002
       - TZ=America/Chicago
     volumes:
@@ -52,7 +52,7 @@ services:
     image: ghcr.io/hotio/sonarr
     environment:
       - PUID=1000
-      - PGID=1000
+      - PGID=999
       - UMASK=002
       - TZ=America/Chicago
     volumes:
@@ -76,7 +76,7 @@ services:
     image: ghcr.io/hotio/radarr
     environment:
       - PUID=1000
-      - PGID=1000
+      - PGID=999
       - UMASK=002
       - TZ=America/Chicago
     volumes:
