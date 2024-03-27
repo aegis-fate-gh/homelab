@@ -7,7 +7,7 @@ services:
       - 3200:3000
     volumes:
       - /mnt/ceph/homepage_data:/app/config # Make sure your local config directory exists
-      - /var/run/docker.sock:/var/run/docker.sock:ro # optional, for docker integrations
+      - /var/run/docker.sock:/var/run/docker.sock # optional, for docker integrations
     deploy:
       mode: replicated
       replicas: 1
