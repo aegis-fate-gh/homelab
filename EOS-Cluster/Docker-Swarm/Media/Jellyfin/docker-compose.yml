@@ -13,8 +13,8 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
       - '/mnt/ceph/jellyfin_data:/config'
-      - '/mnt/samba/media/:/media'
-      - '/mnt/samba/dropbox/Video:/dropbox-video'
+      - '/mnt/samba/media:/media'
+      - '/mnt/samba/cloud-storage/dropbox:/dropbox'
     ports:
       - 8096:8096
       - 8920:8920 #optional
