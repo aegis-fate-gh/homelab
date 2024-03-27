@@ -98,8 +98,8 @@ services:
         - homepage.group=Media
         - homepage.name=radarr
         - homepage.icon=radarr.png
-        - homepage.href=http://192.168.6.7:7878
-        - homepage.description=Media server
+        - homepage.href=http://192.168.6.7:7878/
+        - homepage.description=Movie Acquisition
         - homepage.widget.type=radarr
         - homepage.widget.url=http://192.168.6.7:7878
         - homepage.widget.key=139cff2c5dc946b6ae4e9d9c74cc9408
