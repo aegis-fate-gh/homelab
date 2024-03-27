@@ -3,6 +3,8 @@ version: '3.8'
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
+    environment:
+      - UID: 0
     ports:
       - 3200:3000
     volumes:
