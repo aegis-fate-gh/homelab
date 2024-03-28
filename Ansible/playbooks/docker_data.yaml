@@ -38,6 +38,8 @@
         - qbittorrent_data
         - plex_data
         - homepage_data
+        - tautulli_data
+        - uptime-kuma_data
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:

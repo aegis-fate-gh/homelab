@@ -24,6 +24,8 @@ services:
       - '/mnt/ceph/plex_data:/config'
       - '/mnt/samba/media:/media'
       - '/mnt/samba/cloud-storage/dropbox:/dropbox'
+    networks:
+      - media
     deploy:
       mode: replicated
       replicas: 1
@@ -34,9 +36,33 @@ services:
       labels:
         - "shepherd.updates=true"
 
+  tautulli:
+    image: ghcr.io/tautulli/tautulli
+    environment:
+      - TZ=America/Chicago
+      - PUID=1000
+      - PGID=999
+    ports:
+      - 8181:8181
+    volumes:
+      - <path to data>:/config
+    networks:
+      - media
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+      labels:
+        - "shepherd.updates=true"
+
 volumes:
   plex_data:
+    driver: local
+  tautulli_data:
     driver: local
 
 networks:
   media:
+    external: true
