@@ -45,7 +45,7 @@ services:
     ports:
       - 8181:8181
     volumes:
-      - <path to data>:/config
+      - '/mnt/ceph/tautulli_data:/config'
     networks:
       - media
     deploy:
