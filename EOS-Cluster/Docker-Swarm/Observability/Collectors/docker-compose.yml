@@ -58,11 +58,59 @@ services:
     networks:
       - monitoring
 
+  unpoller:
+    image: ghcr.io/unpoller/unpoller:latest
+    secrets:
+      - source: unifi_user
+        target: ui_user
+      - source: unifi_pass
+        target: ui_pass
+      - source: unpoller_influxdb_user
+        target: influx_user
+      - source: unpoller_influxdb_pass
+        target: influx_pass
+      - source: unpoller_influxdb
+        target: influx_db
+    environment:
+      - UP_INFLUXDB_DB=/run/secrets/influx_db
+      - UP_INFLUXDB_USER=/run/secrets/influx_user
+      - UP_INFLUXDB_PASS=/run/secrets/influx_pass
+      - UP_INFLUXDB_BUCKET=autogen
+      - UP_INFLUXDB_URL=observability_influxdb:8086
+      - UP_UNIFI_DEFAULT_USER=/run/secrets/ui_user
+      - UP_UNIFI_DEFAULT_PASS=/run/secrets/ui_pass
+      - UP_UNIFI_DEFAULT_URL=https://192.168.6.1
+      - UP_POLLER_DEBUG=false
+      - UP_UNIFI_DEFAULT_SAVE_DPI=false
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
 volumes:
   telegraf_data:
     driver: local
   promtail_data:
     driver: local
+
+secrets:
+  unifi_user:
+    external: true
+  unifi_pass:
+    external: true
+  unpoller_influxdb:
+    external: true
+  unpoller_influxdb_user:
+    external: true
+  unpoller_influxdb_pass:
+    external: true
 
 networks:
   monitoring:
