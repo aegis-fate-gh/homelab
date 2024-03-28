@@ -124,6 +124,7 @@ services:
       - monitoring
       - proxy
       - dockerproxy
+      - media
 
 volumes:
   grafana_data:
@@ -151,4 +152,6 @@ networks:
   proxy:
     external: true
   dockerproxy:
+    external: true
+  media:
     external: true
