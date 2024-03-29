@@ -35,7 +35,7 @@ services:
   jellystat-db:
     image: postgres:15.2
     environment:
-      - POSTGRES_DB=jfstat
+      - POSTGRES_DB=jellystat
       - POSTGRES_USER=$jellystatdb_user
       - POSTGRES_PASSWORD=$jellystatdb_password
     volumes:
