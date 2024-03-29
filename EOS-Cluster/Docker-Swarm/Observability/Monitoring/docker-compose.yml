@@ -24,11 +24,6 @@ services:
 
   influxdb:
     image: influxdb:1.8.10
-    secrets:
-      - source: influxdb_user
-        target: influx_user
-      - source: influxdb_password
-        target: influx_password
     environment:
       - TZ=America/Chicago
       - INFLUXDB_USERNAME=/run/secrets/influx_user
@@ -49,6 +44,11 @@ services:
     networks:
       - monitoring
       - proxy
+    secrets:
+      - source: influxdb_user
+        target: influx_user
+      - source: influxdb_password
+        target: influx_password
 
   chronograf:
     image: chronograf:latest
@@ -56,11 +56,6 @@ services:
       - '8888:8888'
     volumes:
       - '/mnt/ceph/chronograf_data:/var/lib/chronograf'
-    secrets:
-      - source: influxdb_user
-        target: influx_user
-      - source: influxdb_password
-        target: influx_password
     environment:
       - INFLUXDB_URL=http://influxdb:8086
       - INFLUXDB_USERNAME=/run/secrets/influx_user
@@ -77,6 +72,11 @@ services:
         - "shepherd.updates=true"
     networks:
       - monitoring
+    secrets:
+      - source: influxdb_user
+        target: influx_user
+      - source: influxdb_password
+        target: influx_password
 
   loki:
     image: grafana/loki:2.7.5
@@ -147,9 +147,9 @@ volumes:
 
 secrets:
   influxdb_user:
-    external: true
+    file: influxdb_user.txt
   influxdb_password:
-    external: true
+    file: influxdb_password.txt
 
 networks:
   monitoring:
