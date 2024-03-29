@@ -1,5 +1,13 @@
 version: '3.8'
 
+secrets:
+    jellystatdb_user:
+      external: true
+    jellystatdb_password:
+      external: true
+    jellystat_password:
+      external: true
+
 services:
   jellyfin:
     image: jellyfin/jellyfin:latest
@@ -35,10 +43,8 @@ services:
   jellystat-db:
     image: postgres:15.2
     secrets:
-      - source: jellystatdb_user
-        target: db_user
-      - source: jellystatdb_password
-        target: db_password
+      - jellystatdb_user
+      - jellystatdb_password
     environment:
       - POSTGRES_DB=jfstat
       - POSTGRES_USER=/run/secrets/db_user
@@ -60,12 +66,9 @@ services:
   jellystat:
     image: cyfershepard/jellystat:latest
     secrets:
-      - source: jellystatdb_user
-        target: db_user
-      - source: jellystatdb_password
-        target: db_password
-      - source: jellystat_password
-        target: user_password
+      - jellystatdb_user
+      - jellystatdb_password
+      - jellystat_password
     environment:
       - POSTGRES_USER=/run/secrets/db_user
       - POSTGRES_PASSWORD=/run/secrets/db_password
@@ -94,14 +97,6 @@ volumes:
     driver: local
   jellystat_data:
     driver: local
-
-secrets:
-  jellystatdb_user:
-    external: true
-  jellystatdb_password:
-    external: true
-  jellystat_password:
-    external: true
 
 networks:
   jellystat:
