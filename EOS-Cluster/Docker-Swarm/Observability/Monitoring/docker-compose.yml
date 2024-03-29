@@ -122,10 +122,20 @@ services:
     image: prom/prometheus
     volumes:
       - '/mnt/ceph/prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml'
-    networks:
-      - monitoring
     ports:
       - 9090:9090
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+      - proxy
 
 volumes:
   grafana_data:
