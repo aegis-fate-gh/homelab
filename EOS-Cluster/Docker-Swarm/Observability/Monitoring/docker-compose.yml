@@ -151,6 +151,7 @@ secrets:
     external: true
   influxdb_password:
     file: influxdb_password
+    external: true
 
 networks:
   monitoring:
