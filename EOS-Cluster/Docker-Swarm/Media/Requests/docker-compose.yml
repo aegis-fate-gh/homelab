@@ -25,34 +25,8 @@ services:
       labels:
         - "shepherd.updates=true"
 
-  jellyseerr:
-    image: ghcr.io/hotio/jellyseerr
-    ports:
-      - "5056:5055"
-    environment:
-      - PUID=1000
-      - PGID=999
-      - UMASK=002
-      - TZ=America/Chicago
-    volumes:
-      - '/mnt/ceph/jellyseerr_data:/config'
-    networks:
-      - media
-      - proxy
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints: 
-          - "node.role == worker"
-          - "node.labels.connection == standard"
-      labels:
-        - "shepherd.updates=true"
-
 volumes:
   overseerr_data:
-    driver: local
-  jellyseerr_data:
     driver: local
 
 networks:

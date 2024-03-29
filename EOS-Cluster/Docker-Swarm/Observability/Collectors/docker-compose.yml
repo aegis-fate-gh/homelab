@@ -76,6 +76,63 @@ services:
     networks:
       - monitoring
 
+  dns01-exporter:
+    image: ekofr/pihole-exporter:latest
+    environment:
+      - PIHOLE_HOSTNAME=192.168.6.10
+      - PIHOLE_API_TOKEN=$PIHOLE_API_TOKEN
+      - INTERVAL=30s
+      - PORT=9617
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+        
+  dns02-exporter:
+    image: ekofr/pihole-exporter:latest
+    environment:
+      - PIHOLE_HOSTNAME=192.168.6.11
+      - PIHOLE_API_TOKEN=$PIHOLE_API_TOKEN
+      - INTERVAL=30s
+      - PORT=9618
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+  
+  dns03-exporter:
+    image: ekofr/pihole-exporter:latest
+    environment:
+      - PIHOLE_HOSTNAME=192.168.6.12
+      - PIHOLE_API_TOKEN=$PIHOLE_API_TOKEN
+      - INTERVAL=30s
+      - PORT=9619
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
 volumes:
   telegraf_data:
     driver: local
