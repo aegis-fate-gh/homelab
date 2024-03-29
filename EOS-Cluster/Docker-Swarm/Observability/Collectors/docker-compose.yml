@@ -81,8 +81,6 @@ volumes:
     driver: local
   promtail_data:
     driver: local
-  varken_data:
-    driver: local
 
 networks:
   monitoring:
