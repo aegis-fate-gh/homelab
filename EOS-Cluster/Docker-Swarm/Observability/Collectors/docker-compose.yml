@@ -60,17 +60,6 @@ services:
 
   unpoller:
     image: ghcr.io/unpoller/unpoller:latest
-    secrets:
-      - source: unifi_user
-        target: ui_user
-      - source: unifi_pass
-        target: ui_pass
-      - source: unpoller_influxdb_user
-        target: influx_user
-      - source: unpoller_influxdb_pass
-        target: influx_pass
-      - source: unpoller_influxdb
-        target: influx_db
     environment:
       - "TZ=America/Chicago"
     volumes:
@@ -92,18 +81,6 @@ volumes:
     driver: local
   promtail_data:
     driver: local
-
-secrets:
-  unifi_user:
-    external: true
-  unifi_pass:
-    external: true
-  unpoller_influxdb:
-    external: true
-  unpoller_influxdb_user:
-    external: true
-  unpoller_influxdb_pass:
-    external: true
 
 networks:
   monitoring:
