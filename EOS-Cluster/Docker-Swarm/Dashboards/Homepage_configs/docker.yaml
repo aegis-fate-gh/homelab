@@ -1,0 +1,12 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/latest/configs/docker/
+
+my-docker:
+  host: dockerproxy
+  port: 2375
+  swarm: true
+
+#my-docker:
+#   socket: /var/run/docker.sock
+#   swarm: true

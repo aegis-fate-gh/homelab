@@ -6,3 +6,4 @@ Ansible/playbooks/docker_secrets.yaml
 *.key
 telegraf_*.conf
 EOS-Cluster/Docker-Swarm/Observability/Collectors/up.conf
+EOS-Cluster/Docker-Swarm/Dashboards/Homepage_configs/services.yaml

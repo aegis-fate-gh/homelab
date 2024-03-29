@@ -1,0 +1,26 @@
+# https://gethomepage.dev/latest/configs/settings
+title: Homelab
+statusStyle: "dot"
+hideErrors: true
+headerStyle: clean
+
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: true
+  showSearchSuggestions: true
+  hideVisitURL: true
+
+providers:
+  openweathermap: openweathermapapikey
+  weatherapi: weatherapiapikey
+
+layout:
+  Eos Cluster:
+    style: row
+    columns: 3
+  PiHole Cluster:
+    style: row
+    columns: 3
+  Media Acquisition:
+    style: row
+    columns: 4

@@ -40,6 +40,7 @@
         - tautulli_data
         - uptime-kuma_data
         - unpoller_data
+        - prometheus_data
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:

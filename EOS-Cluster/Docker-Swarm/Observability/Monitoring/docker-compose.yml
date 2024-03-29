@@ -9,8 +9,6 @@ services:
       - TZ=America/Chicago
     volumes:
       - '/mnt/ceph/grafana_data:/var/lib/grafana'
-    depends_on:
-      - influxdb
     deploy:
       mode: replicated
       replicas: 1
@@ -58,8 +56,6 @@ services:
       - '8888:8888'
     volumes:
       - '/mnt/ceph/chronograf_data:/var/lib/chronograf'
-    depends_on:
-      - influxdb
     secrets:
       - source: influxdb_user
         target: influx_user
@@ -126,6 +122,15 @@ services:
       - dockerproxy
       - media
 
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - '/mnt/ceph/prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml'
+    networks:
+      - monitoring
+    ports:
+      - 9090:9090
+
 volumes:
   grafana_data:
     driver: local
@@ -136,6 +141,8 @@ volumes:
   loki_data:
     driver: local
   uptime-kuma_data:
+    driver: local
+  prometheus_data:
     driver: local
 
 secrets:
