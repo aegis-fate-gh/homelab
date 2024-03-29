@@ -9,7 +9,6 @@
       ansible.builtin.file:
         path: /mnt/ceph/{{ item }}
         state: directory
-        recurse: yes
         owner: ansible
         group: docker
         mode: '0755'
@@ -40,6 +39,7 @@
         - homepage_data
         - tautulli_data
         - uptime-kuma_data
+        - unpoller_data
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:

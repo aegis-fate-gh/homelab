@@ -72,16 +72,9 @@ services:
       - source: unpoller_influxdb
         target: influx_db
     environment:
-      - UP_INFLUXDB_DB=/run/secrets/influx_db
-      - UP_INFLUXDB_USER=/run/secrets/influx_user
-      - UP_INFLUXDB_PASS=/run/secrets/influx_pass
-      - UP_INFLUXDB_BUCKET=autogen
-      - UP_INFLUXDB_URL=http://observability_influxdb
-      - UP_UNIFI_DEFAULT_USER=/run/secrets/ui_user
-      - UP_UNIFI_DEFAULT_PASS=/run/secrets/ui_pass
-      - UP_UNIFI_DEFAULT_URL=https://192.168.6.1
-      - UP_POLLER_DEBUG=false
-      - UP_UNIFI_DEFAULT_SAVE_DPI=false
+      - "TZ=America/Chicago"
+    volumes:
+      - '/mnt/ceph/unpoller_data/up.conf:/etc/unpoller/up.conf'
     deploy:
       mode: replicated
       replicas: 1
