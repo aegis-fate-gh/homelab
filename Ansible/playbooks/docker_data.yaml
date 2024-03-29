@@ -41,6 +41,9 @@
         - uptime-kuma_data
         - unpoller_data
         - prometheus_data
+        - jellystat_data
+        - jellystat_data/db
+        - jellystat_data/jellystat
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
