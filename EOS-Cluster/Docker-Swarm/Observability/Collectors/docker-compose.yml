@@ -97,7 +97,7 @@ services:
       - VRKN_INFLUXDB_USERNAME=$varken_influx_db_user
       - VRKN_INFLUXDB_PASSWORD=$varken_influx_db_password
       - VRKN_TAUTULLI_1_URL=192.168.6.7:8181
-      - VRKN_TAUTULLI_1_FALLBACK_IP=plex_tautulli:8181
+      - VRKN_TAUTULLI_1_FALLBACK_IP=192.168.6.6:8181
       - VRKN_TAUTULLI_1_APIKEY=$tautulli_api_key
       - VRKN_TAUTULLI_1_SSL=false
       - VRKN_TAUTULLI_1_VERIFY_SSL=false
