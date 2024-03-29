@@ -32,8 +32,8 @@ services:
     image: influxdb:1.8.10
     environment:
       - TZ=America/Chicago
-      - INFLUXDB_USERNAME=/run/secrets/influxdb_user
-      - INFLUXDB_PASSWORD=/run/secrets/influxdb_password
+      - INFLUXDB_USERNAME=$influxdb_user
+      - INFLUXDB_PASSWORD=$influxdb_password
     ports:
       - '8086:8086'
     volumes:
@@ -50,9 +50,6 @@ services:
     networks:
       - monitoring
       - proxy
-    secrets:
-      - influxdb_user
-      - influxdb_password
 
   chronograf:
     image: chronograf:latest
@@ -62,8 +59,8 @@ services:
       - '/mnt/ceph/chronograf_data:/var/lib/chronograf'
     environment:
       - INFLUXDB_URL=http://influxdb:8086
-      - INFLUXDB_USERNAME=/run/secrets/influxdb_user
-      - INFLUXDB_PASSWORD=/run/secrets/influxdb_password
+      - INFLUXDB_USERNAME=$influxdb_user
+      - INFLUXDB_PASSWORD=$influxdb_password
       - TZ=America/Chicago
     deploy:
       mode: replicated
@@ -76,9 +73,6 @@ services:
         - "shepherd.updates=true"
     networks:
       - monitoring
-    secrets:
-      - influxdb_user
-      - influxdb_password
 
   loki:
     image: grafana/loki:2.7.5
