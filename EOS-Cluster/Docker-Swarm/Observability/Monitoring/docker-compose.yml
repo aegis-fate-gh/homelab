@@ -147,9 +147,11 @@ volumes:
 
 secrets:
   influxdb_user:
+    name: influxdb_user
     file: influxdb_user
     external: true
   influxdb_password:
+    name: influx_password
     file: influxdb_password
     external: true
 
