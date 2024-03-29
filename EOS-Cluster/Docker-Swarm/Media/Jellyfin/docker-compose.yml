@@ -47,8 +47,8 @@ services:
       - jellystatdb_password
     environment:
       - POSTGRES_DB=jfstat
-      - POSTGRES_USER=/run/secrets/db_user
-      - POSTGRES_PASSWORD=/run/secrets/db_password
+      - POSTGRES_USER=/run/secrets/jellystatdb_user
+      - POSTGRES_PASSWORD=/run/secrets/jellystatdb_password
     volumes:
     - /mnt/ceph/jellystat_data/db:/var/lib/postgresql/data
     networks:
@@ -70,11 +70,11 @@ services:
       - jellystatdb_password
       - jellystat_password
     environment:
-      - POSTGRES_USER=/run/secrets/db_user
-      - POSTGRES_PASSWORD=/run/secrets/db_password
+      - POSTGRES_USER=/run/secrets/jellystatdb_user
+      - POSTGRES_PASSWORD=/run/secrets/jellystatdb_password
       - POSTGRES_IP=jellystat-db
       - POSTGRES_PORT=5432
-      - JWT_SECRET=/run/secrets/user_password
+      - JWT_SECRET=jellystat_password
     ports:
       - "3002:3000"
     volumes:
