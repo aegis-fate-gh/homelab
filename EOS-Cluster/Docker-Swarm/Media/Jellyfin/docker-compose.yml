@@ -1,13 +1,5 @@
 version: '3.8'
 
-secrets:
-    jellystatdb_user:
-      external: true
-    jellystatdb_password:
-      external: true
-    jellystat_password:
-      external: true
-
 services:
   jellyfin:
     image: jellyfin/jellyfin:latest
@@ -44,8 +36,8 @@ services:
     image: postgres:15.2
     environment:
       - POSTGRES_DB=jfstat
-      - POSTGRES_USER=/run/secrets/jellystatdb_user
-      - POSTGRES_PASSWORD=/run/secrets/jellystatdb_password
+      - POSTGRES_USER=/run/secrets/$jellystatdb_user
+      - POSTGRES_PASSWORD=/run/secrets/$jellystatdb_password
     volumes:
     - /mnt/ceph/jellystat_data/db:/var/lib/postgresql/data
     networks:
@@ -59,15 +51,12 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-    secrets:
-      - jellystatdb_user
-      - jellystatdb_password
 
   jellystat:
     image: cyfershepard/jellystat:latest
     environment:
-      - POSTGRES_USER=/run/secrets/jellystatdb_user
-      - POSTGRES_PASSWORD=/run/secrets/jellystatdb_password
+      - POSTGRES_USER=/run/secrets/$jellystatdb_user
+      - POSTGRES_PASSWORD=/run/secrets/$jellystatdb_password
       - POSTGRES_IP=jellystat-db
       - POSTGRES_PORT=5432
       - JWT_SECRET=jellystat_password
@@ -87,10 +76,6 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-    secrets:
-      - jellystatdb_user
-      - jellystatdb_password
-      - jellystat_password
 
 volumes:
   jellyfin_data:
