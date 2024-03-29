@@ -36,8 +36,8 @@ services:
     image: postgres:15.2
     environment:
       - POSTGRES_DB=jfstat
-      - POSTGRES_USER=/run/secrets/$jellystatdb_user
-      - POSTGRES_PASSWORD=/run/secrets/$jellystatdb_password
+      - POSTGRES_USER=$jellystatdb_user
+      - POSTGRES_PASSWORD=$jellystatdb_password
     volumes:
     - /mnt/ceph/jellystat_data/db:/var/lib/postgresql/data
     networks:
@@ -55,11 +55,11 @@ services:
   jellystat:
     image: cyfershepard/jellystat:latest
     environment:
-      - POSTGRES_USER=/run/secrets/$jellystatdb_user
-      - POSTGRES_PASSWORD=/run/secrets/$jellystatdb_password
+      - POSTGRES_USER=$jellystatdb_user
+      - POSTGRES_PASSWORD=$jellystatdb_password
       - POSTGRES_IP=jellystat-db
       - POSTGRES_PORT=5432
-      - JWT_SECRET=jellystat_password
+      - JWT_SECRET=$jellystat_password
     ports:
       - "3002:3000"
     volumes:
