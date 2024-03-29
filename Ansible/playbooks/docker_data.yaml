@@ -1,4 +1,6 @@
 ---
+# To run:
+# ansible-playbook playbooks/docker_data.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
 - name: Set up Docker data folders
   hosts: starbase-01
   remote_user: ansible
@@ -44,6 +46,7 @@
         - jellystat_data
         - jellystat_data/db
         - jellystat_data/jellystat
+        - varken_data
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
