@@ -1,5 +1,11 @@
 version: '3.8'
 
+secrets:
+    influxdb_user:
+      external: true
+    influxdb_password:
+      external: true
+
 services:
   grafana:
     image: grafana/grafana-oss
@@ -26,8 +32,8 @@ services:
     image: influxdb:1.8.10
     environment:
       - TZ=America/Chicago
-      #- INFLUXDB_USERNAME=/run/secrets/influx_user
-      #- INFLUXDB_PASSWORD=/run/secrets/influx_password
+      - INFLUXDB_USERNAME=/run/secrets/influxdb_user
+      - INFLUXDB_PASSWORD=/run/secrets/influxdb_password
     ports:
       - '8086:8086'
     volumes:
@@ -45,10 +51,8 @@ services:
       - monitoring
       - proxy
     secrets:
-      - source: influxdb_user
-        target: INFLUXDB_USERNAME
-      - source: influxdb_password
-        target: INFLUXDB_PASSWORD
+      - influxdb_user
+      - influxdb_password
 
   chronograf:
     image: chronograf:latest
@@ -57,10 +61,10 @@ services:
     volumes:
       - '/mnt/ceph/chronograf_data:/var/lib/chronograf'
     environment:
-      INFLUXDB_URL: http://influxdb:8086
-      #INFLUXDB_USERNAME: /run/secrets/influx_user
-      #INFLUXDB_PASSWORD: /run/secrets/influx_password
-      TZ: America/Chicago
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_USERNAME=/run/secrets/influxdb_user
+      - INFLUXDB_PASSWORD=/run/secrets/influxdb_password
+      - TZ=America/Chicago
     deploy:
       mode: replicated
       replicas: 1
@@ -73,10 +77,8 @@ services:
     networks:
       - monitoring
     secrets:
-      - source: influxdb_user
-        target: INFLUXDB_USERNAME
-      - source: influxdb_password
-        target: INFLUXDB_PASSWORD
+      - influxdb_user
+      - influxdb_password
 
   loki:
     image: grafana/loki:2.7.5
@@ -144,14 +146,6 @@ volumes:
     driver: local
   prometheus_data:
     driver: local
-
-secrets:
-  influxdb_user:
-    name: influxdb_user
-    external: true
-  influxdb_password:
-    name: influx_password
-    external: true
 
 networks:
   monitoring:
