@@ -42,9 +42,6 @@ services:
 
   jellystat-db:
     image: postgres:15.2
-    secrets:
-      - jellystatdb_user
-      - jellystatdb_password
     environment:
       - POSTGRES_DB=jfstat
       - POSTGRES_USER=/run/secrets/jellystatdb_user
@@ -62,13 +59,12 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
-
-  jellystat:
-    image: cyfershepard/jellystat:latest
     secrets:
       - jellystatdb_user
       - jellystatdb_password
-      - jellystat_password
+
+  jellystat:
+    image: cyfershepard/jellystat:latest
     environment:
       - POSTGRES_USER=/run/secrets/jellystatdb_user
       - POSTGRES_PASSWORD=/run/secrets/jellystatdb_password
@@ -91,6 +87,10 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
+    secrets:
+      - jellystatdb_user
+      - jellystatdb_password
+      - jellystat_password
 
 volumes:
   jellyfin_data:
