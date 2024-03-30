@@ -12,6 +12,8 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock
     ports:
     - '8125:8125'
+    networks:
+      - collectors
 
   promtail:
     image: grafana/promtail:latest
@@ -26,6 +28,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/log:/var/log
     command: -config.file=/etc/promtail/docker-config.yaml
+    networks:
+      - collectors
 
 # Note: The below is to allow co-existance with Pterodactyl Wings (Which uses 172.18.0.0). It is not needed otherwise.
 # See here for the reasoning: https://docs.xfgn.dev/troubleshooting/pterodactyl
