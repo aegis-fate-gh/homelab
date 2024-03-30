@@ -26,3 +26,18 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/log:/var/log
     command: -config.file=/etc/promtail/docker-config.yaml
+
+# Note: The below is to allow co-existance with Pterodactyl Wings (Which uses 172.18.0.0). It is not needed otherwise.
+# See here for the reasoning: https://docs.xfgn.dev/troubleshooting/pterodactyl
+networks:
+  collectors:
+      ipam:
+        driver: default
+        config:
+          - subnet: 172.28.0.0/16
+            ip_range: 172.28.5.0/24
+            gateway: 172.28.5.254
+            aux_addresses:
+              host1: 172.28.1.5
+              host2: 172.28.1.6
+              host3: 172.28.1.7
