@@ -1,7 +1,9 @@
 ---
 # Note, a lot of this is from: https://medium.com/@GarisSpace/how-to-install-docker-using-ansible-01a674086f8c
+# To run:
+# ansible-playbook playbooks/docker_setup.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
 
-- name: Set up Docker on Docker Swarm hosts
+- name: Set up Docker on hosts
   hosts: docker
   remote_user: ansible
   become: true

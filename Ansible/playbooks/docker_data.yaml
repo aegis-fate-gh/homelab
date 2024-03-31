@@ -46,7 +46,14 @@
         - jellystat_data
         - jellystat_data/db
         - jellystat_data/jellystat
-        - varken_data
+        - freshrss_data
+        - jdownloader2_data
+        - cephfs_media
+        - cephfs_media/downloads
+        - cephfs_media/downloads/incomplete
+        - cephfs_media/downloads/completed
+        - newarcadia_data
+        - newarcadia_data/telegraf
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:

@@ -3,6 +3,7 @@ version: '3'
 services:
   iperf3:
     image: networkstatic/iperf3
+    restart: always
     container_name: iperf3
     ports:
       - 5201:5201

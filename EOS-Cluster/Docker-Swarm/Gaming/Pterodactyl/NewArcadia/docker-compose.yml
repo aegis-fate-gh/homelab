@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+
+  telegraf:
+    image: telegraf:1.13
+    volumes:
+      - '/mnt/ceph/newarcadia_data/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - newarcadia
+      - monitoring
+  
+  monitor:
+    image: itzg/mc-monitor
+    command: gather-for-telegraf
+    environment:
+      GATHER_INTERVAL: 10s
+      GATHER_TELEGRAF_ADDRESS: telegraf:8094
+      GATHER_SERVERS: 192.168.100.128:25565
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - newarcadia
+
+networks:
+  newarcadia:
+    name: newarcadia
+    driver: overlay
+  monitoring:
+    external: true

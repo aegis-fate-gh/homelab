@@ -1,3 +1,5 @@
+# To run:
+# ansible-playbook playbooks/file_shares.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
 ---
 - name: Install the cifs-utils and create file shares on the worker nodes
   hosts: workers

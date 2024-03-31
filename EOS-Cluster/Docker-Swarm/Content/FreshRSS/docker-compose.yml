@@ -1,18 +1,17 @@
 version: '3.8'
 
 services:
-  overseerr:
-    image: ghcr.io/hotio/overseerr
+  freshrss:
+    image: lscr.io/linuxserver/freshrss:latest
     environment:
       - PUID=1000
       - PGID=999
       - TZ=America/Chicago
     volumes:
-      - '/mnt/ceph/overseerr_data:/config'
+      - /mnt/ceph/freshrss_data:/config
     ports:
-      - 5055:5055
+      - 8090:80
     networks:
-      - media
       - proxy
     deploy:
       mode: replicated
@@ -25,11 +24,9 @@ services:
         - "shepherd.updates=true"
 
 volumes:
-  overseerr_data:
+  freshrss_data:
     driver: local
 
 networks:
-  media:
-    external: true
   proxy:
     external: true
