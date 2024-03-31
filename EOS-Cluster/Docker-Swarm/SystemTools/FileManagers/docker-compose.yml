@@ -8,31 +8,49 @@ services:
       - WEBPAGE_TITLE=Eos Swarm
       - VNC_PASSWORD=krusaderadm
       - UMASK=1000
-      - PUID=0
-      - PGID=0
+      - PUID=1000
+      - PGID=999
     ports:
       - '5900:5900'
       - '6080:6080'
     volumes:
-      - '/var/lib/docker/volumes/krusader:/config'
+      - '/mnt/ceph/krusader_data:/config'
       - '/etc/localtime:/etc/localtime:ro'
-      - /var/lib/docker/volumes:/data/docker_volumes
-      - disk-imports:/data/disk-imports
-      - dropbox:/data/dropbox
-      - onedrive:/data/onedrive
-      - downloads:/data/downloads
-      - temp:/data/temp
-      - donn-movies:/data/donn-movies
-      - donn-tvshows:/data/donn-tvshows
+      - '/mnt/ceph:/data/docker_volumes'
+      - '/mnt/samba/media:/data/media'
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
 
   filebrowser:
     image: hurlenko/filebrowser
     environment:
       - FB_BASEURL=/filebrowser
       - PUID=1000
-      - PGID=1000
+      - PGID=999
     ports:
       - 4433:8080
     volumes:
-      - '/var/lib/docker/volumes/filebrowser:/config'
-      - /var/lib/docker/volumes:/data/docker_volumes
+      - '/mnt/ceph/filebrowser_data:/config'
+      - '/mnt/ceph:/data/docker_volumes'
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+
+volumes:
+  krusader_data:
+    driver: local
+  filebrowser_data:
+    driver: local

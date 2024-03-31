@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  newarcadiabackups:
+    image: itzg/mc-backup
+    restart: always
+    container_name: NewArcadiaBackups
+    environment:
+      BACKUP_INTERVAL: "3h"
+      INITIAL_DELAY: "5m"
+      RCON_HOST: 192.168.6.100:25575
+      RCON_PASSWORD: $RCON_PASSWORD
+      PRE_BACKUP_SCRIPT: |
+        echo "Starting backup from $$RCON_HOST to $$DEST_DIR"
+      POST_BACKUP_SCRIPT_FILE: /post-backup.sh
+      PRUNE_BACKUPS_DAYS: "5"
+      EXCLUDES: "*.jar,cache,logs"
+      PAUSE_IF_NO_PLAYERS: "true"
+      PLAYERS_ONLINE_CHECK_INTERVAL: "5m"
+    volumes:
+      # mount the same volume used by server, but read-only
+      - /var/lib/pterodactyl/volumes/85f44477-f6be-4c6e-9b09-9a15532dad48:/data:ro
+      # use a host attached directory so that it in turn can be backed up
+      # to external/cloud storage
+      - /mnt/samba/cloud-storage/onedrive/Pterodactyl_Backups/NewArcadia:/backups
+      - /var/lib/docker/volumes/newarcadiabackup/post-backup.sh:/post-backup.sh:ro

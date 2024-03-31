@@ -54,6 +54,8 @@
         - cephfs_media/downloads/completed
         - newarcadia_data
         - newarcadia_data/telegraf
+        - krusader_data
+        - filebrowser_data
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
