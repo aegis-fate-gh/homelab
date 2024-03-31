@@ -1,3 +1,5 @@
+# To run:
+# ansible-playbook playbooks/qemu_guest_agent.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
 - name: Set up the Qemu Guest Agent
   hosts: vms
   remote_user: ansible

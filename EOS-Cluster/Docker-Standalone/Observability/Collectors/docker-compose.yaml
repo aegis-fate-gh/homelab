@@ -31,7 +31,7 @@ services:
     networks:
       - collectors
 
-# Note: The below is to allow co-existance with Pterodactyl Wings (Which uses 172.18.0.0). It is not needed otherwise.
+# Note: The you only need to set the network to allow co-existance with Pterodactyl Wings (Which uses 172.18.0.0). It is not needed otherwise.
 # See here for the reasoning: https://docs.xfgn.dev/troubleshooting/pterodactyl
 networks:
   collectors:

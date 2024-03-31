@@ -31,8 +31,8 @@ services:
     ports:
       - "5800:5800"
     volumes:
-      - "/mnt/ceph/jdownloader2_data:/config:rw"
-      - "/home/user/Downloads:/output:rw"
+      - '/mnt/ceph/jdownloader2_data:/config:rw'
+      - '/mnt/samba/media:/media'
     deploy:
       mode: replicated
       replicas: 1

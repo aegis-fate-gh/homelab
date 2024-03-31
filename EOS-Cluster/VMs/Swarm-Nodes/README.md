@@ -13,7 +13,7 @@ Setting up CephFS
 5. Add to cephfs to fstab
     nano /etc/fstab
         10.1.100.30,10.1.100.31,10.1.100.32:/swarm_prod     /mnt/ceph    ceph    name=dockerswarm,secret=AQDSvgBmT1iaFhAAMj76ud9oV1sw642LhoeZEg==,rw,noatime,_netdev    0       2
-        10.1.100.30,10.1.100.31,10.1.100.32:/ptero_backups     /mnt/ceph    ceph    name=jurassicpark,secret=AQC2Z/9ln7/8HxAAR0CmCs0ZdEdj0DY+dTnFqg==,rw,noatime,_netdev    0       2
+        10.1.100.30,10.1.100.31,10.1.100.32:/ptero_backups     /mnt/ceph    ceph    name=jurassicpark,secret=AQBklwhmLmEwKBAAMvx6888taWuq0amtsJE9Hw==,rw,noatime,_netdev    0       2
 6. Mount cephfs
     mount -a
 
