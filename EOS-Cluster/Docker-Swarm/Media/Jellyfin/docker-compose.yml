@@ -14,6 +14,7 @@ services:
       - '/mnt/ceph/jellyfin_data:/config'
       - '/mnt/samba/media:/media'
       - '/mnt/samba/cloud-storage/dropbox:/dropbox'
+      - '/mnt/ceph/npm_data/npm-letsencrypt:/etc/letsencrypt'
     networks:
       - outside
     deploy:
@@ -76,6 +77,8 @@ volumes:
   jellyfin_data:
     driver: local
   jellystat_data:
+    driver: local
+  npm_data:
     driver: local
 
 networks:
