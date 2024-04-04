@@ -31,6 +31,22 @@ services:
           - "node.hostname == sovereign-01"
       labels:
         - "shepherd.updates=true"
+        - 'traefik.enable=true'
+        ## Set Jellyfin to use the seb entrypoint
+        - 'traefik.http.routers.jellyfin.entryPoints=web'
+        ## Middleware
+        - 'traefik.http.routers.jellyfin.middlewares=jellyfin-mw'
+        #### The customResponseHeaders option lists the Header names and values to apply to the response.
+        - 'traefik.http.middlewares.jellyfin-mw.headers.customResponseHeaders.X-Robots-Tag=noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex'
+        #### Set frameDeny to true to add the X-Frame-Options header with the value of DENY.
+        - 'traefik.http.middlewares.jellyfin-mw.headers.frameDeny=true'
+        #### Set contentTypeNosniff to true to add the X-Content-Type-Options header with the value nosniff.
+        - 'traefik.http.middlewares.jellyfin-mw.headers.contentTypeNosniff=true'
+        #### Set browserXssFilter to true to add the X-XSS-Protection header with the value 1; mode=block.
+        - 'traefik.http.middlewares.jellyfin-mw.headers.customresponseheaders.X-XSS-PROTECTION=0'
+        - 'traefik.http.routers.jellyfin.service=jellyfin-svc@'
+        - 'traefik.http.services.jellyfin-svc.loadBalancer.server.port=8096'
+        - 'traefik.http.services.jellyfin-svc.loadBalancer.passHostHeader=true'
 
   jellystat-db:
     image: postgres:15.2
