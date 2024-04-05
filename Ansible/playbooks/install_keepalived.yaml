@@ -1,5 +1,7 @@
+# To run:
+# ansible-playbook playbooks/install_keepalived.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
 - name: Install keepalived on the manager nodes
-  hosts: pihole, managers
+  hosts: pihole, managers, gpu
   remote_user: ansible
   become: true
 
@@ -17,3 +19,9 @@
       ansible.builtin.file:
         path: /etc/keepalived/keepalived.conf
         state: touch
+
+    - name: Create the directory for keepalived's scripts
+      ansible.builtin.file:
+        path: /usr/libexec/keepalived
+        state: directory
+        mode: '0755'

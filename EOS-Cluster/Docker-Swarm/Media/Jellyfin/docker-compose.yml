@@ -19,8 +19,7 @@ services:
       - '/mnt/samba/media:/media'
       - '/mnt/samba/cloud-storage/dropbox:/dropbox'
     networks:
-      - local_proxy
-      - media
+      - outside
     deploy:
       mode: replicated
       replicas: 1
@@ -105,5 +104,6 @@ networks:
     driver: overlay
   media:
     external: true
-  local_proxy:
-    external: true
+  outside:
+    external:
+      name: "host"
