@@ -24,7 +24,6 @@ services:
         constraints: 
           - "node.role == worker"
           - "node.labels.nvidia == true"
-          - "node.hostname == sovereign-01"
       labels:
         - "shepherd.updates=true"
 
