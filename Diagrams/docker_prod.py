@@ -3,17 +3,15 @@ from diagrams.onprem import monitoring, logging, inmemory, database, network, co
 from diagrams.custom import Custom
 
 with Diagram("Docker Prod", show=False, direction="TB"):
-  pia = Custom("PIA Ontario", "./local_icons/pia.png")
   xfinity = Custom("xfinity", "./local_icons/xfinity.png")
   unifi = Custom("UDM-Pro SE", "./local_icons/unifi.png")
 
   with Cluster("Docker Swarm Cluster"):
 
     with Cluster("Standard GPU Worker Nodes - x3 - 16GB's RAM, 12cpu"):
-      npm = Custom("Nginx Proxy Manager", "./local_icons/npm.png")
       influxdb = Custom("InfluxDB", "./local_icons/influx.png")
       loki = logging.Loki("Loki")
-      standard_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+      standard_monitoring = Custom("GPU Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
       standard_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
       standard_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
       standard_prune_nodes = container.Docker("Prune Nodes")
@@ -24,11 +22,6 @@ with Diagram("Docker Prod", show=False, direction="TB"):
       jellystat = Custom("Jellystat", "./local_icons/jellystat.png")
       jellystat_db = database.Postgresql("Jellystat DB")
       jellyfin = Custom("Jellyfin", "./local_icons/jellyfin.png")
-      varken = Custom("Varken", "./local_icons/varken.png")
-      pterodactyl = Custom("Pterodactyl Panel", "./local_icons/pterodactyl.png")
-      ptero_redis = inmemory.Redis("Ptero-Redis") >> pterodactyl
-      ptero_mariadb = database.Mariadb("Ptero-MariaDB") >> pterodactyl
-      iperf3 = Custom("Iperf3", "./local_icons/iperf.gif")
       cloudflare_ddns = Custom("Cloudflare DDNS", "./local_icons/cloudflare.png")
       jdownloader = Custom("JDownloader 2", "./local_icons/jdownloader.png")
       pmm = Custom("Plex Meta Manager", "./local_icons/pmm.png")
@@ -49,10 +42,7 @@ with Diagram("Docker Prod", show=False, direction="TB"):
       ghost = Custom("Ghost CMS", "./local_icons/ghost-cms.png")
       ghost_db = database.Mysql("Ghost DB") >> ghost
       nginx = network.Nginx("Nginx")
-      authentik_server = Custom("Authentik Server", "./local_icons/authentik.png")
-      authentik_worker = Custom("Authentik Worker", "./local_icons/authentik.png")
-      authentik_redis = inmemory.Redis("Authentik Redis")
-      authentik_db = database.Postgresql("Authentik DB")
+      uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
 
     with Cluster("VPN Worker Nodes - x2 - 8GB's RAM, 4cpu"):
       vpn_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
@@ -71,23 +61,41 @@ with Diagram("Docker Prod", show=False, direction="TB"):
       manager_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
       manager_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
       manager_prune_nodes = container.Docker("Prune Nodes")
-      uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
       portainer = Custom("Portainer", "./local_icons/portainer.png")
       shepherd = Custom("Shepherd", "./local_icons/shepherd.png")
       swarm_cronjob = Custom("Swarm Cronjob", "./local_icons/swarm-cronjob.png")
+      traefik = network.Traefik("Traefik\nInternal Proxy")
 
-  with Cluster("Pterodactyl Wings Node - x1 - 16GB's RAM, 8cpu"):
-    wings_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
-    wings_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
-    pterodactyl_wings = Custom("Pterodactyl Wings", "./local_icons/pterodactyl.png")
-    minecraft_monitor = Custom("mc-monitor", "./local_icons/minecraft-monitor.png") >> Edge(color="blue", style="dashed") >> Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+  with Cluster("Jurassic-Park-01 - x1 - 16GB's RAM, 8cpu"):
+    with Cluster("Docker"):
+      jp_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+      jp_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
+      jp_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
+      new_arcadia = Custom("New Arcadia", "./local_icons/minecraft-monitor.png") >> Custom("mc-monitor", "./local_icons/minecraft-monitor.png") >> Edge(color="blue", style="dashed") >> Custom("MC Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
 
-  with Cluster("Docker standalone - x1 - 8GB's RAM, 4cpu"):
+    with Cluster("Native"):
+      pterodactyl_wings = Custom("Pterodactyl Wings", "./local_icons/pterodactyl.png")
+
+  with Cluster("Wing-Commander - x1 - 8GB's RAM, 4cpu"):
+    with Cluster("Docker"):
+      wc_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
+      iperf3 = Custom("Iperf3", "./local_icons/iperf.gif")
+      wc_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
+      wc_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+      npm = Custom("Nginx Proxy Manager\nExternal Proxy", "./local_icons/npm.png")
+      authentik_server = Custom("Authentik Server", "./local_icons/authentik.png")
+      authentik_worker = Custom("Authentik Worker", "./local_icons/authentik.png")
+      authentik_redis = inmemory.Redis("Authentik Redis")
+      authentik_db = database.Postgresql("Authentik DB")
+    with Cluster("Native"):
+      pterodactyl = Custom("Pterodactyl Panel", "./local_icons/pterodactyl.png")
+      ptero_redis = inmemory.Redis("Ptero-Redis") >> pterodactyl
+      ptero_mariadb = database.Mariadb("Ptero-MariaDB") >> pterodactyl
 
     xfinity >> unifi >> Edge(color="royalblue", style="bold") >> plex
     unifi >> Edge(color="royalblue", style="bold") >> npm
     unifi >> Edge(color="royalblue", style="dashed") >> unpoller
-    unifi << Edge(color="royalblue", style="bold") << pia
+    unifi << Edge(color="royalblue", style="bold")
     unifi >> Edge(color="royalblue", style="bold") >> pterodactyl_wings >> pterodactyl
 
     authentik_worker >> authentik_server
@@ -96,11 +104,6 @@ with Diagram("Docker Prod", show=False, direction="TB"):
     authentik_redis >> authentik_server
     authentik_redis >> authentik_worker
     authentik_server >> Edge(color="orangered", style="bold") >> grafana
-    authentik_server >> Edge(color="orangered", style="bold") >> sonarr
-    authentik_server >> Edge(color="orangered", style="bold") >> radarr
-    authentik_server >> Edge(color="orangered", style="bold") >> prowlarr
-    authentik_server >> Edge(color="orangered", style="bold") >> overseerr
-    authentik_server >> Edge(color="orangered", style="bold") >> bazarr
     authentik_server >> Edge(color="orangered", style="bold") >> freshrss
     authentik_server >> Edge(color="orangered", style="bold") >> immich
     authentik_server >> Edge(color="orangered", style="bold") >> portainer
@@ -111,7 +114,6 @@ with Diagram("Docker Prod", show=False, direction="TB"):
     npm >> Edge(color="darkred", style="bold") >> overseerr
     npm >> Edge(color="darkred", style="bold") >> uptimekuma
     npm >> Edge(color="darkred", style="bold") >> pterodactyl
-    npm >> Edge(color="darkred", style="bold") >> pterodactyl_wings
     npm >> Edge(color="darkred", style="bold") >> jellyfin
     npm >> Edge(color="darkred", style="bold") >> influxdb
     npm >> Edge(color="darkred", style="bold") >> freshrss
@@ -121,7 +123,8 @@ with Diagram("Docker Prod", show=False, direction="TB"):
 
     portainer >> Edge(color="deeppink", style="solid") >> standard_portainer_agent
     portainer >> Edge(color="deeppink", style="solid") >> manager_portainer_agent
-    portainer >> Edge(color="deeppink", style="solid") >> wings_portainer_agent
+    portainer >> Edge(color="deeppink", style="solid") >> jp_portainer_agent
+    portainer >> Edge(color="deeppink", style="solid") >> wc_portainer_agent
     portainer >> Edge(color="deeppink", style="solid") >> vpn_portainer_agent
 
     swarm_cronjob >> Edge(color="navyblue", style="solid") >> shepherd
@@ -129,15 +132,15 @@ with Diagram("Docker Prod", show=False, direction="TB"):
     swarm_cronjob >> Edge(color="navyblue", style="solid") >> manager_prune_nodes
     swarm_cronjob >> Edge(color="navyblue", style="solid") >> standard_prune_nodes
 
-    pmm >> plex >> tautulli >> varken >> Edge(color="blue", style="dashed") >> influxdb
+    pmm >> plex >> tautulli
     jellyfin >> jellystat >> jellystat_db
 
-    overseerr >> Edge(color="magenta1", style="bold") >> sonarr >> Edge(color="turquoise1", style="bold") >> qbittorrent >> pia
+    overseerr >> Edge(color="magenta1", style="bold") >> sonarr >> Edge(color="turquoise1", style="bold") >> qbittorrent
     overseerr >> Edge(color="magenta1", style="bold") >> radarr >> Edge(color="orange1", style="bold") >> qbittorrent
     overseerr >> Edge(color="magenta1", style="bold") >> plex
-    sonarr >> Edge(color="turquoise1", style="bold") >> bazarr >> pia
+    sonarr >> Edge(color="turquoise1", style="bold") >> bazarr
     radarr >> Edge(color="orange1", style="bold") >> bazarr
-    sonarr >> Edge(color="turquoise1", style="bold") >> prowlarr >> pia
+    sonarr >> Edge(color="turquoise1", style="bold") >> prowlarr
     radarr >> Edge(color="orange1", style="bold") >> prowlarr
     sonarr >> Edge(color="turquoise1", style="bold") >> plex
     radarr >> Edge(color="orange1", style="bold") >> plex

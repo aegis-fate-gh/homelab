@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  ghost:
+    image: ghost:5
+    ports:
+      - 8082:2368
+    environment:
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: $DB_USER
+      database__connection__password: $DB_PASSWORD
+      database__connection__database: ghost
+      url: http://192.168.6.7:8082
+    volumes:
+      - /mnt/ceph/ghost_data/ghost:/var/lib/ghost/content
+    networks:
+      - proxy
+      - ghost
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+    volumes:
+      - /mnt/ceph/ghost_data/db:/var/lib/mysql
+    networks:
+    - ghost
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+
+volumes:
+  ghost_data:
+    driver: local
+
+networks:
+  ghost:
+    name: ghost
+    driver: overlay
+  proxy:
+    external: true

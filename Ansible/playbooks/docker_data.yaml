@@ -56,6 +56,9 @@
         - newarcadia_data/telegraf
         - krusader_data
         - filebrowser_data
+        - ghost_data
+        - ghost_data/ghost
+        - ghost_data/db
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
