@@ -5,94 +5,110 @@ from diagrams.custom import Custom
 with Diagram("Docker Prod", show=False, direction="TB"):
   xfinity = Custom("xfinity", "./local_icons/xfinity.png")
   unifi = Custom("UDM-Pro SE", "./local_icons/unifi.png")
+  internet = Custom("Internet", "./local_icons/internet.png")
 
-  with Cluster("Docker Swarm Cluster"):
+  with Cluster("AWS Lightsail - US-East-1a"):
+      with Cluster("Sentinel2-AL2023 - 4GB's RAM, 2cpu"):
+        influxdb_sentinel = Custom("InfluxDB", "./local_icons/influx.png")
+        loki_sentinel = logging.Loki("Loki")
+        sentinel_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb_sentinel
+        chronograf_sentinel = Custom("Chronograf", "./local_icons/chronograf.png") >> influxdb_sentinel
+        grafana_sentinel = monitoring.Grafana("Grafana")
+        npm_sentinel = Custom("Nginx Proxy Manager\nExternal Proxy", "./local_icons/npm.png")
+        portainer_sentinel = Custom("Portainer", "./local_icons/portainer.png")
+        uptimekuma_sentinel = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
+        watchtower = Custom("Watchtower", "./local_icons/watchtower.png")
 
-    with Cluster("Standard GPU Worker Nodes - x3 - 16GB's RAM, 12cpu"):
-      influxdb = Custom("InfluxDB", "./local_icons/influx.png")
-      loki = logging.Loki("Loki")
-      standard_monitoring = Custom("GPU Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
-      standard_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
-      standard_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
-      standard_prune_nodes = container.Docker("Prune Nodes")
-      grafana = monitoring.Grafana("Grafana")
-      unpoller = Custom("Unpoller", "./local_icons/unpoller.png")
-      plex = Custom("Plex", "./local_icons/plex.jpg")
-      tautulli = Custom("Tautulli", "./local_icons/tautulli.png")
-      jellystat = Custom("Jellystat", "./local_icons/jellystat.png")
-      jellystat_db = database.Postgresql("Jellystat DB")
-      jellyfin = Custom("Jellyfin", "./local_icons/jellyfin.png")
-      cloudflare_ddns = Custom("Cloudflare DDNS", "./local_icons/cloudflare.png")
-      jdownloader = Custom("JDownloader 2", "./local_icons/jdownloader.png")
-      pmm = Custom("Plex Meta Manager", "./local_icons/pmm.png")
-      mkvtoolnix = Custom("MKVToolNix", "./local_icons/mkvmerge.png")
-      youtubedlmaterial = Custom("Youtube DL Material", "./local_icons/youtube.png")
-      youtube_dl_mongodb = database.Mongodb("Youtube DL Mongo DB") >> youtubedlmaterial
-      freshrss = Custom("FreshRSS", "./local_icons/freshrss.png")
-      krusader = Custom("Krusader", "./local_icons/krusader.png")
-      chronograf = Custom("Chronograf", "./local_icons/chronograf.png") >> influxdb
-      fah = Custom("Folding@Home", "./local_icons/foldingathome.jpeg")
-      dockervolumebackup = Custom("Docker-Volume-Backup", "./local_icons/docker-volume-backup.png")
-      filebrowser = Custom("File Browser", "./local_icons/filebrowser.png")
-      immich = Custom("Immich Server", "./local_icons/immich.png")
-      immich_micro = Custom("Immich Microservices", "./local_icons/immich.png") >> immich
-      immich_ml = Custom("Immich Machine Learning", "./local_icons/immich.png") >> immich
-      immich_redis = inmemory.Redis("Immich Redis") >> immich
-      immich_db = database.Postgresql("Immich DB") >> immich
-      ghost = Custom("Ghost CMS", "./local_icons/ghost-cms.png")
-      ghost_db = database.Mysql("Ghost DB") >> ghost
-      nginx = network.Nginx("Nginx")
-      uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
+  with Cluster("Eos Proxmox Cluster - 3x Physical Hosts - Ryzen 7 5700x, 64GB's ram, 2x Samsung 870 EVO (Boot), 2x Micron 7450 (CEPH), 1x Nvidia RTX 4060, 1x Dual SFP+"):
 
-    with Cluster("VPN Worker Nodes - x2 - 8GB's RAM, 4cpu"):
-      vpn_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
-      vpn_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
-      vpn_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
-      vpn_prune_nodes = container.Docker("Prune Nodes")
-      overseerr = Custom("Overseerr", "./local_icons/overseerr.png")
-      sonarr = Custom("Sonarr", "./local_icons/sonarr.png")
-      radarr = Custom("Radarr", "./local_icons/radarr.png")
-      bazarr = Custom("Bazarr", "./local_icons/bazarr.png")
-      prowlarr = Custom("Prowlarr", "./local_icons/prowlarr.png")
-      qbittorrent = Custom("qBittorrent", "./local_icons/qBittorrent.png")
+    with Cluster("Docker Swarm Cluster - 8x VMs"):
 
-    with Cluster("Manager Nodes - x3 - 8GB's RAM, 4cpu"):
-      manager_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
-      manager_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
-      manager_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
-      manager_prune_nodes = container.Docker("Prune Nodes")
-      portainer = Custom("Portainer", "./local_icons/portainer.png")
-      shepherd = Custom("Shepherd", "./local_icons/shepherd.png")
-      swarm_cronjob = Custom("Swarm Cronjob", "./local_icons/swarm-cronjob.png")
-      traefik = network.Traefik("Traefik\nInternal Proxy")
+      with Cluster("GPU Worker Nodes - x3 - 16GB's RAM, 12cpu, 1x RTX 4060"):
+        influxdb = Custom("InfluxDB", "./local_icons/influx.png")
+        loki = logging.Loki("Loki")
+        standard_monitoring = Custom("GPU Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+        standard_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
+        standard_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
+        standard_prune_nodes = container.Docker("Prune Nodes")
+        grafana = monitoring.Grafana("Grafana")
+        unpoller = Custom("Unpoller", "./local_icons/unpoller.png")
+        plex = Custom("Plex", "./local_icons/plex.jpg")
+        tautulli = Custom("Tautulli", "./local_icons/tautulli.png")
+        jellystat = Custom("Jellystat", "./local_icons/jellystat.png")
+        jellystat_db = database.Postgresql("Jellystat DB")
+        jellyfin = Custom("Jellyfin", "./local_icons/jellyfin.png")
+        cloudflare_ddns = Custom("Cloudflare DDNS", "./local_icons/cloudflare.png")
+        jdownloader = Custom("JDownloader 2", "./local_icons/jdownloader.png")
+        pmm = Custom("Plex Meta Manager", "./local_icons/pmm.png")
+        mkvtoolnix = Custom("MKVToolNix", "./local_icons/mkvmerge.png")
+        youtubedlmaterial = Custom("Youtube DL Material", "./local_icons/youtube.png")
+        youtube_dl_mongodb = database.Mongodb("Youtube DL Mongo DB") >> youtubedlmaterial
+        freshrss = Custom("FreshRSS", "./local_icons/freshrss.png")
+        krusader = Custom("Krusader", "./local_icons/krusader.png")
+        chronograf = Custom("Chronograf", "./local_icons/chronograf.png") >> influxdb
+        fah = Custom("Folding@Home", "./local_icons/foldingathome.jpeg")
+        dockervolumebackup = Custom("Docker-Volume-Backup", "./local_icons/docker-volume-backup.png")
+        filebrowser = Custom("File Browser", "./local_icons/filebrowser.png")
+        immich = Custom("Immich Server", "./local_icons/immich.png")
+        immich_micro = Custom("Immich Microservices", "./local_icons/immich.png") >> immich
+        immich_ml = Custom("Immich Machine Learning", "./local_icons/immich.png") >> immich
+        immich_redis = inmemory.Redis("Immich Redis") >> immich
+        immich_db = database.Postgresql("Immich DB") >> immich
+        ghost = Custom("Ghost CMS", "./local_icons/ghost-cms.png")
+        ghost_db = database.Mysql("Ghost DB") >> ghost
+        nginx = network.Nginx("Nginx")
+        uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
+        prometheus = monitoring.Prometheus("Prometheus")
 
-  with Cluster("Jurassic-Park-01 - x1 - 16GB's RAM, 8cpu"):
-    with Cluster("Docker"):
-      jp_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
-      jp_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
-      jp_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
-      new_arcadia = Custom("New Arcadia", "./local_icons/minecraft-monitor.png") >> Custom("mc-monitor", "./local_icons/minecraft-monitor.png") >> Edge(color="blue", style="dashed") >> Custom("MC Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+      with Cluster("VPN Worker Nodes - x2 - 8GB's RAM, 4cpu"):
+        vpn_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+        vpn_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
+        vpn_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
+        vpn_prune_nodes = container.Docker("Prune Nodes")
+        overseerr = Custom("Overseerr", "./local_icons/overseerr.png")
+        sonarr = Custom("Sonarr", "./local_icons/sonarr.png")
+        radarr = Custom("Radarr", "./local_icons/radarr.png")
+        bazarr = Custom("Bazarr", "./local_icons/bazarr.png")
+        prowlarr = Custom("Prowlarr", "./local_icons/prowlarr.png")
+        qbittorrent = Custom("qBittorrent", "./local_icons/qBittorrent.png")
 
-    with Cluster("Native"):
-      pterodactyl_wings = Custom("Pterodactyl Wings", "./local_icons/pterodactyl.png")
+      with Cluster("Manager Nodes - x3 - 8GB's RAM, 4cpu"):
+        manager_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+        manager_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
+        manager_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
+        manager_prune_nodes = container.Docker("Prune Nodes")
+        portainer = Custom("Portainer", "./local_icons/portainer.png")
+        shepherd = Custom("Shepherd", "./local_icons/shepherd.png")
+        swarm_cronjob = Custom("Swarm Cronjob", "./local_icons/swarm-cronjob.png")
+        traefik = network.Traefik("Traefik\nInternal Proxy")
 
-  with Cluster("Wing-Commander - x1 - 8GB's RAM, 4cpu"):
-    with Cluster("Docker"):
-      wc_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
-      iperf3 = Custom("Iperf3", "./local_icons/iperf.gif")
-      wc_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
-      wc_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
-      npm = Custom("Nginx Proxy Manager\nExternal Proxy", "./local_icons/npm.png")
-      authentik_server = Custom("Authentik Server", "./local_icons/authentik.png")
-      authentik_worker = Custom("Authentik Worker", "./local_icons/authentik.png")
-      authentik_redis = inmemory.Redis("Authentik Redis")
-      authentik_db = database.Postgresql("Authentik DB")
-    with Cluster("Native"):
-      pterodactyl = Custom("Pterodactyl Panel", "./local_icons/pterodactyl.png")
-      ptero_redis = inmemory.Redis("Ptero-Redis") >> pterodactyl
-      ptero_mariadb = database.Mariadb("Ptero-MariaDB") >> pterodactyl
+    with Cluster("Jurassic-Park-01 - x1 VM - 16GB's RAM, 8cpu"):
+      with Cluster("Docker"):
+        jp_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+        jp_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
+        jp_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
+        new_arcadia = Custom("New Arcadia", "./local_icons/minecraft-monitor.png") >> Custom("mc-monitor", "./local_icons/minecraft-monitor.png") >> Edge(color="blue", style="dashed") >> Custom("MC Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
 
-    xfinity >> unifi >> Edge(color="royalblue", style="bold") >> plex
+      with Cluster("Native"):
+        pterodactyl_wings = Custom("Pterodactyl Wings", "./local_icons/pterodactyl.png")
+
+    with Cluster("Wing-Commander - x1 VM - 8GB's RAM, 4cpu"):
+      with Cluster("Docker"):
+        wc_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
+        iperf3 = Custom("Iperf3", "./local_icons/iperf.gif")
+        wc_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="dashed") >> loki
+        wc_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="dashed") >> influxdb
+        npm = Custom("Nginx Proxy Manager\nExternal Proxy", "./local_icons/npm.png")
+        authentik_server = Custom("Authentik Server", "./local_icons/authentik.png")
+        authentik_worker = Custom("Authentik Worker", "./local_icons/authentik.png")
+        authentik_redis = inmemory.Redis("Authentik Redis")
+        authentik_db = database.Postgresql("Authentik DB")
+      with Cluster("Native"):
+        pterodactyl = Custom("Pterodactyl Panel", "./local_icons/pterodactyl.png")
+        ptero_redis = inmemory.Redis("Ptero-Redis") >> pterodactyl
+        ptero_mariadb = database.Mariadb("Ptero-MariaDB") >> pterodactyl
+
+    internet >> xfinity >> unifi >> Edge(color="royalblue", style="bold") >> plex
     unifi >> Edge(color="royalblue", style="bold") >> npm
     unifi >> Edge(color="royalblue", style="dashed") >> unpoller
     unifi << Edge(color="royalblue", style="bold")
@@ -150,4 +166,16 @@ with Diagram("Docker Prod", show=False, direction="TB"):
     unpoller >> Edge(color="blue", style="dashed") >> influxdb
 
     influxdb >> grafana
+    prometheus >> grafana
     loki >> grafana
+
+    npm_sentinel >> Edge(color="darkred", style="bold") >> grafana_sentinel
+    npm_sentinel >> Edge(color="darkred", style="bold") >> influxdb_sentinel
+    npm_sentinel >> Edge(color="darkred", style="bold") >> loki_sentinel
+    npm_sentinel >> Edge(color="darkred", style="bold") >> uptimekuma_sentinel
+
+    influxdb_sentinel >> grafana_sentinel
+
+    loki_sentinel >> grafana_sentinel
+
+    internet >> npm_sentinel
