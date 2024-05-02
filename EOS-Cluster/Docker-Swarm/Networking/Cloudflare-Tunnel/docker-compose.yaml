@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment: 
+      - TUNNEL_TOKEN=$CFTTOKEN
+    networks:
+      - cftunnel
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.role == manager"
+      labels:
+        - "shepherd.updates=true"
+
+networks:
+  cftunnel:
+    name: cftunnel
+    driver: overlay
+    attachable: true

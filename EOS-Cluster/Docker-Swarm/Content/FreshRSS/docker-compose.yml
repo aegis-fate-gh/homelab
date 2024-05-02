@@ -30,3 +30,5 @@ volumes:
 networks:
   proxy:
     external: true
+  cftunnel:
+    external: true

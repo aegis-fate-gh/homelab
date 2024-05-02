@@ -32,3 +32,9 @@ CloudInit Prep
 
 Testing Ceph Performance:
 https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/1.3/html/administration_guide/benchmarking_performance
+
+Enable Maintenance mode on a node:
+ha-manager crm-command node-maintenance enable <node>
+
+Disable Maintenance mode on a node:
+ha-manager crm-command node-maintenance disable <node>
