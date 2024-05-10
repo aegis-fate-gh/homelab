@@ -34,6 +34,7 @@ services:
       - TZ=America/Chicago
       - INFLUXDB_USERNAME=$influxdb_user
       - INFLUXDB_PASSWORD=$influxdb_password
+      - INFLUXDB_DATA_MAX_VALUES_PER_TAG=0
     ports:
       - '8086:8086'
     volumes:

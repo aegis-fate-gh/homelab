@@ -59,6 +59,7 @@
         - ghost_data
         - ghost_data/ghost
         - ghost_data/db
+        - kavita_data
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:

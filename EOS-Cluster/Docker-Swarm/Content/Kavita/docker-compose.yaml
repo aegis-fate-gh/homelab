@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+
+  kavita:
+    image: ghcr.io/kareadita/kavita:latest
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - '/mnt/samba/cloud-storage/dropbox/Kavita-Content:/content'
+      - /mnt/ceph/kavita_data:/kavita/config
+    ports:
+      - "5000:5000"
+    networks:
+      - cftunnel
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+
+volumes:
+  ghost_data:
+    driver: local
+
+networks:
+  cftunnel:
+    external: true
