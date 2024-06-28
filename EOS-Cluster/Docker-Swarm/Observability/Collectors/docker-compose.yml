@@ -95,7 +95,7 @@ services:
       - outside
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
@@ -103,10 +103,12 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
     ports:
       - 8085:8080
-    networks:
-      - outside
     deploy:
       mode: global
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - outside
 
 volumes:
   telegraf_data:
