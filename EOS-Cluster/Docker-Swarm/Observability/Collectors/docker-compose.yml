@@ -87,8 +87,8 @@ services:
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    expose:
-      - 9100
+    ports:
+      - "9100:9100"
     deploy:
       mode: replicated
       replicas: 1
@@ -111,8 +111,8 @@ services:
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    expose:
-      - 9101
+    ports:
+      - "9101:9100"
     deploy:
       mode: replicated
       replicas: 1
@@ -135,8 +135,8 @@ services:
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    expose:
-      - 9102
+    ports:
+      - "9102:9100"
     deploy:
       mode: replicated
       replicas: 1
@@ -159,8 +159,8 @@ services:
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    expose:
-      - 9103
+    ports:
+      - "9103:9100"
     deploy:
       mode: replicated
       replicas: 1
@@ -183,8 +183,8 @@ services:
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    expose:
-      - 9104
+    ports:
+      - "9104:9100"
     deploy:
       mode: replicated
       replicas: 1
@@ -207,8 +207,8 @@ services:
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    expose:
-      - 9105
+    ports:
+      - "9105:9100"
     deploy:
       mode: replicated
       replicas: 1
@@ -231,8 +231,8 @@ services:
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    expose:
-      - 9106
+    ports:
+      - "9106:9100"
     deploy:
       mode: replicated
       replicas: 1
@@ -255,8 +255,8 @@ services:
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    expose:
-      - 9107
+    ports:
+      - "9107:9100"
     deploy:
       mode: replicated
       replicas: 1
