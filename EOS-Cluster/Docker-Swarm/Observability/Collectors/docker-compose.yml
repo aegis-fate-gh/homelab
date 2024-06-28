@@ -76,58 +76,193 @@ services:
     networks:
       - monitoring
 
-  dns01-exporter:
-    image: ekofr/pihole-exporter:latest
-    environment:
-      - PIHOLE_HOSTNAME=192.168.6.10
-      - PIHOLE_API_TOKEN=$PIHOLE_API_TOKEN
-      - INTERVAL=30s
-      - PORT=9617
+  node-exporter-starbase-01:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9100
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints: 
-          - "node.role == worker"
-          - "node.labels.connection == standard"
+          - "node.labels.name == starbase-01"
       labels:
         - "shepherd.updates=true"
     networks:
       - monitoring
-        
-  dns02-exporter:
-    image: ekofr/pihole-exporter:latest
-    environment:
-      - PIHOLE_HOSTNAME=192.168.6.11
-      - PIHOLE_API_TOKEN=$PIHOLE_API_TOKEN
-      - INTERVAL=30s
-      - PORT=9618
+
+  node-exporter-starbase-02:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9101
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints: 
-          - "node.role == worker"
-          - "node.labels.connection == standard"
+          - "node.labels.name == starbase-02"
       labels:
         - "shepherd.updates=true"
     networks:
       - monitoring
-  
-  dns03-exporter:
-    image: ekofr/pihole-exporter:latest
-    environment:
-      - PIHOLE_HOSTNAME=192.168.6.12
-      - PIHOLE_API_TOKEN=$PIHOLE_API_TOKEN
-      - INTERVAL=30s
-      - PORT=9619
+
+  node-exporter-starbase-03:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9102
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints: 
-          - "node.role == worker"
-          - "node.labels.connection == standard"
+          - "node.labels.name == starbase-03"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
+  node-exporter-sovereign-01:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9103
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.labels.name == sovereign-01"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
+  node-exporter-sovereign-02:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9104
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.labels.name == sovereign-02"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
+  node-exporter-sovereign-03:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9105
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.labels.name == sovereign-03"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
+  node-exporter-defiant-01:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9106
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.labels.name == defiant-01"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
+  node-exporter-defiant-02:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9107
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.labels.name == defiant-02"
       labels:
         - "shepherd.updates=true"
     networks:
