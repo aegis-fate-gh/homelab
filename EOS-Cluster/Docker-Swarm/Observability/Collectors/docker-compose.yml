@@ -92,7 +92,22 @@ services:
       labels:
         - "shepherd.updates=true"
     networks:
-      - outside
+      - monitoring
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8080:8080
+    networks:
+      - monitoring
+    restart: always
+    deploy:
+      mode: global
 
 volumes:
   telegraf_data:
@@ -103,6 +118,3 @@ volumes:
 networks:
   monitoring:
     external: true
-  outside:
-    external:
-      name: "host"
