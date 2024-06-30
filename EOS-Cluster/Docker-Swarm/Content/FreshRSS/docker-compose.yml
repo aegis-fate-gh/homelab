@@ -12,7 +12,8 @@ services:
     ports:
       - 8090:80
     networks:
-      - proxy
+      - local_proxy
+      - cftunnel
     deploy:
       mode: replicated
       replicas: 1
@@ -21,6 +22,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.freshrss-rtr.entrypoints=web"
+        - "traefik.http.routers.freshrss-rtr.rule=Host(`freshrss.local.sch-apps.com`)"
+        - "traefik.http.routers.freshrss-rtr.service=freshrss-svc"
+        - "traefik.http.services.freshrss-svc.loadbalancer.server.port=80"
         - "shepherd.updates=true"
 
 volumes:
@@ -28,7 +34,7 @@ volumes:
     driver: local
 
 networks:
-  proxy:
+  local_proxy:
     external: true
   cftunnel:
     external: true

@@ -13,6 +13,7 @@ services:
       - "5000:5000"
     networks:
       - cftunnel
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -21,12 +22,19 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.kavita-rtr.entrypoints=web"
+        - "traefik.http.routers.kavita-rtr.rule=Host(`kavita.local.sch-apps.com`)"
+        - "traefik.http.routers.kavita-rtr.service=kavita-svc"
+        - "traefik.http.services.kavita-svc.loadbalancer.server.port=5000"
         - "shepherd.updates=true"
 
 volumes:
-  ghost_data:
+  kavita_data:
     driver: local
 
 networks:
   cftunnel:
+    external: true
+  local_proxy:
     external: true

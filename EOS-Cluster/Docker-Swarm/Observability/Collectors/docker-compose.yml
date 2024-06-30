@@ -25,6 +25,8 @@ services:
       - "TZ=America/Chicago"
     volumes:
       - '/mnt/ceph/unpoller_data/up.conf:/etc/unpoller/up.conf'
+    ports:
+      - 9130:9130
     deploy:
       mode: replicated
       replicas: 1

@@ -12,6 +12,7 @@ services:
       - --entryPoints.web.address=:80
       - --entryPoints.websecure.address=:443
       - --entryPoints.web.forwardedHeaders.trustedIPs=192.168.6.90/24, 10.0.0.0/24
+      - --metrics.prometheus=true
     ports:
       # The HTTP port
       - "80:80"
@@ -32,6 +33,10 @@ services:
           - "node.role == manager"
       labels:
         - "shepherd.updates=true"
+
+volumes:
+  traefik_data:
+    driver: local
 
 networks:
   local_proxy:
