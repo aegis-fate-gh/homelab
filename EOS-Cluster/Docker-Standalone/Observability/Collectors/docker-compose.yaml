@@ -32,6 +32,22 @@ services:
     networks:
       - collectors
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    restart: always
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/lib/pterodactyl/:/var/lib/pterodactyl:ro
+    ports:
+      - 8085:8080
+    networks:
+      - collectors
+
 # Note: The you only need to set the network to allow co-existance with Pterodactyl Wings (Which uses 172.18.0.0). It is not needed otherwise.
 # See here for the reasoning: https://docs.xfgn.dev/troubleshooting/pterodactyl
 networks:
