@@ -22,7 +22,7 @@ services:
     restart: always
     container_name: minecraft_exporter
     environment:
-      - RCON_HOST=127.0.0.1
+      - RCON_HOST=192.168.6.100
       - RCON_PORT=25575
       - RCON_PASSWORD=$rcon_password
     ports:
