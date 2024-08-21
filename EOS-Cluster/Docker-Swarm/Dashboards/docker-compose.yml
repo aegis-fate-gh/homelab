@@ -32,3 +32,5 @@ volumes:
 networks:
   dockerproxy:
     external: true
+  local_proxy:
+    external: true
