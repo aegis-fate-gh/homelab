@@ -9,6 +9,7 @@ services:
       - /mnt/ceph/homepage_data:/app/config # Make sure your local config directory exists
     networks:
       - dockerproxy
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -17,6 +18,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.homepage-rtr.entrypoints=web"
+        - "traefik.http.routers.homepage-rtr.rule=Host(`homepage.local.sch-apps.com`)"
+        - "traefik.http.routers.homepage-rtr.service=homepage-svc"
+        - "traefik.http.services.homepage-svc.loadbalancer.server.port=80"
         - "shepherd.updates=true"
 
 volumes:

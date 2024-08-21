@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  mkvtoolnix:
+    image: jlesage/mkvtoolnix
+    ports:
+      - "5801:5800"
+    volumes:
+      - '/mnt/ceph/mkvtoolnix_data:/config:rw'
+      - '/mnt/samba/media:/media:rw'
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.nvidia == true"
+      labels:
+        - "shepherd.updates=true"
+
+volumes:
+  mkvtoolnix_data:
+    driver: local
