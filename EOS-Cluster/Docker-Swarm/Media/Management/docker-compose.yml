@@ -8,16 +8,28 @@ services:
     volumes:
       - '/mnt/ceph/mkvtoolnix_data:/config:rw'
       - '/mnt/samba/media:/media:rw'
+    networks:
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints: 
           - "node.role == worker"
-          - "node.labels.nvidia == true"
+          - "node.labels.host_type == proxmox"
+          - "node.labels.connection == standard"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.mkvtoolnix-rtr.entrypoints=web"
+        - "traefik.http.routers.mkvtoolnix-rtr.rule=Host(`mkvtoolnix.local.sch-apps.com`)"
+        - "traefik.http.routers.mkvtoolnix-rtr.service=mkvtoolnix-svc"
+        - "traefik.http.services.mkvtoolnix-svc.loadbalancer.server.port=5800"
         - "shepherd.updates=true"
 
 volumes:
   mkvtoolnix_data:
     driver: local
+
+networks:
+  local_proxy:
+    external: true
