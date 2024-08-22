@@ -16,6 +16,7 @@ services:
       - '/mnt/samba/media:/media'
     networks:
       - media
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -24,6 +25,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.qbittorrent-rtr.entrypoints=web"
+        - "traefik.http.routers.qbittorrent-rtr.rule=Host(`qbittorrent.local.sch-apps.com`)"
+        - "traefik.http.routers.qbittorrent-rtr.service=qbittorrent-svc"
+        - "traefik.http.services.qbittorrent-svc.loadbalancer.server.port=8080"
         - "shepherd.updates=true"
 
   jdownloader-2:
@@ -33,6 +39,8 @@ services:
     volumes:
       - '/mnt/ceph/jdownloader2_data:/config:rw'
       - '/mnt/samba/media:/media'
+    networks:
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -41,6 +49,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.jdownloader-rtr.entrypoints=web"
+        - "traefik.http.routers.jdownloader-rtr.rule=Host(`jdownloader.local.sch-apps.com`)"
+        - "traefik.http.routers.jdownloader-rtr.service=jdownloader-svc"
+        - "traefik.http.services.jdownloader-svc.loadbalancer.server.port=5800"
         - "shepherd.updates=true"
   
 volumes:
@@ -50,5 +63,7 @@ volumes:
     driver: local
 
 networks:
+  local_proxy:
+    external: true
   media:
     external: true
