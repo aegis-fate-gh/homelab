@@ -39,6 +39,7 @@ services:
       - '/mnt/ceph/tautulli_data:/config'
     networks:
       - media
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -47,6 +48,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.tautulli-rtr.entrypoints=web"
+        - "traefik.http.routers.tautulli-rtr.rule=Host(`tautulli.local.sch-apps.com`)"
+        - "traefik.http.routers.tautulli-rtr.service=tautulli-svc"
+        - "traefik.http.services.tautulli-svc.loadbalancer.server.port=8181"
         - "shepherd.updates=true"
 
 volumes:
@@ -61,3 +67,5 @@ networks:
   outside:
     external:
       name: "host"
+  local_proxy:
+    external: true

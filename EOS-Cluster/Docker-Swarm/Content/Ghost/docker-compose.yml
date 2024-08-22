@@ -15,7 +15,7 @@ services:
     volumes:
       - /mnt/ceph/ghost_data/ghost:/var/lib/ghost/content
     networks:
-      - proxy
+      - local_proxy
       - ghost
     deploy:
       mode: replicated
@@ -25,6 +25,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.ghost-rtr.entrypoints=web"
+        - "traefik.http.routers.ghost-rtr.rule=Host(`ghost.local.sch-apps.com`)"
+        - "traefik.http.routers.ghost-rtr.service=ghost-svc"
+        - "traefik.http.services.ghost-svc.loadbalancer.server.port=2368"
         - "shepherd.updates=true"
 
   db:
@@ -34,7 +39,7 @@ services:
     volumes:
       - /mnt/ceph/ghost_data/db:/var/lib/mysql
     networks:
-    - ghost
+      - ghost
     deploy:
       mode: replicated
       replicas: 1
@@ -53,5 +58,5 @@ networks:
   ghost:
     name: ghost
     driver: overlay
-  proxy:
+  local_proxy:
     external: true

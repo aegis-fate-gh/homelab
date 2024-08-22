@@ -60,6 +60,7 @@ services:
     networks:
       - media
       - jellystat
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -68,6 +69,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.jellystat-rtr.entrypoints=web"
+        - "traefik.http.routers.jellystat-rtr.rule=Host(`jellystat.local.sch-apps.com`)"
+        - "traefik.http.routers.jellystat-rtr.service=jellystat-svc"
+        - "traefik.http.services.jellystat-svc.loadbalancer.server.port=3000"
         - "shepherd.updates=true"
 
 volumes:
@@ -85,3 +91,5 @@ networks:
   outside:
     external:
       name: "host"
+  local_proxy:
+    external: true
