@@ -18,9 +18,9 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
+        - "docker-volume-backup.stop-during-backup=true"
     networks:
       - monitoring
-      - proxy
 
   loki:
     image: grafana/loki:2.7.5
@@ -40,9 +40,9 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
+        - "docker-volume-backup.stop-during-backup=true"
     networks:
       - monitoring
-      - proxy
 
   uptime-kuma:
     image: louislam/uptime-kuma:1
@@ -59,12 +59,18 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.uptime-kuma-rtr.entrypoints=web"
+        - "traefik.http.routers.uptime-kuma-rtr.rule=Host(`uptime-kuma.local.sch-apps.com`)"
+        - "traefik.http.routers.uptime-kuma-rtr.service=uptime-kuma-svc"
+        - "traefik.http.services.uptime-kuma-svc.loadbalancer.server.port=3001"
         - "shepherd.updates=true"
+        - "docker-volume-backup.stop-during-backup=true"
     networks:
       - monitoring
-      - proxy
       - dockerproxy
       - media
+      - local_proxy
 
   prometheus:
     image: prom/prometheus
@@ -81,9 +87,40 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
+        - "docker-volume-backup.stop-during-backup=true"
     networks:
       - monitoring
-      - proxy
+    
+  backup:
+    image: offen/docker-volume-backup:v2
+    restart: unless-stopped
+    volumes:
+      - /mnt/ceph:/backup:ro #Location for the volumes to be backed up
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/samba/cloud-storage/onedrive/Eos_Backups:/archive # location to put the backups
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - BACKUP_CRON_EXPRESSION=0 2 * * * # Backup at 2am every morning, prior to the daily updater at 4am
+      - BACKUP_COMPRESSION=gz
+      - BACKUP_FILENAME=monitoring-%Y-%m-%dT%H-%M-%S.tar.gz
+      - BACKUP_LATEST_SYMLINK=backup.latest.tar.gz
+      - BACKUP_RETENTION_DAYS=5
+      - BACKUP_PRUNING_LEEWAY=3m
+      - GZIP_PARALLELISM=2
+      - BACKUP_PRUNING_PREFIX="monitoring-"
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1000M
+      placement:
+        constraints: 
+          - "node.role == manager"
+      labels:
+        - "shepherd.updates=true"
 
 volumes:
   grafana_data:
@@ -104,9 +141,9 @@ networks:
     name: monitoring
     driver: overlay
     attachable: true
-  proxy:
-    external: true
   dockerproxy:
     external: true
   media:
+    external: true
+  local_proxy:
     external: true
