@@ -18,6 +18,8 @@ services:
       - '/etc/localtime:/etc/localtime:ro'
       - '/mnt/ceph:/data/docker_volumes'
       - '/mnt/samba/media:/data/media'
+    networks:
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -25,7 +27,13 @@ services:
         constraints: 
           - "node.role == worker"
           - "node.labels.connection == standard"
+          - "node.labels.host_type == proxmox"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.krusader-rtr.entrypoints=web"
+        - "traefik.http.routers.krusader-rtr.rule=Host(`krusader.local.sch-apps.com`)"
+        - "traefik.http.routers.krusader-rtr.service=krusader-svc"
+        - "traefik.http.services.krusader-svc.loadbalancer.server.port=6080"
         - "shepherd.updates=true"
 
   filebrowser:
@@ -39,6 +47,8 @@ services:
     volumes:
       - '/mnt/ceph/filebrowser_data:/config'
       - '/mnt/ceph:/data/docker_volumes'
+    networks:
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -46,7 +56,13 @@ services:
         constraints: 
           - "node.role == worker"
           - "node.labels.connection == standard"
+          - "node.labels.host_type == proxmox"
       labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.filebrowser-rtr.entrypoints=web"
+        - "traefik.http.routers.filebrowser-rtr.rule=Host(`filebrowser.local.sch-apps.com`)"
+        - "traefik.http.routers.filebrowser-rtr.service=filebrowser-svc"
+        - "traefik.http.services.filebrowser-svc.loadbalancer.server.port=8080"
         - "shepherd.updates=true"
 
 volumes:
@@ -54,3 +70,8 @@ volumes:
     driver: local
   filebrowser_data:
     driver: local
+
+networks:
+  local_proxy:
+    external: true
+  
