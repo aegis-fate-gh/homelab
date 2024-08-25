@@ -91,9 +91,8 @@ services:
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/ceph/jellystat_data/jellystat:ro
-      - /mnt/ceph/jellystat_data/db:ro
-      - /mnt/ceph/jellyfin_data:ro
+      - /mnt/ceph/jellystat_data:/backup/jellystat:ro
+      - /mnt/ceph/jellyfin_data:/backup/jellyfin:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/samba/cloud-storage/onedrive/Eos_Backups:/archive
     deploy:
