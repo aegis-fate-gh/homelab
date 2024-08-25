@@ -104,7 +104,6 @@ services:
       placement:
         constraints: 
           - "node.role == manager"
-          - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
 
