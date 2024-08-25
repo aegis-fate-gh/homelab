@@ -24,6 +24,7 @@ services:
           - "node.labels.nvidia == true"
       labels:
         - "shepherd.updates=true"
+        - docker-volume-backup.stop-during-backup=true
 
   jellystat-db:
     image: postgres:15.2
@@ -44,6 +45,7 @@ services:
           - "node.labels.connection == standard"
       labels:
         - "shepherd.updates=true"
+        - docker-volume-backup.stop-during-backup=true
 
   jellystat:
     image: cyfershepard/jellystat:latest
@@ -74,6 +76,37 @@ services:
         - "traefik.http.routers.jellystat-rtr.rule=Host(`jellystat.local.sch-apps.com`)"
         - "traefik.http.routers.jellystat-rtr.service=jellystat-svc"
         - "traefik.http.services.jellystat-svc.loadbalancer.server.port=3000"
+        - "shepherd.updates=true"
+        - docker-volume-backup.stop-during-backup=true
+
+  backup:
+    image: offen/docker-volume-backup:v2
+    environment:
+      - BACKUP_FILENAME=jellyfin-%Y-%m-%dT%H-%M-%S.tar.gz
+      - BACKUP_LATEST_SYMLINK=jellyfin-latest.tar.gz
+      - BACKUP_CRON_EXPRESSION="0 * * * *"
+      - BACKUP_PRUNING_PREFIX=jellyfin-
+      - BACKUP_RETENTION_DAYS=7
+      - GZIP_PARALLELISM=3
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/ceph/jellystat_data/jellystat:ro
+      - /mnt/ceph/jellystat_data/db:ro
+      - /mnt/ceph/jellyfin_data:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/samba/cloud-storage/onedrive/Eos_Backups:/archive
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 2000M
+      placement:
+        constraints: 
+          - "node.role == manager"
+          - "node.labels.connection == standard"
+      labels:
         - "shepherd.updates=true"
 
 volumes:
