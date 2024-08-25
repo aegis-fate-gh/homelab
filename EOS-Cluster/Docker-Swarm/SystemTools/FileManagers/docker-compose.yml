@@ -17,7 +17,7 @@ services:
       - '/mnt/ceph/krusader_data:/config'
       - '/etc/localtime:/etc/localtime:ro'
       - '/mnt/ceph:/data/docker_volumes'
-      - '/mnt/samba/media:/data/media'
+      - '/mnt/samba:/data/samba'
     networks:
       - local_proxy
     deploy:

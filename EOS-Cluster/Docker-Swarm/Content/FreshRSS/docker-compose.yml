@@ -29,6 +29,33 @@ services:
         - "traefik.http.services.freshrss-svc.loadbalancer.server.port=80"
         - "shepherd.updates=true"
 
+    backup:
+      image: offen/docker-volume-backup:v2
+      environment:
+        - BACKUP_FILENAME=freshrss-%Y-%m-%dT%H-%M-%S.tar.gz
+        - BACKUP_CRON_EXPRESSION=5 7 * * * #Run at 7:05am UTC, 2:05AM CST
+        - BACKUP_PRUNING_PREFIX=freshrss-
+        - BACKUP_RETENTION_DAYS=7
+        - GZIP_PARALLELISM=3
+      volumes:
+        - /dev/shm:/tmp
+        - /etc/timezone:/etc/timezone:ro
+        - /etc/localtime:/etc/localtime:ro
+        - /mnt/ceph/freshrss_data:/backup/freshrss:ro
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        - /mnt/samba/cloud-storage/onedrive/Eos_Backups:/archive
+      deploy:
+        mode: replicated
+        replicas: 1
+        resources:
+          limits:
+            memory: 500M
+        placement:
+          constraints: 
+            - "node.role == manager"
+        labels:
+          - "shepherd.updates=true"
+
 volumes:
   freshrss_data:
     driver: local
