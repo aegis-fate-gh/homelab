@@ -1,8 +1,8 @@
 # To run:
-# ansible-playbook playbooks/cephfs.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
+# ansible-playbook playbooks/swarm/cephfs.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_eos_password.txt
 ---
 - name: Set up CephFS directories on Docker hosts
-  hosts: docker
+  hosts: defiant-03, voyager-01
   remote_user: ansible
   become: true
 

@@ -10,6 +10,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
+      - '/dev/shm:/config/transcodes'
       - '/mnt/ceph/jellyfin_data:/config'
       - '/mnt/samba/media:/media'
       - '/mnt/samba/cloud-storage/dropbox:/dropbox'
@@ -88,6 +89,7 @@ services:
       - BACKUP_RETENTION_DAYS=7
       - GZIP_PARALLELISM=3
     volumes:
+      - /mnt/ceph/scratch_data:/tmp
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /mnt/ceph/jellystat_data:/backup/jellystat:ro

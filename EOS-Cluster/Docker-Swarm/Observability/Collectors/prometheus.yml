@@ -14,3 +14,60 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
     - targets: ['localhost:9090']
+
+  - job_name: 'ubuntu-swarm'
+    static_configs:
+    - targets: ['192.168.6.40:9100','192.168.6.41:9100','192.168.6.42:9100','192.168.6.50:9100','192.168.6.51:9100','192.168.6.52:9100','192.168.27.60:9100','192.168.27.61:9100']
+
+  - job_name: 'ubuntu-standalone'
+    static_configs:
+    - targets: ['192.168.6.100:9100']
+
+  - job_name: 'cadvisor-swarm'
+    scrape_interval: 15s
+    static_configs:
+    - targets: ['192.168.6.40:8085','192.168.6.41:8085','192.168.6.42:8085','192.168.6.50:8085','192.168.6.51:8085','192.168.6.52:8085','192.168.27.60:8085','192.168.27.61:8085']
+
+  - job_name: 'cadvisor-standalone'
+    scrape_interval: 15s
+    static_configs:
+    - targets: ['192.168.6.100:8085']
+
+  - job_name: 'nvidia'
+    scrape_interval: 15s
+    static_configs:
+    - targets: ['192.168.6.50:9400','192.168.6.51:9400','192.168.6.52:9400']
+
+  - job_name: traefik
+    metrics_path: /metrics
+    static_configs:
+    - targets: ['192.168.6.7:8080']
+
+  - job_name: new-arcadia
+    scrape_interval: 15s
+    static_configs:
+    - targets: ['192.168.6.100:8000']
+  
+  - job_name: 'unpoller'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    static_configs:
+    - targets: ['192.168.6.7:9130']
+
+
+    - job_name: 'dockerswarm'
+      dockerswarm_sd_configs:
+        - host: http://dockerproxy:2375
+          role: tasks
+      relabel_configs:
+        # Only keep containers that should be running.
+        - source_labels: [__meta_dockerswarm_task_desired_state]
+          regex: running
+          action: keep
+        # Only keep containers that have a `prometheus-job` label.
+        - source_labels: [__meta_dockerswarm_service_label_prometheus_job]
+          regex: .+
+          action: keep
+        # Use the prometheus-job Swarm label as Prometheus job label.
+        - source_labels: [__meta_dockerswarm_service_label_prometheus_job]
+          target_label: job

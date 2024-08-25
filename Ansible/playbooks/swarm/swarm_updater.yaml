@@ -1,0 +1,23 @@
+# To run:
+# ansible-playbook playbooks/swarm/swarm_updater.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Run Package and kernel updates on the Swarm nodes one at a time. Rebooting if necessary
+  hosts: swarm
+  remote_user: ansible
+  become: true
+  serial: 1
+
+  tasks:
+    - name: Update and upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Check if a reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file
+
+    - name: Reboot if needed
+      ansible.builtin.reboot:
+        msg: "Ansible is rebooting this host in 5 seconds"
+      when: reboot_required_file.stat.exists == true

@@ -50,3 +50,9 @@ vms:
                       ansible_host: 192.168.27.60
                     defiant-02: 
                       ansible_host: 192.168.27.61
+                    defiant-03: 
+                      ansible_host: 192.168.27.62
+                lowpower:
+                  hosts:
+                    voyager-01: 
+                      ansible_host: 192.168.6.70

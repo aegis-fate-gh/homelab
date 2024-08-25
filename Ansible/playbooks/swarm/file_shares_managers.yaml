@@ -1,8 +1,8 @@
 # To run:
-# ansible-playbook playbooks/file_shares.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
+# ansible-playbook playbooks/file_shares_managers.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
 ---
 - name: Install the cifs-utils and create file shares on the worker nodes
-  hosts: workers
+  hosts: managers
   remote_user: ansible
   become: true
 
@@ -11,19 +11,6 @@
       ansible.builtin.apt:
         pkg:
           - cifs-utils
-
-    - name: Create mount points for the media samba shares
-      ansible.builtin.file:
-        path: /mnt/samba/media/{{ item }}
-        state: directory
-        recurse: yes
-        owner: ansible
-        group: docker
-        mode: '0755'
-      loop:
-        - media
-        - downloads
-        - disk-imports
 
     - name: Create mount points for the cloud storage samba shares
       ansible.builtin.file:
@@ -53,8 +40,5 @@
 
     - name: Create fstab entries, will be verified manually and then mounted
       ansible.builtin.shell: |
-        echo '//192.168.100.192/Media /mnt/samba/media/media cifs credentials=/root/smbcredentials/eos,uid=1000,gid=1000 0 0' >> /etc/fstab
-        echo '//192.168.100.42/Disk-Imports /mnt/samba/media/disk-imports cifs credentials=/root/smbcredentials/eos,uid=1000,gid=1000 0 0' >> /etc/fstab
-        echo '//192.168.100.42/Downloads /mnt/samba/media/downloads cifs credentials=/root/smbcredentials/eos,uid=1000,gid=1000 0 0' >> /etc/fstab
         echo '//192.168.100.42/Dropbox /mnt/samba/cloud-storage/dropbox cifs credentials=/root/smbcredentials/eos,uid=1000,gid=1000 0 0' >> /etc/fstab
         echo '//192.168.100.42/OneDrive /mnt/samba/cloud-storage/onedrive cifs credentials=/root/smbcredentials/eos,uid=1000,gid=1000 0 0' >> /etc/fstab

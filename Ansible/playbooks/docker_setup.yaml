@@ -1,10 +1,11 @@
 ---
 # Note, a lot of this is from: https://medium.com/@GarisSpace/how-to-install-docker-using-ansible-01a674086f8c
 # To run:
-# ansible-playbook playbooks/docker_setup.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
+# ansible-playbook playbooks/docker_setup.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_eos_password.txt
+# ansible-playbook playbooks/docker_setup.yaml -i inventories/andromeda.yaml --become-password-file=credentials/ansible_andromeda_password.txt
 
 - name: Set up Docker on hosts
-  hosts: docker
+  hosts: defiant-03, voyager-01
   remote_user: ansible
   become: true
   vars:

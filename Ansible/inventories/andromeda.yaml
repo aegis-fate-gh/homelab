@@ -1,0 +1,32 @@
+pve:
+  children:
+    hypervisor:
+      hosts:
+        andromeda:
+          ansible_host: 192.168.6.170
+    pve_test:
+      hosts:
+        pve-01:
+          ansible_host: 192.168.7.100
+        pve-02:
+          ansible_host: 192.168.7.101
+        pve-03:
+          ansible_host: 192.168.7.102
+k3s:
+  children:
+    servers:
+      hosts:
+        kt3-01m:
+          ansible_host: 192.168.7.20
+        kt3-02m:
+          ansible_host: 192.168.7.21
+        kt3-03m:
+          ansible_host: 192.168.7.22
+    agents:
+      hosts:
+        kt3-01w:
+          ansible_host: 192.168.7.30
+        kt3-02w:
+          ansible_host: 192.168.7.31
+        kt3-03w:
+          ansible_host: 192.168.7.32

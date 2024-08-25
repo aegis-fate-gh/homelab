@@ -1,7 +1,8 @@
 # To run:
-# ansible-playbook playbooks/qemu_guest_agent.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
+# ansible-playbook playbooks/qemu_guest_agent.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_eos_password.txt
+# ansible-playbook playbooks/qemu_guest_agent.yaml -i inventories/andromeda.yaml --become-password-file=credentials/ansible_andromeda_password.txt
 - name: Set up the Qemu Guest Agent
-  hosts: vms
+  hosts: swarm
   remote_user: ansible
   become: true
 
@@ -10,7 +11,7 @@
       ansible.builtin.apt:
         upgrade: dist
 
-    - name: Install the qemu package
+    - name: Install the Qemu Guest Agent package
       ansible.builtin.apt:
         pkg:
           - qemu-guest-agent

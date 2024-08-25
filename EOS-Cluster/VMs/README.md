@@ -11,6 +11,8 @@ Installing Nvidia GPU Drivers
 Go through the process, and follow the instructions
 https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=deb_local
 
+
+
 When this guide was written this was the process:
 
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
@@ -39,7 +41,7 @@ https://www.cherryservers.com/blog/install-cuda-ubuntu
 Specifically.....
 
 export PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=/usr/local/cuda-12.2/lib64\
+export LD_LIBRARY_PATH=/usr/local/cuda-12.5/lib64\
                          ${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
 Then reload the file
@@ -62,7 +64,7 @@ GPU UUID                              : GPU-6f43d74b-c54c-ec7b-9104-4bcf68fa2a46
 
 From that, take the first section (GPU-6f43d74b)
 
-Next add that portion into the below code before putting it into the daemon.json file:
+Next add that portion into the below code before putting it into the daemon.json (/etc/docker/daemon.json) file:
 
 {
   "runtimes": {

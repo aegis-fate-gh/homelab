@@ -40,5 +40,24 @@ https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install
 
 Add Node labels as appropriate. For Ex:
 docker node update --label-add nvidia=true sovereign-01
-docker node update --label-add connection=standard sovereign-01
-docker node update --label-add connection=vpn defiant-01
+docker node update --label-add connection=standard voyager-01
+docker node update --label-add connection=vpn defiant-03
+
+docker node update --label-add host_type=proxmox sovereign-01
+docker node update --label-add host_type=proxmox sovereign-02
+docker node update --label-add host_type=proxmox sovereign-03
+docker node update --label-add host_type=proxmox defiant-01
+docker node update --label-add host_type=proxmox defiant-02
+docker node update --label-add host_type=synology voyager-01
+docker node update --label-add host_type=synology defiant-03
+
+docker node update --label-add name=starbase-01 starbase-01
+docker node update --label-add name=starbase-02 starbase-02
+docker node update --label-add name=starbase-03 starbase-03
+docker node update --label-add name=sovereign-01 sovereign-01
+docker node update --label-add name=sovereign-02 sovereign-02
+docker node update --label-add name=sovereign-03 sovereign-03
+docker node update --label-add name=defiant-01 defiant-01
+docker node update --label-add name=defiant-02 defiant-02
+docker node update --label-add name=defiant-03 defiant-03
+docker node update --label-add name=voyager-01 voyager-01
