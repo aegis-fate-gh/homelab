@@ -28,6 +28,7 @@ services:
         - "traefik.http.routers.freshrss-rtr.service=freshrss-svc"
         - "traefik.http.services.freshrss-svc.loadbalancer.server.port=80"
         - "shepherd.updates=true"
+        - "docker-volume-backup.stop-during-backup=true"
 
   backup:
     image: offen/docker-volume-backup:v2
