@@ -156,6 +156,36 @@ services:
         - homepage.widget.url=http://radarr.local.sch-apps.com
         - homepage.widget.key=139cff2c5dc946b6ae4e9d9c74cc9408
 
+  backup:
+    image: offen/docker-volume-backup:v2
+    environment:
+      - BACKUP_FILENAME=acquisition-%Y-%m-%dT%H-%M-%S.tar.gz
+      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7am UTC, 2AM CST
+      - BACKUP_PRUNING_PREFIX=acquisition-
+      - BACKUP_RETENTION_DAYS=7
+      - GZIP_PARALLELISM=3
+    volumes:
+      - /dev/shm:/tmp
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/ceph/prowlarr_data:/backup/prowlarr:ro
+      - /mnt/ceph/bazarr_data:/backup/bazarr:ro
+      - /mnt/ceph/sonarr_data:/backup/sonarr:ro
+      - /mnt/ceph/radarr_data:/backup/radarr:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/samba/cloud-storage/onedrive/Eos_Backups:/archive
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 2000M
+      placement:
+        constraints: 
+          - "node.role == manager"
+      labels:
+        - "shepherd.updates=true"
+
 volumes:
   prowlarr_data:
     driver: local
