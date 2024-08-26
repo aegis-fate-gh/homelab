@@ -2,9 +2,9 @@ version: '3.8'
 
 services:
   server:
-    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    image: ghcr.io/immich-app/immich-server:$IMMICH_VERSION:-release
     volumes:
-      - ${UPLOAD_LOCATION}:/usr/src/app/upload
+      - $UPLOAD_LOCATION:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
