@@ -19,6 +19,7 @@
         - npm_data/npm
         - npm_data/npm-letsencrypt
         - influxdb_data
+        - influxdb2_data
         - chronograf_data
         - loki_data
         - telegraf_data
