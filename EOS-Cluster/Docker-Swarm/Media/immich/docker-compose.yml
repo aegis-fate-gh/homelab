@@ -10,7 +10,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     env_file:
-      - stack.env
+      - ../stack.env
     ports:
       - 2283:3001
     depends_on:
@@ -44,7 +44,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     env_file:
-      - stack.env
+      - ../stack.env
     healthcheck:
       disable: false
     networks:
@@ -83,7 +83,7 @@ services:
       POSTGRES_DB: ${DB_DATABASE_NAME}
       POSTGRES_INITDB_ARGS: '--data-checksums'
     env_file:
-      - stack.env
+      - ../stack.env
     volumes:
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
     healthcheck:
