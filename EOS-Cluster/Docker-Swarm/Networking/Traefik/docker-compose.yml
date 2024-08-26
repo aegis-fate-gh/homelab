@@ -12,6 +12,12 @@ services:
       - --entryPoints.web.address=:80
       - --entryPoints.websecure.address=:443
       - --entryPoints.web.forwardedHeaders.trustedIPs=192.168.6.90/24, 10.0.0.0/24
+      - --entryPoints.web.transport.respondingTimeouts.readTimeout=300
+      - --entryPoints.web.transport.respondingTimeouts.writeimeout=300
+      - --entryPoints.web.transport.respondingTimeouts.idleTimeout=300
+      - --entryPoints.websecure.transport.respondingTimeouts.readTimeout=300
+      - --entryPoints.websecure.transport.respondingTimeouts.writeimeout=300
+      - --entryPoints.websecure.transport.respondingTimeouts.idleTimeout=300
       - --metrics.prometheus=true
     ports:
       # The HTTP port
