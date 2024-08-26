@@ -70,7 +70,7 @@ services:
         - "traefik.http.routers.chronograf-rtr.entrypoints=web"
         - "traefik.http.routers.chronograf-rtr.rule=Host(`chronograf.local.sch-apps.com`)"
         - "traefik.http.routers.chronograf-rtr.service=chronograf-svc"
-        - "traefik.http.services.chronograf-svc.loadbalancer.server.port=3001"
+        - "traefik.http.services.chronograf-svc.loadbalancer.server.port=8888"
         - "shepherd.updates=true"
     networks:
       - monitoring
