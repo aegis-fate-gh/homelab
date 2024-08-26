@@ -40,7 +40,7 @@ services:
         - "shepherd.updates=true"
 
   machine-learning:
-    image: ghcr.io/immich-app/immich-machine-learning:$IMMICH_VERSION:-release-cuda
+    image: ghcr.io/immich-app/immich-machine-learning:pr-11758-cuda@sha256:35c98fc2b9388170588cfa98a2551934b5c1c3a2ebcee289af5daef90c6a8724
     volumes:
       - /mnt/ceph/immich_data/model-cache:/cache
     environment:
