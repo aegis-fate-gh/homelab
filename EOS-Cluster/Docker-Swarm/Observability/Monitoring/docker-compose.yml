@@ -53,7 +53,7 @@ services:
     ports:
       - '8888:8888'
     volumes:
-      - '/mnt/ceph/chronograf_data:/var/lib/chronograf'
+      - '/mnt/ceph/chronograf_data:/usr/lib/chronograf'
     environment:
       - INFLUXDB_URL=http://influxdb:8086
       - INFLUXDB_USERNAME=$INFLUXDB_ADMIN_USER
