@@ -62,6 +62,8 @@
         - kavita_data
         - mkvtoolnix_data
         - scratch_data
+        - immich_data
+        - immich_data/postgres
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
