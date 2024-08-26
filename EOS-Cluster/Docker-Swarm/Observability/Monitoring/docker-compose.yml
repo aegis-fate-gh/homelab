@@ -21,27 +21,6 @@ services:
     networks:
       - monitoring
 
-  loki:
-    image: grafana/loki:2.7.5
-    ports:
-      - '3100:3100'
-    environment:
-      - TZ=America/Chicago
-    volumes:
-      - '/mnt/ceph/loki_data:/etc/loki'
-    command: -config.file=/etc/loki/local-config.yaml
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints: 
-          - "node.role == worker"
-          - "node.labels.connection == standard"
-      labels:
-        - "shepherd.updates=true"
-    networks:
-      - monitoring
-
   uptime-kuma:
     image: louislam/uptime-kuma:1
     volumes:
@@ -69,36 +48,12 @@ services:
       - media
       - local_proxy
 
-  prometheus:
-    image: prom/prometheus
-    volumes:
-      - '/mnt/ceph/prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml'
-    ports:
-      - 9090:9090
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints: 
-          - "node.role == worker"
-          - "node.labels.connection == standard"
-      labels:
-        - "shepherd.updates=true"
-    networks:
-      - monitoring
-
 volumes:
   grafana_data:
     driver: local
-  influxdb_data:
-    driver: local
   chronograf_data:
     driver: local
-  loki_data:
-    driver: local
   uptime-kuma_data:
-    driver: local
-  prometheus_data:
     driver: local
 
 networks:

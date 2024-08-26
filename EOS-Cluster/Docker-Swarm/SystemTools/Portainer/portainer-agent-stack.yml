@@ -29,7 +29,7 @@ services:
       - portainer_data:/data
     networks:
       - agent_network
-      - proxy
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -43,7 +43,7 @@ networks:
   agent_network:
     driver: overlay
     attachable: true
-  proxy:
+  local_proxy:
     external: true
 
 volumes:
