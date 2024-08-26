@@ -64,6 +64,7 @@
         - scratch_data
         - immich_data
         - immich_data/postgres
+        - immich_data/model-cache
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
