@@ -31,11 +31,11 @@ services:
         - homepage.group=Media Front End
         - homepage.name=Overseerr
         - homepage.icon=overseerr.png
-        - homepage.href=http://overseerr.local.sch-apps.com
+        - homepage.href=https://requests.sch-apps.com
         - homepage.description=Overseerr media requests
         - homepage.widget.type=overseerr
         - homepage.widget.target=_blank
-        - homepage.widget.url=http://overseerr.local.sch-apps.com
+        - homepage.widget.url=https://requests.sch-apps.com
         - homepage.widget.key=$key
 
 volumes:
