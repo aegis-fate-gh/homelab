@@ -29,12 +29,9 @@ services:
         - homepage.href=http://grafana.local.sch-apps.com
         - homepage.description=External service status
         - homepage.widget.type=grafana
-        - homepage.widget.target=_blank
         - homepage.widget.url=http://grafana.local.sch-apps.com
         - homepage.widget.username=$hpusername
         - homepage.widget.password=$hppassword
-        - homepage.widget.server=my-docker
-        - homepage.widget.container=observability-monitoring_grafana
     networks:
       - monitoring
       - local_proxy
@@ -66,7 +63,6 @@ services:
         - homepage.href=http://uptime-kuma.local.sch-apps.com
         - homepage.description=External service status
         - homepage.widget.type=uptimekuma
-        - homepage.widget.target=_blank
         - homepage.widget.url=http://192.168.6.7:3001
         - homepage.widget.slug=all-homelab-services
     networks:
