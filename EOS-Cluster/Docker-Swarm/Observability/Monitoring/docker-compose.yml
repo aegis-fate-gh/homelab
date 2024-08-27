@@ -17,9 +17,25 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
-        - "shepherd.updates=true"
+        - traefik.enable=true
+        - traefik.http.routers.grafana-rtr.entrypoints=web
+        - traefik.http.routers.grafana-rtr.rule=Host(`grafana.local.sch-apps.com`)
+        - traefik.http.routers.grafana-rtr.service=grafana-svc
+        - traefik.http.services.grafana-svc.loadbalancer.server.port=3000
+        - shepherd.updates=true
+        - homepage.group=Eos Swarm Cluster
+        - homepage.name=Grafana
+        - homepage.icon=grafana.png
+        - homepage.href=http://grafana.local.sch-apps.com
+        - homepage.description=External service status
+        - homepage.widget.type=grafana
+        - homepage.widget.target=_blank
+        - homepage.widget.url=http://grafana.local.sch-apps.com
+        - homepage.widget.username=$hpusername
+        - homepage.widget.password=$hppassword
     networks:
       - monitoring
+      - local_proxy
 
   uptime-kuma:
     image: louislam/uptime-kuma:1
