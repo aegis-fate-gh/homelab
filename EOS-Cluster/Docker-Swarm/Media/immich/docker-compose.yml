@@ -32,7 +32,7 @@ services:
           - "node.role == worker"
           - "node.labels.nvidia == true"
       labels:
-        - traefik.enable=true"
+        - traefik.enable=true
         - traefik.http.routers.immich-rtr.entrypoints=web
         - traefik.http.routers.immich-rtr.rule=Host(`immich.local.sch-apps.com`)
         - traefik.http.routers.immich-rtr.service=immich-svc
