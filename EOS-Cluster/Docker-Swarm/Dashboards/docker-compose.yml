@@ -7,8 +7,8 @@ services:
       - 3200:3000
     volumes:
       - /mnt/ceph/homepage_data:/app/config # Make sure your local config directory exists
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - dockerproxy
       - local_proxy
     deploy:
       mode: replicated
@@ -17,19 +17,17 @@ services:
         constraints: 
           - "node.role == manager"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.homepage-rtr.entrypoints=web"
-        - "traefik.http.routers.homepage-rtr.rule=Host(`homepage.local.sch-apps.com`)"
-        - "traefik.http.routers.homepage-rtr.service=homepage-svc"
-        - "traefik.http.services.homepage-svc.loadbalancer.server.port=3000"
-        - "shepherd.updates=true"
+        - traefik.enable=true
+        - traefik.http.routers.homepage-rtr.entrypoints=web
+        - traefik.http.routers.homepage-rtr.rule=Host(`homepage.local.sch-apps.com`)
+        - traefik.http.routers.homepage-rtr.service=homepage-svc
+        - traefik.http.services.homepage-svc.loadbalancer.server.port=3000
+        - shepherd.updates=true
 
 volumes:
   homepage_data:
     driver: local
 
 networks:
-  dockerproxy:
-    external: true
   local_proxy:
     external: true
