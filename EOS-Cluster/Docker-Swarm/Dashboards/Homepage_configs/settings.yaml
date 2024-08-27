@@ -3,6 +3,7 @@ title: Homelab
 statusStyle: "dot"
 hideErrors: true
 headerStyle: clean
+showStats: true
 
 quicklaunch:
   searchDescriptions: true
