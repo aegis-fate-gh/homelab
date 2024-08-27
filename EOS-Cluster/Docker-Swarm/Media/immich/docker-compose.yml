@@ -32,12 +32,21 @@ services:
           - "node.role == worker"
           - "node.labels.nvidia == true"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.immich-rtr.entrypoints=web"
-        - "traefik.http.routers.immich-rtr.rule=Host(`immich.local.sch-apps.com`)"
-        - "traefik.http.routers.immich-rtr.service=immich-svc"
-        - "traefik.http.services.immich-svc.loadbalancer.server.port=3001"
-        - "shepherd.updates=true"
+        - traefik.enable=true"
+        - traefik.http.routers.immich-rtr.entrypoints=web
+        - traefik.http.routers.immich-rtr.rule=Host(`immich.local.sch-apps.com`)
+        - traefik.http.routers.immich-rtr.service=immich-svc
+        - traefik.http.services.immich-svc.loadbalancer.server.port=3001
+        - shepherd.updates=true
+        - homepage.group=Media Front End
+        - homepage.name=immich
+        - homepage.icon=immich.png
+        - homepage.href=http://immich.local.sch-apps.com
+        - homepage.description=The photo and video repository
+        - homepage.widget.type=immich
+        - homepage.widget.target=_blank
+        - homepage.widget.url=http://immich.local.sch-apps.com
+        - homepage.widget.key=$apikey
 
   machine-learning:
     image: ghcr.io/immich-app/immich-machine-learning:pr-11758-cuda@sha256:35c98fc2b9388170588cfa98a2551934b5c1c3a2ebcee289af5daef90c6a8724
