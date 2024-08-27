@@ -17,51 +17,21 @@ services:
     networks:
       - collectors
 
-  minecraft-exporter:
-    image: joshi425/minecraft_exporter
-    restart: always
-    container_name: minecraft_exporter
+  telegraf:
+    image: docker.io/telegraf:latest
     environment:
-      - RCON_HOST=192.168.6.100
-      - RCON_PORT=25575
-      - RCON_PASSWORD=$rcon_password
-    ports:
-      - 8000:8000
+      - TZ=America/Chicago
+      - HOST_OS=ubuntu
+      - HOST_PROC=/rootfs/proc
+      - HOST_SYS=/rootfs/sys
+      - HOST_ETC=/rootfs/etc
+      - HOST_MOUNT_PREFIX=/rootfs
     volumes:
-      - /var/lib/pterodactyl/volumes/85f44477-f6be-4c6e-9b09-9a15532dad48/world:/world:ro
-    networks:
-      - collectors
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    restart: always
-    container_name: cadvisor
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /var/lib/pterodactyl/:/var/lib/pterodactyl:ro
-    ports:
-      - 8085:8080
-    networks:
-      - collectors
-
-  node-exporter:
-    image: prom/node-exporter:latest
-    restart: always
-    container_name: node-exporter
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    ports:
-      - 9100:9100
+      - /var/lib/docker/volumes/telegraf_data/standard/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/rootfs/sys:ro
+      - /proc:/rootfs/proc:ro
+      - /etc:/rootfs/etc:ro
     networks:
       - collectors
 
