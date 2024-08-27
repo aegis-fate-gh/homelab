@@ -44,7 +44,7 @@ services:
         - shepherd.updates=true"
         - homepage.group=Eos Swarm Cluster
         - homepage.name=Uptime-Kuma
-        - homepage.icon=Uptime-Kuma.png
+        - homepage.icon=uptime-kuma.png
         - homepage.href=http://uptime-kuma.local.sch-apps.com
         - homepage.description=External service status
         - homepage.widget.type=uptimekuma
