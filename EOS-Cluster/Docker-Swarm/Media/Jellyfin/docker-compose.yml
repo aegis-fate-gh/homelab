@@ -24,7 +24,7 @@ services:
           - "node.role == worker"
           - "node.labels.nvidia == true"
       labels:
-        - shepherd.updates=true
+        - "shepherd.updates=true"
         - docker-volume-backup.stop-during-backup=true
         - homepage.group=Media Front End
         - homepage.name=Jellyfin
