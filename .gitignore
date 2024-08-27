@@ -10,3 +10,4 @@ EOS-Cluster/Docker-Swarm/Dashboards/Homepage_configs/services.yaml
 *secrets.env
 Ansible/playbooks/media_cephfs.yaml
 EOS-Cluster/Docker-Swarm/Gaming/Pterodactyl/NewArcadia/telegraf.conf
+EOS-Cluster/Docker-Swarm/Observability/NewArcadia/telegraf.conf
