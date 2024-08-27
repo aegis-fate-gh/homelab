@@ -22,13 +22,23 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.freshrss-rtr.entrypoints=web"
-        - "traefik.http.routers.freshrss-rtr.rule=Host(`freshrss.local.sch-apps.com`)"
-        - "traefik.http.routers.freshrss-rtr.service=freshrss-svc"
-        - "traefik.http.services.freshrss-svc.loadbalancer.server.port=80"
-        - "shepherd.updates=true"
-        - "docker-volume-backup.stop-during-backup=true"
+        - traefik.enable=true"
+        - traefik.http.routers.freshrss-rtr.entrypoints=web
+        - traefik.http.routers.freshrss-rtr.rule=Host(`freshrss.local.sch-apps.com`)
+        - traefik.http.routers.freshrss-rtr.service=freshrss-svc
+        - traefik.http.services.freshrss-svc.loadbalancer.server.port=80
+        - shepherd.updates=true
+        - docker-volume-backup.stop-during-backup=true
+        - homepage.group=Media Front End
+        - homepage.name=freshrss
+        - homepage.icon=freshrss.png
+        - homepage.href=http://freshrss.local.sch-apps.com
+        - homepage.description=Reads and feeds
+        - homepage.widget.type=freshrss
+        - homepage.widget.target=_blank
+        - homepage.widget.url=http://freshrss.local.sch-apps.com
+        - homepage.widget.username=$username
+        - homepage.widget.password=$password
 
   backup:
     image: offen/docker-volume-backup:v2
