@@ -164,7 +164,7 @@ services:
     image: offen/docker-volume-backup:v2
     environment:
       - BACKUP_FILENAME=acquisition-%Y-%m-%dT%H-%M-%S.tar.gz
-      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7am UTC, 2AM CST
+      - BACKUP_CRON_EXPRESSION=20 7 * * * #Run at 7:20am UTC, 2:20AM CST
       - BACKUP_PRUNING_PREFIX=acquisition-
       - BACKUP_RETENTION_DAYS=7
       - GZIP_PARALLELISM=3

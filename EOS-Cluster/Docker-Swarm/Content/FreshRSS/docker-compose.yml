@@ -44,7 +44,7 @@ services:
     image: offen/docker-volume-backup:v2
     environment:
       - BACKUP_FILENAME=freshrss-%Y-%m-%dT%H-%M-%S.tar.gz
-      - BACKUP_CRON_EXPRESSION=5 7 * * * #Run at 7:05am UTC, 2:05AM CST
+      - BACKUP_CRON_EXPRESSION=10 7 * * * #Run at 7:10am UTC, 2:10AM CST
       - BACKUP_PRUNING_PREFIX=freshrss-
       - BACKUP_RETENTION_DAYS=7
       - GZIP_PARALLELISM=3
