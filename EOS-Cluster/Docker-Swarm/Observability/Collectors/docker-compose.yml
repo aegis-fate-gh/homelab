@@ -40,7 +40,7 @@ services:
       - monitoring
 
   telegraf-standard:
-    image: docker.io/telegraf:1.20.2 # Last version before they switched to a non root user
+    image: docker.io/telegraf:latest
     environment:
       - TZ=America/Chicago
       - HOST_OS=ubuntu
@@ -59,6 +59,8 @@ services:
       placement:
         constraints: 
           - "node.labels.nvidia == false"
+      labels:
+        - "shepherd.updates=true"
     networks:
       - monitoring
 
