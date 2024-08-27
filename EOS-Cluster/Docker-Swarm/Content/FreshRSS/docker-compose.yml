@@ -22,7 +22,7 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
-        - traefik.enable=true"
+        - traefik.enable=true
         - traefik.http.routers.freshrss-rtr.entrypoints=web
         - traefik.http.routers.freshrss-rtr.rule=Host(`freshrss.local.sch-apps.com`)
         - traefik.http.routers.freshrss-rtr.service=freshrss-svc
