@@ -39,6 +39,29 @@ services:
     networks:
       - monitoring
 
+  telegraf-standard:
+    image: docker.io/telegraf:1.20.2 # Last version before they switched to a non root user
+    environment:
+      - TZ=America/Chicago
+      - HOST_OS=ubuntu
+      - HOST_PROC=/rootfs/proc
+      - HOST_SYS=/rootfs/sys
+      - HOST_ETC=/rootfs/etc
+      - HOST_MOUNT_PREFIX=/rootfs
+    volumes:
+      - /mnt/ceph/telegraf_data/standard/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/rootfs/sys:ro
+      - /proc:/rootfs/proc:ro
+      - /etc:/rootfs/etc:ro
+    deploy:
+      mode: global
+      placement:
+        constraints: 
+          - "node.labels.nvidia == false"
+    networks:
+      - monitoring
+
 volumes:
   telegraf_data:
     driver: local
