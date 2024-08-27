@@ -75,13 +75,14 @@ services:
       - HOST_SYS=/rootfs/sys
       - HOST_ETC=/rootfs/etc
       - HOST_MOUNT_PREFIX=/rootfs
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=utility
     volumes:
       - /mnt/ceph/telegraf_data/gpu/telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/rootfs/sys:ro
       - /proc:/rootfs/proc:ro
       - /etc:/rootfs/etc:ro
-      - /usr/bin/nvidia-smi:ro
     deploy:
       mode: global
       placement:
