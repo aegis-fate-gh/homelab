@@ -29,7 +29,7 @@ services:
         - homepage.name=Jellyfin
         - homepage.icon=jellyfin.png
         - homepage.href=https://jellyfin.sch-apps.com
-        - homepage.description=Jellyfin server
+        - homepage.description=Jellyfin media server
         - homepage.widget.type=jellyfin
         - homepage.widget.target=_blank
         - homepage.widget.url=https://jellyfin.sch-apps.com
