@@ -25,12 +25,22 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.qbittorrent-rtr.entrypoints=web"
-        - "traefik.http.routers.qbittorrent-rtr.rule=Host(`qbittorrent.local.sch-apps.com`)"
-        - "traefik.http.routers.qbittorrent-rtr.service=qbittorrent-svc"
-        - "traefik.http.services.qbittorrent-svc.loadbalancer.server.port=8080"
-        - "shepherd.updates=true"
+        - traefik.enable=true
+        - traefik.http.routers.qbittorrent-rtr.entrypoints=web
+        - traefik.http.routers.qbittorrent-rtr.rule=Host(`qbittorrent.local.sch-apps.com`)
+        - traefik.http.routers.qbittorrent-rtr.service=qbittorrent-svc
+        - traefik.http.services.qbittorrent-svc.loadbalancer.server.port=8080
+        - homepage.group=Media Acquisition
+        - homepage.name=qBittorrent
+        - homepage.icon=qbittorrent.png
+        - homepage.href=http://qbittorrent.local.sch-apps.com
+        - homepage.description=Content downloader
+        - homepage.widget.type=qbittorrent
+        - homepage.widget.target=_blank
+        - homepage.widget.url=http://qbittorrent.local.sch-apps.com
+        - homepage.widget.username=$username
+        - homepage.widget.password=$password
+        - shepherd.updates=true
 
   jdownloader-2:
     image: jlesage/jdownloader-2
@@ -49,12 +59,12 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.jdownloader-rtr.entrypoints=web"
-        - "traefik.http.routers.jdownloader-rtr.rule=Host(`jdownloader.local.sch-apps.com`)"
-        - "traefik.http.routers.jdownloader-rtr.service=jdownloader-svc"
-        - "traefik.http.services.jdownloader-svc.loadbalancer.server.port=5800"
-        - "shepherd.updates=true"
+        - traefik.enable=true
+        - traefik.http.routers.jdownloader-rtr.entrypoints=web
+        - traefik.http.routers.jdownloader-rtr.rule=Host(`jdownloader.local.sch-apps.com`)
+        - traefik.http.routers.jdownloader-rtr.service=jdownloader-svc
+        - traefik.http.services.jdownloader-svc.loadbalancer.server.port=5800
+        - shepherd.updates=true
   
 volumes:
   qbittorrent_data:

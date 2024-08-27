@@ -23,11 +23,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.prowlarr-rtr.entrypoints=web"
-        - "traefik.http.routers.prowlarr-rtr.rule=Host(`prowlarr.local.sch-apps.com`)"
-        - "traefik.http.routers.prowlarr-rtr.service=prowlarr-svc"
-        - "traefik.http.services.prowlarr-svc.loadbalancer.server.port=9696"
+        - traefik.enable=true
+        - traefik.http.routers.prowlarr-rtr.entrypoints=web
+        - traefik.http.routers.prowlarr-rtr.rule=Host(`prowlarr.local.sch-apps.com`)
+        - traefik.http.routers.prowlarr-rtr.service=prowlarr-svc
+        - traefik.http.services.prowlarr-svc.loadbalancer.server.port=9696
         - shepherd.updates=true
         - homepage.group=Media Acquisition
         - homepage.name=Prowlarr
@@ -63,11 +63,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.bazarr-rtr.entrypoints=web"
-        - "traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.local.sch-apps.com`)"
-        - "traefik.http.routers.bazarr-rtr.service=bazarr-svc"
-        - "traefik.http.services.bazarr-svc.loadbalancer.server.port=6767"
+        - traefik.enable=true"
+        - traefik.http.routers.bazarr-rtr.entrypoints=web
+        - traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.local.sch-apps.com`)
+        - traefik.http.routers.bazarr-rtr.service=bazarr-svc
+        - traefik.http.services.bazarr-svc.loadbalancer.server.port=6767
         - shepherd.updates=true
         - homepage.group=Media Acquisition
         - homepage.name=Bazarr
@@ -103,11 +103,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.sonarr-rtr.entrypoints=web"
-        - "traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.local.sch-apps.com`)"
-        - "traefik.http.routers.sonarr-rtr.service=sonarr-svc"
-        - "traefik.http.services.sonarr-svc.loadbalancer.server.port=8989"
+        - traefik.enable=true
+        - traefik.http.routers.sonarr-rtr.entrypoints=web
+        - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.local.sch-apps.com`)
+        - traefik.http.routers.sonarr-rtr.service=sonarr-svc
+        - traefik.http.services.sonarr-svc.loadbalancer.server.port=8989
         - shepherd.updates=true
         - homepage.group=Media Acquisition
         - homepage.name=Sonarr
@@ -143,11 +143,11 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.radarr-rtr.entrypoints=web"
-        - "traefik.http.routers.radarr-rtr.rule=Host(`radarr.local.sch-apps.com`)"
-        - "traefik.http.routers.radarr-rtr.service=radarr-svc"
-        - "traefik.http.services.radarr-svc.loadbalancer.server.port=7878"
+        - traefik.enable=true
+        - traefik.http.routers.radarr-rtr.entrypoints=web
+        - traefik.http.routers.radarr-rtr.rule=Host(`radarr.local.sch-apps.com`)
+        - traefik.http.routers.radarr-rtr.service=radarr-svc
+        - traefik.http.services.radarr-svc.loadbalancer.server.port=7878
         - shepherd.updates=true
         - homepage.group=Media Acquisition
         - homepage.name=radarr
