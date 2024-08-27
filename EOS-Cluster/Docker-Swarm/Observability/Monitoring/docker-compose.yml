@@ -75,14 +75,15 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.chronograf-rtr.entrypoints=web"
-        - "traefik.http.routers.chronograf-rtr.rule=Host(`chronograf.local.sch-apps.com`)"
-        - "traefik.http.routers.chronograf-rtr.service=chronograf-svc"
-        - "traefik.http.services.chronograf-svc.loadbalancer.server.port=8888"
-        - "shepherd.updates=true"
+        - traefik.enable=true
+        - traefik.http.routers.chronograf-rtr.entrypoints=web
+        - traefik.http.routers.chronograf-rtr.rule=Host(`chronograf.local.sch-apps.com`)
+        - traefik.http.routers.chronograf-rtr.service=chronograf-svc
+        - traefik.http.services.chronograf-svc.loadbalancer.server.port=8888
+        - shepherd.updates=true
     networks:
       - monitoring
+      - local_proxy
 
 volumes:
   grafana_data:
