@@ -33,8 +33,8 @@ services:
         - homepage.widget.url=http://grafana.local.sch-apps.com
         - homepage.widget.username=$hpusername
         - homepage.widget.password=$hppassword
-        - homepage.server=my-docker
-        - homepage.container=observability-monitoring_grafana
+        - homepage.widget.server=my-docker
+        - homepage.widget.container=observability-monitoring_grafana
     networks:
       - monitoring
       - local_proxy
