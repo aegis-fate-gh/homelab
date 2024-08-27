@@ -41,6 +41,7 @@ services:
 
   telegraf-standard:
     image: docker.io/telegraf:latest
+    hostname: "{{.Node.Hostname}}"
     environment:
       - TZ=America/Chicago
       - HOST_OS=ubuntu
