@@ -18,7 +18,19 @@ layout:
   Eos Cluster:
     style: row
     columns: 3
-  PiHole Cluster:
+  System Tools:
+    style: row
+    columns: 3
+  Web Apps:
+    style: row
+    columns: 5
+  File Management:
+    style: row
+    columns: 4
+  Media Front End:
+    style: row
+    columns: 3
+  Media Tools:
     style: row
     columns: 3
   Media Acquisition:
