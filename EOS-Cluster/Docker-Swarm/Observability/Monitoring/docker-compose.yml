@@ -43,13 +43,13 @@ services:
         - traefik.http.services.uptime-kuma-svc.loadbalancer.server.port=3001
         - shepherd.updates=true"
         - homepage.group=Eos Swarm Cluster
-        - homepage.name=uptimekuma
-        - homepage.icon=uptimekuma.png
-        - homepage.href=http://uptime-kuma.local.sch-apps.com/
+        - homepage.name=Uptime-Kuma
+        - homepage.icon=Uptime-Kuma.png
+        - homepage.href=http://uptime-kuma.local.sch-apps.com
         - homepage.description=External service status
         - homepage.widget.type=uptimekuma
         - homepage.widget.target=_blank
-        - homepage.widget.url=http://uptime-kuma.local.sch-apps.com/
+        - homepage.widget.url=http://192.168.6.7:3001
         - homepage.widget.slug=all-homelab-services
     networks:
       - monitoring
