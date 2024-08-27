@@ -19,6 +19,7 @@ services:
 
   telegraf:
     image: docker.io/telegraf:latest
+    container_name: telegraf
     environment:
       - TZ=America/Chicago
       - HOST_OS=ubuntu
