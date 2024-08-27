@@ -37,7 +37,7 @@ services:
         - homepage.widget.type=prowlarr
         - homepage.widget.target=_blank
         - homepage.widget.url=http://prowlarr.local.sch-apps.com
-        - homepage.widget.key=3978745a0b7b4009bf63a40486a1615c
+        - homepage.widget.key=$prowlarrkey
         - docker-volume-backup.stop-during-backup=true
 
   bazarr:
@@ -77,7 +77,7 @@ services:
         - homepage.widget.type=bazarr
         - homepage.widget.target=_blank
         - homepage.widget.url=http://bazarr.local.sch-apps.com
-        - homepage.widget.key=845515585f029aa30d8ff949fff0182a
+        - homepage.widget.key=$bazarrkey
         - docker-volume-backup.stop-during-backup=true
 
   sonarr:
@@ -117,7 +117,7 @@ services:
         - homepage.widget.type=sonarr
         - homepage.widget.target=_blank
         - homepage.widget.url=http://sonarr.local.sch-apps.com
-        - homepage.widget.key=f979c4c17c0c48ccac97ad8f4fcdf36a
+        - homepage.widget.key=$sonarrkey
         - docker-volume-backup.stop-during-backup=true
 
   radarr:
@@ -157,7 +157,7 @@ services:
         - homepage.widget.type=radarr
         - homepage.widget.target=_blank
         - homepage.widget.url=http://radarr.local.sch-apps.com
-        - homepage.widget.key=139cff2c5dc946b6ae4e9d9c74cc9408
+        - homepage.widget.key=$radarrkey
         - docker-volume-backup.stop-during-backup=true
 
   backup:
