@@ -63,7 +63,7 @@ services:
           - "node.role == worker"
           - "node.labels.connection == vpn"
       labels:
-        - traefik.enable=true"
+        - traefik.enable=true
         - traefik.http.routers.bazarr-rtr.entrypoints=web
         - traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.local.sch-apps.com`)
         - traefik.http.routers.bazarr-rtr.service=bazarr-svc
