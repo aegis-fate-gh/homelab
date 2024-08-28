@@ -95,6 +95,8 @@ services:
 
   varken:
     image: boerderij/varken
+    volumes:
+      - /mnt/ceph/varken_data/:/config
     environment:
       - TZ=America/Chicago
       - VRKN_GLOBAL_TAUTULLI_SERVER_IDS=1
