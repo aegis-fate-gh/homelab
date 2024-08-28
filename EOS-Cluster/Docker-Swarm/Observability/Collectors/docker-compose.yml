@@ -93,13 +93,29 @@ services:
     networks:
       - monitoring
 
-  prom-plex-exporter:
-    image: ghcr.io/jsclayton/prometheus-plex-exporter
-    ports:
-      - 9001:9000/tcp
+  varken:
+    image: boerderij/varken
+    volumes:
+      - /path/to/docker-varken/config-folder:/config
     environment:
-      PLEX_SERVER: $plex_url
-      PLEX_TOKEN: $plex_token
+      - TZ=America/Chicago
+      - VRKN_GLOBAL_TAUTULLI_SERVER_IDS=1
+      - VRKN_GLOBAL_MAXMIND_LICENSE_KEY=$maxmind_license
+      - VRKN_INFLUXDB_URL=influxdb:8086
+      - VRKN_INFLUXDB_PORT=8086
+      - VRKN_INFLUXDB_SSL=false
+      - VRKN_INFLUXDB_VERIFY_SSL=false
+      - VRKN_INFLUXDB_USERNAME=varken
+      - VRKN_INFLUXDB_PASSWORD=$influxdb_password
+      - VRKN_TAUTULLI_1_URL=tautulli:8181
+      - VRKN_TAUTULLI_1_FALLBACK_IP=1.1.1.1
+      - VRKN_TAUTULLI_1_APIKEY=$tautulli_api
+      - VRKN_TAUTULLI_1_SSL=false
+      - VRKN_TAUTULLI_1_VERIFY_SSL=false
+      - VRKN_TAUTULLI_1_GET_ACTIVITY=true
+      - VRKN_TAUTULLI_1_GET_ACTIVITY_RUN_SECONDS=30
+      - VRKN_TAUTULLI_1_GET_STATS=true
+      - VRKN_TAUTULLI_1_GET_STATS_RUN_SECONDS=3600
     deploy:
       mode: replicated
       replicas: 1
@@ -108,9 +124,10 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
-        - shepherd.updates=true
+        - "shepherd.updates=true"
     networks:
       - monitoring
+      - media
 
 volumes:
   telegraf_data:
@@ -120,4 +137,6 @@ volumes:
 
 networks:
   monitoring:
+    external: true
+  media:
     external: true
