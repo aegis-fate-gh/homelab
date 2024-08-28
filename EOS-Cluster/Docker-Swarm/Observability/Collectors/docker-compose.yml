@@ -101,13 +101,13 @@ services:
       - TZ=America/Chicago
       - VRKN_GLOBAL_TAUTULLI_SERVER_IDS=1
       - VRKN_GLOBAL_MAXMIND_LICENSE_KEY=$maxmind_license
-      - VRKN_INFLUXDB_URL=influxdb:8086
+      - VRKN_INFLUXDB_URL=http://influxdb:8086
       - VRKN_INFLUXDB_PORT=8086
       - VRKN_INFLUXDB_SSL=false
       - VRKN_INFLUXDB_VERIFY_SSL=false
       - VRKN_INFLUXDB_USERNAME=varken
       - VRKN_INFLUXDB_PASSWORD=$influxdb_password
-      - VRKN_TAUTULLI_1_URL=tautulli:8181
+      - VRKN_TAUTULLI_1_URL=http://tautulli:8181
       - VRKN_TAUTULLI_1_FALLBACK_IP=1.1.1.1
       - VRKN_TAUTULLI_1_APIKEY=$tautulli_api
       - VRKN_TAUTULLI_1_SSL=false
