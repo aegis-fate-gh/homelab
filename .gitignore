@@ -10,3 +10,6 @@ EOS-Cluster/Docker-Swarm/Dashboards/Homepage_configs/services.yaml
 *secrets.env
 Ansible/playbooks/media_cephfs.yaml
 EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/config.yml
+EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/logs/
+EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/config.cache
+EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/UUID
