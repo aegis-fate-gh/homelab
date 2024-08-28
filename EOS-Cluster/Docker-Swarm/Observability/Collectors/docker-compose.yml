@@ -101,7 +101,7 @@ services:
       - TZ=America/Chicago
       - VRKN_GLOBAL_TAUTULLI_SERVER_IDS=1
       - VRKN_GLOBAL_MAXMIND_LICENSE_KEY=$maxmind_license
-      - VRKN_INFLUXDB_URL=http://influxdb
+      - VRKN_INFLUXDB_URL=influxdb
       - VRKN_INFLUXDB_PORT=8086
       - VRKN_INFLUXDB_SSL=false
       - VRKN_INFLUXDB_VERIFY_SSL=false
