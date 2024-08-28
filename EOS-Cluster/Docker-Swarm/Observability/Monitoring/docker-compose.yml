@@ -99,6 +99,35 @@ services:
       - monitoring
       - local_proxy
 
+  backup:
+    image: offen/docker-volume-backup:v2
+    environment:
+      - BACKUP_FILENAME=monitoring-%Y-%m-%dT%H-%M-%S.tar.gz
+      - BACKUP_CRON_EXPRESSION=0 6 * * * #Run at 6:00am UTC, 1:00AM CST
+      - BACKUP_PRUNING_PREFIX=monitoring-
+      - BACKUP_RETENTION_DAYS=7
+      - GZIP_PARALLELISM=3
+    volumes:
+      - /dev/shm:/tmp
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/ceph/chronograf_data:/backup/chronograf:ro
+      - /mnt/ceph/uptime-kuma_data:/backup/uptime-kuma:ro
+      - /mnt/ceph/grafana_data:/backup/grafana:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/samba/cloud-storage/onedrive/Eos_Backups:/archive
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 500M
+      placement:
+        constraints: 
+          - "node.role == manager"
+      labels:
+        - shepherd.updates=true
+
 volumes:
   grafana_data:
     driver: local
