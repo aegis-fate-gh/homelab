@@ -107,7 +107,7 @@ services:
       - VRKN_INFLUXDB_VERIFY_SSL=false
       - VRKN_INFLUXDB_USERNAME=varken
       - VRKN_INFLUXDB_PASSWORD=$influxdb_password
-      - VRKN_TAUTULLI_1_URL=http://tautulli:8181
+      - VRKN_TAUTULLI_1_URL=tautulli:8181
       - VRKN_TAUTULLI_1_FALLBACK_IP=1.1.1.1
       - VRKN_TAUTULLI_1_APIKEY=$tautulli_api
       - VRKN_TAUTULLI_1_SSL=false
