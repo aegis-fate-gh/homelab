@@ -66,6 +66,8 @@
         - immich_data
         - immich_data/postgres
         - immich_data/model-cache
+        - kometa_data
+        - kometa_data/reports
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:

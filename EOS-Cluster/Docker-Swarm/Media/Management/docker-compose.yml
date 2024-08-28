@@ -26,8 +26,29 @@ services:
         - "traefik.http.services.mkvtoolnix-svc.loadbalancer.server.port=5800"
         - "shepherd.updates=true"
 
+  kometa:
+    image: kometateam/kometa
+    environment:
+      - TZ=America/Chicago
+      - KOMETA_RUN=true
+      - KOMETA_CONFIG=/db_configs/config.yml
+    volumes:
+      - '/mnt/samba/cloud-storage/dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs:/db_configs'
+      - /mnt/ceph/kometa_data:/config
+    deploy:
+      mode: replicated
+      replicas: 0
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - shepherd.updates=true
+
 volumes:
   mkvtoolnix_data:
+    driver: local
+  kometa_data:
     driver: local
 
 networks:
