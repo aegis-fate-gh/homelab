@@ -33,8 +33,8 @@ services:
         - homepage.widget.type=jellyfin
         - homepage.widget.target=_blank
         - homepage.widget.url=https://jellyfin.sch-apps.com
-        - homepage.widget.key=8001a88cdba4478d98529e6ef027d473
-        - docker-volume-backup.stop-during-backup=true
+        - homepage.widget.key=$jellyfin_api
+        - docker-volume-backup.stop-during-backup=jellyfin_backup
 
   jellystat-db:
     image: postgres:15.2
@@ -54,8 +54,8 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
-        - "shepherd.updates=true"
-        - docker-volume-backup.stop-during-backup=true
+        - shepherd.updates=true
+        - docker-volume-backup.stop-during-backup=jellyfin_backup
 
   jellystat:
     image: cyfershepard/jellystat:latest
@@ -81,13 +81,13 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.jellystat-rtr.entrypoints=web"
-        - "traefik.http.routers.jellystat-rtr.rule=Host(`jellystat.local.sch-apps.com`)"
-        - "traefik.http.routers.jellystat-rtr.service=jellystat-svc"
-        - "traefik.http.services.jellystat-svc.loadbalancer.server.port=3000"
-        - "shepherd.updates=true"
-        - docker-volume-backup.stop-during-backup=true
+        - traefik.enable=true
+        - traefik.http.routers.jellystat-rtr.entrypoints=web
+        - traefik.http.routers.jellystat-rtr.rule=Host(`jellystat.local.sch-apps.com`)
+        - traefik.http.routers.jellystat-rtr.service=jellystat-svc
+        - traefik.http.services.jellystat-svc.loadbalancer.server.port=3000
+        - shepherd.updates=true
+        - docker-volume-backup.stop-during-backup=jellyfin_backup
 
   backup:
     image: offen/docker-volume-backup:v2
@@ -97,6 +97,7 @@ services:
       - BACKUP_PRUNING_PREFIX=jellyfin-
       - BACKUP_RETENTION_DAYS=7
       - GZIP_PARALLELISM=3
+      - BACKUP_STOP_DURING_BACKUP_LABEL=jellyfin_backup
     volumes:
       - /mnt/ceph/scratch_data:/tmp
       - /etc/timezone:/etc/timezone:ro
