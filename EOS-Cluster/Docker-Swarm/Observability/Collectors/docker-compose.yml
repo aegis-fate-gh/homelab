@@ -95,8 +95,6 @@ services:
 
   varken:
     image: boerderij/varken
-    volumes:
-      - /path/to/docker-varken/config-folder:/config
     environment:
       - TZ=America/Chicago
       - VRKN_GLOBAL_TAUTULLI_SERVER_IDS=1
