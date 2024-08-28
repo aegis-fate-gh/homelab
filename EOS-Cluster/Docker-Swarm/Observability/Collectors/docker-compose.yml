@@ -93,6 +93,25 @@ services:
     networks:
       - monitoring
 
+  prom-plex-exporter:
+    image: ghcr.io/jsclayton/prometheus-plex-exporter
+    ports:
+      - 9001:9000/tcp
+    environment:
+      PLEX_SERVER: $plex_url
+      PLEX_TOKEN: $plex_token
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - shepherd.updates=true
+    networks:
+      - monitoring
+
 volumes:
   telegraf_data:
     driver: local
