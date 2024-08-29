@@ -11,7 +11,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
       - '/dev/shm:/config/transcodes'
-      - '/mnt/ceph/jellyfin_data:/config'
+      - jellyfin_data:/config
       - '/mnt/samba/media:/media'
       - '/mnt/samba/cloud-storage/dropbox:/dropbox'
     networks:
@@ -43,7 +43,7 @@ services:
       - POSTGRES_USER=$jellystatdb_user
       - POSTGRES_PASSWORD=$jellystatdb_password
     volumes:
-    - /mnt/ceph/jellystat_data/db:/var/lib/postgresql/data
+    - jellystat-db:/var/lib/postgresql/data
     networks:
       - jellystat
     deploy:
@@ -68,7 +68,7 @@ services:
     ports:
       - "3002:3000"
     volumes:
-      - /mnt/ceph/jellystat_data/jellystat:/app/backend/backup-data
+      - jellystat-data:/app/backend/backup-data
     networks:
       - media
       - jellystat
@@ -121,8 +121,22 @@ services:
 volumes:
   jellyfin_data:
     driver: local
-  jellystat_data:
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/jellyfin_data"
+      o: bind    
+  jellystat-data:
     driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/jellystat_data/jellystat"
+      o: bind
+  jellystat-db:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/jellystat_data/db"
+      o: bind  
 
 networks:
   jellystat:
