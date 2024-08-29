@@ -4,8 +4,7 @@ Ansible/credentials/
 Ansible/playbooks/docker_secrets.yaml
 *.cert
 *.key
-telegraf*.conf
-EOS-Cluster/Docker-Swarm/Observability/Collectors/up.conf
+*up.conf
 EOS-Cluster/Docker-Swarm/Dashboards/Homepage_configs/services.yaml
 *secrets.env
 Ansible/playbooks/media_cephfs.yaml
@@ -13,3 +12,4 @@ EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/config.yml
 EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/logs/
 EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/config.cache
 EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/UUID
+
