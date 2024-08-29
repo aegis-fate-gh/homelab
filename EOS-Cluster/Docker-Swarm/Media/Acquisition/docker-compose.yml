@@ -9,7 +9,7 @@ services:
       - UMASK=002
       - TZ=America/Chicago
     volumes:
-      - '/mnt/ceph/prowlarr_data:/config'
+      - prowlarr_data:/config
     ports:
       - 9696:9696
     networks:
@@ -48,7 +48,7 @@ services:
       - UMASK=002
       - TZ=America/Chicago
     volumes:
-      - '/mnt/ceph/bazarr_data:/config'
+      - bazarr_data:/config
       - '/mnt/samba/media:/media'
     ports:
       - 6767:6767
@@ -88,7 +88,7 @@ services:
       - UMASK=002
       - TZ=America/Chicago
     volumes:
-      - '/mnt/ceph/sonarr_data:/config'
+      - sonarr_data:/config
       - '/mnt/samba/media:/media'
     ports:
       - 8989:8989
@@ -128,7 +128,7 @@ services:
       - UMASK=002
       - TZ=America/Chicago
     volumes:
-      - '/mnt/ceph/radarr_data:/config'
+      - radarr_data:/config
       - '/mnt/samba/media:/media'
     ports:
       - 7878:7878
@@ -193,12 +193,28 @@ services:
 volumes:
   prowlarr_data:
     driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/prowlarr_data"
+      o: bind
   bazarr_data:
     driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/bazarr_data"
+      o: bind
   sonarr_data:
     driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/sonarr_data"
+      o: bind
   radarr_data:
     driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/radarr_data"
+      o: bind
 
 networks:
   local_proxy:
