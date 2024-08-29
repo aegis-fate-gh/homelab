@@ -13,7 +13,7 @@ services:
       - 5055:5055
     networks:
       - media
-      - proxy
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
@@ -26,12 +26,17 @@ services:
         - homepage.group=Media Front End
         - homepage.name=Overseerr
         - homepage.icon=overseerr.png
-        - homepage.href=https://requests.sch-apps.com
+        - homepage.href=http://overseerr.local.sch-apps.com
         - homepage.description=Overseerr media requests
         - homepage.widget.type=overseerr
         - homepage.widget.target=_blank
-        - homepage.widget.url=https://requests.sch-apps.com
+        - homepage.widget.url=http://overseerr.local.sch-apps.com
         - homepage.widget.key=$key
+        - traefik.enable=true
+        - traefik.http.routers.overseerr-rtr.entrypoints=web
+        - traefik.http.routers.overseerr-rtr.rule=Host(`overseerr.local.sch-apps.com`)
+        - traefik.http.routers.overseerr-rtr.service=overseerr-svc
+        - traefik.http.services.overseerr-svc.loadbalancer.server.port=3000
 
 volumes:
   overseerr_data:
@@ -40,5 +45,5 @@ volumes:
 networks:
   media:
     external: true
-  proxy:
+  local_proxy:
     external: true
