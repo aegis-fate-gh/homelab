@@ -50,7 +50,7 @@ services:
       - HOST_ETC=/rootfs/etc
       - HOST_MOUNT_PREFIX=/rootfs
     volumes:
-      - /mnt/ceph/telegraf_data/standard/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - '/mnt/samba/cloud-storage/dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Observability/Collectors/configs/telegraf_docker.conf:/etc/telegraf/telegraf.conf:ro'
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/rootfs/sys:ro
       - /proc:/rootfs/proc:ro
@@ -100,16 +100,16 @@ services:
     environment:
       - TZ=America/Chicago
       - VRKN_GLOBAL_TAUTULLI_SERVER_IDS=1
-      - VRKN_GLOBAL_MAXMIND_LICENSE_KEY=$maxmind_license
+      - VRKN_GLOBAL_MAXMIND_LICENSE_KEY=$MAXMIND_LICENSE
       - VRKN_INFLUXDB_URL=influxdb
       - VRKN_INFLUXDB_PORT=8086
       - VRKN_INFLUXDB_SSL=false
       - VRKN_INFLUXDB_VERIFY_SSL=false
       - VRKN_INFLUXDB_USERNAME=varken
-      - VRKN_INFLUXDB_PASSWORD=$influxdb_password
+      - VRKN_INFLUXDB_PASSWORD=$VARKEN_INFLUX_PASS
       - VRKN_TAUTULLI_1_URL=tautulli:8181
       - VRKN_TAUTULLI_1_FALLBACK_IP=1.1.1.1
-      - VRKN_TAUTULLI_1_APIKEY=$tautulli_api
+      - VRKN_TAUTULLI_1_APIKEY=$TAUTULLI_API
       - VRKN_TAUTULLI_1_SSL=false
       - VRKN_TAUTULLI_1_VERIFY_SSL=false
       - VRKN_TAUTULLI_1_GET_ACTIVITY=true
