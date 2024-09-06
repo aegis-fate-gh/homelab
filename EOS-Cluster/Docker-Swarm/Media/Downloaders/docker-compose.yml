@@ -59,6 +59,11 @@ services:
         - traefik.http.routers.jdownloader-rtr.rule=Host(`jdownloader.local.sch-apps.com`)
         - traefik.http.routers.jdownloader-rtr.service=jdownloader-svc
         - traefik.http.services.jdownloader-svc.loadbalancer.server.port=5800
+        - homepage.group=Media Acquisition
+        - homepage.name=JDownloader
+        - homepage.icon=jdownloader.png
+        - homepage.href=http://jdownloader.local.sch-apps.com
+        - homepage.description=Web video downloader
         - shepherd.updates=true
   
 volumes:
