@@ -52,6 +52,9 @@ services:
       labels:
         - shepherd.updates=true
         - docker-volume-backup.stop-during-backup=jellyfin_backup
+    secrets:
+      - jellystatdb_password
+      - jellystatdb_user
 
   jellystat:
     image: cyfershepard/jellystat:latest
@@ -89,6 +92,10 @@ services:
         - homepage.icon=jellystat.png
         - homepage.description=Jellyfin server stats and metrics
         - homepage.href=http://jellystat.local.sch-apps.com
+    secrets:
+      - jellystatdb_password
+      - jellystatdb_user
+      - jellystat_password
 
   backup:
     image: offen/docker-volume-backup:v2
