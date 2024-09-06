@@ -34,10 +34,6 @@ services:
         - homepage.icon=prowlarr.png
         - homepage.href=http://prowlarr.local.sch-apps.com
         - homepage.description=Indexer Management
-        - homepage.widget.type=prowlarr
-        - homepage.widget.target=_blank
-        - homepage.widget.url=http://prowlarr.local.sch-apps.com
-        - homepage.widget.key=/run/secrets/prowlarr_api_key
         - docker-volume-backup.stop-during-backup=true
 
   bazarr:
@@ -74,10 +70,6 @@ services:
         - homepage.icon=bazarr.png
         - homepage.href=http://bazarr.local.sch-apps.com
         - homepage.description=Subtitle Acquisition
-        - homepage.widget.type=bazarr
-        - homepage.widget.target=_blank
-        - homepage.widget.url=http://bazarr.local.sch-apps.com
-        - homepage.widget.key=/run/secrets/bazarr_api_key
         - docker-volume-backup.stop-during-backup=true
 
   sonarr:
@@ -114,10 +106,6 @@ services:
         - homepage.icon=sonarr.png
         - homepage.href=http://sonarr.local.sch-apps.com
         - homepage.description=Show Acquisition
-        - homepage.widget.type=sonarr
-        - homepage.widget.target=_blank
-        - homepage.widget.url=http://sonarr.local.sch-apps.com
-        - homepage.widget.key=/run/secrets/sonarr_api_key
         - docker-volume-backup.stop-during-backup=true
 
   radarr:
@@ -154,10 +142,6 @@ services:
         - homepage.icon=radarr.png
         - homepage.href=http://radarr.local.sch-apps.com
         - homepage.description=Movie Acquisition
-        - homepage.widget.type=radarr
-        - homepage.widget.target=_blank
-        - homepage.widget.url=http://radarr.local.sch-apps.com
-        - homepage.widget.key=/run/secrets/radarr_api_key
         - docker-volume-backup.stop-during-backup=true
 
   backup:
@@ -223,13 +207,3 @@ networks:
     name: media
     driver: overlay
     attachable: true
-
-secrets:
-  prowlarr_api_key:
-    external: true
-  bazarr_api_key:
-    external: true
-  sonarr_api_key:
-    external: true
-  radarr_api_key:
-    external: true
