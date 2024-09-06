@@ -78,10 +78,10 @@ services:
       - "8998:17442"
     volumes:
       - ytdl_material_data:/app/appdata
-      - ./audio:/app/audio
-      - ./video:/app/video
-      - ./subscriptions:/app/subscriptions
-      - ./users:/app/users
+      - /mnt/samba/media/downloads/youtube-dl/audio:/app/audio
+      - /mnt/samba/media/downloads/youtube-dl/video:/app/video
+      - /mnt/samba/media/downloads/youtube-dl/subscriptions:/app/subscriptions
+      - /mnt/samba/media/downloads/youtube-dl/users:/app/users
     networks:
       - local_proxy
       - youtubedl
