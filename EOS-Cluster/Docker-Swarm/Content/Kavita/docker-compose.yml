@@ -36,8 +36,8 @@ services:
         - homepage.widget.type=kavita
         - homepage.widget.target=_blank
         - homepage.widget.url=http://kavita.local.sch-apps.com
-        - homepage.widget.username=$username
-        - homepage.widget.password=$password
+        - homepage.widget.username=/run/secrets/kavita_username
+        - homepage.widget.password=/run/secrets/kavita_password
 
 volumes:
   kavita_data:
@@ -47,4 +47,10 @@ networks:
   cftunnel:
     external: true
   local_proxy:
+    external: true
+
+secrets:
+  kavita_username:
+    external: true
+  kavita_password:
     external: true
