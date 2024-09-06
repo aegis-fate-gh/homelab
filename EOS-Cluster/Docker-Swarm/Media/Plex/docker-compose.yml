@@ -68,11 +68,7 @@ services:
         - homepage.name=Tautulli
         - homepage.icon=tautulli.png
         - homepage.href=http://tautulli.local.sch-apps.com
-        - homepage.description=Tautulli Plex stats
-        - homepage.widget.type=tautulli
-        - homepage.widget.target=_blank
-        - homepage.widget.url=http://tautulli.local.sch-apps.com
-        - homepage.widget.key=$tautullikey
+        - homepage.description=Plex server stats and metrics
 
 volumes:
   plex_data:
