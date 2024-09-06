@@ -37,7 +37,7 @@ services:
         - homepage.widget.type=prowlarr
         - homepage.widget.target=_blank
         - homepage.widget.url=http://prowlarr.local.sch-apps.com
-        - homepage.widget.key=$prowlarrkey
+        - homepage.widget.key=/run/secrets/prowlarr_api_key
         - docker-volume-backup.stop-during-backup=true
 
   bazarr:
@@ -77,7 +77,7 @@ services:
         - homepage.widget.type=bazarr
         - homepage.widget.target=_blank
         - homepage.widget.url=http://bazarr.local.sch-apps.com
-        - homepage.widget.key=$bazarrkey
+        - homepage.widget.key=/run/secrets/bazarr_api_key
         - docker-volume-backup.stop-during-backup=true
 
   sonarr:
@@ -117,7 +117,7 @@ services:
         - homepage.widget.type=sonarr
         - homepage.widget.target=_blank
         - homepage.widget.url=http://sonarr.local.sch-apps.com
-        - homepage.widget.key=$sonarrkey
+        - homepage.widget.key=/run/secrets/sonarr_api_key
         - docker-volume-backup.stop-during-backup=true
 
   radarr:
@@ -157,7 +157,7 @@ services:
         - homepage.widget.type=radarr
         - homepage.widget.target=_blank
         - homepage.widget.url=http://radarr.local.sch-apps.com
-        - homepage.widget.key=$radarrkey
+        - homepage.widget.key=/run/secrets/radarr_api_key
         - docker-volume-backup.stop-during-backup=true
 
   backup:
@@ -223,3 +223,13 @@ networks:
     name: media
     driver: overlay
     attachable: true
+
+secrets:
+  prowlarr_api_key:
+    external: true
+  bazarr_api_key:
+    external: true
+  sonarr_api_key:
+    external: true
+  radarr_api_key:
+    external: true
