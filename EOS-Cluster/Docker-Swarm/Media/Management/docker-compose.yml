@@ -25,6 +25,11 @@ services:
         - traefik.http.routers.mkvtoolnix-rtr.service=mkvtoolnix-svc
         - traefik.http.services.mkvtoolnix-svc.loadbalancer.server.port=5800
         - shepherd.updates=true
+        - homepage.group=Media Tools
+        - homepage.name=MKVToolnix
+        - homepage.icon=mkvtoolnix.png
+        - homepage.href=http://mkvtoolnix.local.sch-apps.com
+        - homepage.description=MKV File manipulation
 
   kometa:
     image: kometateam/kometa
