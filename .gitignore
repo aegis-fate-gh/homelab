@@ -1,7 +1,6 @@
 .DS_Store
 *id_rsa*
 Ansible/credentials/
-Ansible/*/docker_secrets.yaml
 *.cert
 *.key
 *up.conf
@@ -12,3 +11,4 @@ EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/config.yml
 EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/logs/
 EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/config.cache
 EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/UUID
+Ansible/playbooks/swarm/docker_secrets.yaml
