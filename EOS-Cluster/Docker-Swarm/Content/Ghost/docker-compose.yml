@@ -32,6 +32,11 @@ services:
         - "traefik.http.services.ghost-svc.loadbalancer.server.port=2368"
         - "shepherd.updates=true"
         - "docker-volume-backup.stop-during-backup=true"
+        - homepage.group=Media Front End
+        - homepage.name=Ghost
+        - homepage.icon=ghost.png
+        - homepage.href=http://ghost.local.sch-apps.com
+        - homepage.description=Ghost CMS
 
   db:
     image: mysql:8.0
