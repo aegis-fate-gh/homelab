@@ -12,7 +12,7 @@ services:
       - TZ=America/Chicago
       - WEBUI_PORTS=8080/tcp,8080/udp
     volumes:
-      - '/mnt/ceph/qbittorrent_data:/config'
+      - 'qbittorrent_data:/config'
       - '/mnt/samba/media:/media'
     networks:
       - media
@@ -42,7 +42,7 @@ services:
     ports:
       - "5800:5800"
     volumes:
-      - '/mnt/ceph/jdownloader2_data:/config:rw'
+      - 'jdownloader2_data:/config:rw'
       - '/mnt/samba/media:/media'
     networks:
       - local_proxy
@@ -65,15 +65,96 @@ services:
         - homepage.href=http://jdownloader.local.sch-apps.com
         - homepage.description=Web video downloader
         - shepherd.updates=true
+
+  ytdl_material:
+    image: tzahi12345/youtubedl-material:latest
+    environment: 
+      ytdl_mongodb_connection_string: 'mongodb://ytdl_mongo-db:27017'
+      ytdl_use_local_db: 'false'
+      write_ytdl_config: 'true'
+    depends_on:
+      - ytdl_mongo-db
+    ports:
+      - "8998:17442"
+    volumes:
+      - ytdl_material_data:/app/appdata
+      - ./audio:/app/audio
+      - ./video:/app/video
+      - ./subscriptions:/app/subscriptions
+      - ./users:/app/users
+    networks:
+      - local_proxy
+      - youtubedl
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.youtubedl-rtr.entrypoints=web
+        - traefik.http.routers.youtubedl-rtr.rule=Host(`youtubedl.local.sch-apps.com`)
+        - traefik.http.routers.youtubedl-rtr.service=youtubedl-svc
+        - traefik.http.services.youtubedl-svc.loadbalancer.server.port=17442
+        - homepage.group=Media Acquisition
+        - homepage.name=YouTubeDL Material
+        - homepage.icon=youtubedl.png
+        - homepage.href=http://youtubedl.local.sch-apps.com
+        - homepage.description=YouTube content downloader
+        - shepherd.updates=true
+
+  ytdl_mongo-db:
+  # If you are using a Raspberry Pi, use mongo:4.4.18
+    image: mongo:4
+    networks:
+      - youtubedl
+    logging:
+      driver: "none"          
+    volumes:
+      - ytdl_mongo-db_data:/data/db
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - shepherd.updates=true
   
 volumes:
   qbittorrent_data:
     driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/qbittorrent_data"
+      o: bind 
   jdownloader2_data:
     driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/jdownloader2_data"
+      o: bind 
+  ytdl_material_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/ytdl_data/ytdl_material"
+      o: bind 
+  ytdl_mongo-db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/ytdl_data/ytdl_db"
+      o: bind 
 
 networks:
   local_proxy:
     external: true
   media:
     external: true
+  youtubedl:
+    name: youtubedl
+    driver: overlay
