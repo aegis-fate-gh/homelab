@@ -36,8 +36,8 @@ services:
     image: postgres:15.2
     environment:
       - POSTGRES_DB=jellystat
-      - POSTGRES_USER_FILE=/run/secrets/jellystatdb_user
-      - POSTGRES_PASSWORD_FILE=/run/secrets/jellystatdb_password
+      - POSTGRES_USER=$jellystatdb_user
+      - POSTGRES_PASSWORD=$jellystatdb_password
     volumes:
     - jellystat-db:/var/lib/postgresql/data
     networks:
@@ -52,18 +52,15 @@ services:
       labels:
         - shepherd.updates=true
         - docker-volume-backup.stop-during-backup=jellyfin_backup
-    secrets:
-      - jellystatdb_password
-      - jellystatdb_user
 
   jellystat:
     image: cyfershepard/jellystat:latest
     environment:
-      - POSTGRES_USER=/run/secrets/jellystatdb_user
-      - POSTGRES_PASSWORD=/run/secrets/jellystatdb_password
+      - POSTGRES_USER=$jellystatdb_user
+      - POSTGRES_PASSWORD=$jellystatdb_password
       - POSTGRES_IP=jellystat-db
       - POSTGRES_PORT=5432
-      - JWT_SECRET=/run/secrets/jellystat_password
+      - JWT_SECRET=$jellystat_password
     ports:
       - "3002:3000"
     volumes:
@@ -92,10 +89,6 @@ services:
         - homepage.icon=jellystat.png
         - homepage.description=Jellyfin server stats and metrics
         - homepage.href=http://jellystat.local.sch-apps.com
-    secrets:
-      - jellystatdb_password
-      - jellystatdb_user
-      - jellystat_password
 
   backup:
     image: offen/docker-volume-backup:v2
@@ -157,11 +150,4 @@ networks:
       name: "host"
   local_proxy:
     external: true
-
-secrets:
-  jellystatdb_user:
-    external: true
-  jellystatdb_password:
-    external: true
-  jellystat_password:
-    external: true
+    
