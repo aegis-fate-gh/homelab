@@ -35,11 +35,6 @@ services:
         - homepage.icon=qbittorrent.png
         - homepage.href=http://qbittorrent.local.sch-apps.com
         - homepage.description=Content downloader
-        - homepage.widget.type=qbittorrent
-        - homepage.widget.target=_blank
-        - homepage.widget.url=http://qbittorrent.local.sch-apps.com
-        - homepage.widget.username=$username
-        - homepage.widget.password=$password
         - shepherd.updates=true
 
   jdownloader-2:
