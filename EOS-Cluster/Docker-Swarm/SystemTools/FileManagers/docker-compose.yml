@@ -72,7 +72,7 @@ services:
         - homepage.group=Eos Swarm Cluster
         - homepage.name=FileBrowser
         - homepage.icon=filebrowser.png
-        - homepage.href=http://filebrowser.local.sch-apps.com
+        - homepage.href=http://filebrowser.local.sch-apps.com/filebrowser/login?redirect=/files/
         - homepage.description=Container volume file management and manipulation
 
 volumes:
