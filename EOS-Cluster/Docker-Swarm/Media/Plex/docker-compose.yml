@@ -32,10 +32,6 @@ services:
         - homepage.icon=plex.png
         - homepage.href=http://192.168.6.206:32400
         - homepage.description=Plex media server
-        - homepage.widget.type=plex
-        - homepage.widget.target=_blank
-        - homepage.widget.url=http://192.168.6.206:32400
-        - homepage.widget.key=$plexkey
 
   tautulli:
     image: ghcr.io/tautulli/tautulli

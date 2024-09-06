@@ -34,11 +34,6 @@ services:
         - homepage.icon=freshrss.png
         - homepage.href=http://freshrss.local.sch-apps.com
         - homepage.description=Reads and feeds
-        - homepage.widget.type=freshrss
-        - homepage.widget.target=_blank
-        - homepage.widget.url=http://freshrss.local.sch-apps.com
-        - homepage.widget.username=/run/secrets/freshrss_username
-        - homepage.widget.password=/run/secrets/freshrss_password
 
   backup:
     image: offen/docker-volume-backup:v2
@@ -75,10 +70,4 @@ networks:
   local_proxy:
     external: true
   cftunnel:
-    external: true
-
-secrets:
-  freshrss_username:
-    external: true
-  freshrss_password:
     external: true
