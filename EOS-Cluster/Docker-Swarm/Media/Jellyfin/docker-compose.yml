@@ -30,10 +30,6 @@ services:
         - homepage.icon=jellyfin.png
         - homepage.href=https://jellyfin.sch-apps.com
         - homepage.description=Jellyfin media server
-        - homepage.widget.type=jellyfin
-        - homepage.widget.target=_blank
-        - homepage.widget.url=https://jellyfin.sch-apps.com
-        - homepage.widget.key=$jellyfin_api
         - docker-volume-backup.stop-during-backup=jellyfin_backup
 
   jellystat-db:
@@ -88,6 +84,11 @@ services:
         - traefik.http.services.jellystat-svc.loadbalancer.server.port=3000
         - shepherd.updates=true
         - docker-volume-backup.stop-during-backup=jellyfin_backup
+        - homepage.group=Media Tools
+        - homepage.name=Jellystat
+        - homepage.icon=jellystat.png
+        - homepage.description=Jellyfin server stats and metrics
+        - homepage.href=http://jellystat.local.sch-apps.com
 
   backup:
     image: offen/docker-volume-backup:v2
