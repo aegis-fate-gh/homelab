@@ -27,11 +27,7 @@ services:
         - homepage.name=Grafana
         - homepage.icon=grafana.png
         - homepage.href=http://grafana.local.sch-apps.com
-        - homepage.description=External service status
-        - homepage.widget.type=grafana
-        - homepage.widget.url=http://grafana.local.sch-apps.com
-        - homepage.widget.username=$hpusername
-        - homepage.widget.password=$hppassword
+        - homepage.description=Dashboarding and metrics
     networks:
       - monitoring
       - local_proxy
@@ -62,9 +58,6 @@ services:
         - homepage.icon=uptime-kuma.png
         - homepage.href=http://uptime-kuma.local.sch-apps.com
         - homepage.description=External service status
-        - homepage.widget.type=uptimekuma
-        - homepage.widget.url=http://192.168.6.7:3001
-        - homepage.widget.slug=all-homelab-services
     networks:
       - monitoring
       - dockerproxy
@@ -95,6 +88,11 @@ services:
         - traefik.http.routers.chronograf-rtr.service=chronograf-svc
         - traefik.http.services.chronograf-svc.loadbalancer.server.port=8888
         - shepherd.updates=true
+        - homepage.group=Eos Swarm Cluster
+        - homepage.name=Chronograf
+        - homepage.icon=chronograf.png
+        - homepage.href=http://chronograf.local.sch-apps.com
+        - homepage.description=InxluxDB Management
     networks:
       - monitoring
       - local_proxy
