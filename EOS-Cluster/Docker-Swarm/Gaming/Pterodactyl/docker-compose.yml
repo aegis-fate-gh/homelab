@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  database:
+    image: mariadb:10.5
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - "/srv/pterodactyl/database:/var/lib/mysql"
+    environment:
+      MYSQL_DATABASE: "panel"
+      MYSQL_USER: "pterodactyl"
+      MYSQL_PASSWORD: "CHANGE_ME"
+      MYSQL_ROOT_PASSWORD: "CHANGE_ME_TOO"
+
+  cache:
+    image: redis:alpine
+
+  panel:
+    image: ghcr.io/pterodactyl/panel:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_ENV: "production"
+      APP_ENVIRONMENT_ONLY: "false"
+      APP_SERVICE_AUTHOR: "EMAIL"
+      APP_URL: "https://SUB.DOMAIN.COM"
+      APP_TIMEZONE: "America/Chicago"       # A list of valid timezones can be found here: http://php.net/manual/en/timezones.php
+      CACHE_DRIVER: "redis" #DON'T TOUCH
+      SESSION_DRIVER: "redis" #DON'T TOUCH
+      QUEUE_DRIVER: "redis" #DON'T TOUCH
+      REDIS_HOST: REDIS-HOST
+      REDIS_PORT: REDIS-PORT
+      REDIS_USER: "admin"
+      REDIS_PASSWORD: REDIS-PASSWORD
+      MAIL_FROM: "EMAIL"
+      MAIL_DRIVER: "smtp"
+      MAIL_HOST: "smtp.gmail.com"
+      MAIL_PORT: "587"
+      MAIL_USERNAME: "ACCOUNT-GMAIL"
+      MAIL_PASSWORD: "APP_PASSWORD"
+      MAIL_ENCRYPTION: “true”
+      APP_DEBUG: “false”
+      TRUSTED_PROXIES: "*"
+      DB_HOST: DATABASE-HOST/IPV4 OF UNRAID OR HOST SYSTEM.
+      DB_PORT: DATABASE-PORT
+      DB_USER: "DATABASE-USER"
+      DB_PASSWORD: DATABASE-PASSWORD
+      DB_DATABASE: "DATABASE-USERNAME"
+    volumes:
+      - "/srv/pterodactyl/var/:/app/var/"
+      - "/srv/pterodactyl/nginx/:/etc/nginx/http.d/"
+      - "/srv/pterodactyl/certs/:/etc/letsencrypt/"
+      - "/srv/pterodactyl/logs/:/app/storage/logs"
+
+networks:
+  pterodactyl:
+    name: pterodactyl
+    driver: overlay
+  local_proxy:
+    external: true
