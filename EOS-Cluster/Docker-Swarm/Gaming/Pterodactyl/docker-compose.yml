@@ -11,51 +11,90 @@ services:
       MYSQL_USER: "pterodactyl"
       MYSQL_PASSWORD: "CHANGE_ME"
       MYSQL_ROOT_PASSWORD: "CHANGE_ME_TOO"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - shepherd.updates=true
 
   cache:
     image: redis:alpine
+    environment:
+      REDIS_USER: "admin"
+      REDIS_PASSWORD: REDIS-PASSWORD
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - shepherd.updates=true
 
   panel:
     image: ghcr.io/pterodactyl/panel:latest
-    ports:
-      - "80:80"
-      - "443:443"
+    #ports:
+    #  - "80:80"
+    #  - "443:443"
     environment:
       APP_ENV: "production"
       APP_ENVIRONMENT_ONLY: "false"
-      APP_SERVICE_AUTHOR: "EMAIL"
-      APP_URL: "https://SUB.DOMAIN.COM"
-      APP_TIMEZONE: "America/Chicago"       # A list of valid timezones can be found here: http://php.net/manual/en/timezones.php
-      CACHE_DRIVER: "redis" #DON'T TOUCH
-      SESSION_DRIVER: "redis" #DON'T TOUCH
-      QUEUE_DRIVER: "redis" #DON'T TOUCH
+      APP_SERVICE_AUTHOR: $APP_SERVICE_AUTHOR
+      APP_URL: $APP_URL
+      APP_TIMEZONE: "America/Chicago"
+      CACHE_DRIVER: "redis"
+      SESSION_DRIVER: "redis"
+      QUEUE_DRIVER: "redis"
       REDIS_HOST: REDIS-HOST
       REDIS_PORT: REDIS-PORT
-      REDIS_USER: "admin"
-      REDIS_PASSWORD: REDIS-PASSWORD
-      MAIL_FROM: "EMAIL"
+      REDIS_USER: $REDIS_USER
+      REDIS_PASSWORD: $REDIS_PASSWORD
+      MAIL_FROM: $MAIL_FROM
       MAIL_DRIVER: "smtp"
       MAIL_HOST: "smtp.gmail.com"
       MAIL_PORT: "587"
-      MAIL_USERNAME: "ACCOUNT-GMAIL"
-      MAIL_PASSWORD: "APP_PASSWORD"
+      MAIL_USERNAME: $MAIL_USERNAME
+      MAIL_PASSWORD: $MAIL_PASSWORD
       MAIL_ENCRYPTION: “true”
       APP_DEBUG: “false”
-      TRUSTED_PROXIES: "*"
+      TRUSTED_PROXIES: $TRUSTED_PROXIES
       DB_HOST: DATABASE-HOST/IPV4 OF UNRAID OR HOST SYSTEM.
       DB_PORT: DATABASE-PORT
-      DB_USER: "DATABASE-USER"
-      DB_PASSWORD: DATABASE-PASSWORD
-      DB_DATABASE: "DATABASE-USERNAME"
+      DB_USER: $MYSQL_USER
+      DB_PASSWORD: $MYSQL_PASSWORD
+      DB_DATABASE: $MYSQL_DATABASE
+    networks:
+      - local_proxy
     volumes:
       - "/srv/pterodactyl/var/:/app/var/"
       - "/srv/pterodactyl/nginx/:/etc/nginx/http.d/"
       - "/srv/pterodactyl/certs/:/etc/letsencrypt/"
       - "/srv/pterodactyl/logs/:/app/storage/logs"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.pterodactyl-rtr.entrypoints=web
+        - traefik.http.routers.pterodactyl-rtr.rule=Host(`pterodactyl.local.sch-apps.com`)
+        - traefik.http.routers.pterodactyl-rtr.service=pterodactyl-svc
+        - traefik.http.services.pterodactyl-svc.loadbalancer.server.port=80
+        - homepage.group=Other
+        - homepage.name=Pterodactyl Panel
+        - homepage.icon=pterodactyl.png
+        - homepage.href=http://pterodactyl.local.sch-apps.com
+        - homepage.description=Game server management
+        - shepherd.updates=true
 
 networks:
-  pterodactyl:
-    name: pterodactyl
-    driver: overlay
   local_proxy:
     external: true

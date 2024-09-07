@@ -72,6 +72,13 @@
         - ytdl_data
         - ytdl_data/ytdl_material
         - ytdl_data/ytdl_db
+        - pterodactyl_data
+        - pterodactyl_data/panel
+        - pterodactyl_data/panel/var
+        - pterodactyl_data/panel/nginx
+        - pterodactyl_data/panel/certs
+        - pterodactyl_data/panel/logs
+        - pterodactyl_data/db
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
