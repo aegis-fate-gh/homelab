@@ -70,6 +70,7 @@ services:
     networks:
       - local_proxy
       - pterodactyl
+      - cftunnel
     volumes:
       - var:/app/var/
       - nginx:/etc/nginx/http.d/

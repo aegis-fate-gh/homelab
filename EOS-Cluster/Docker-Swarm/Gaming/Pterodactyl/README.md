@@ -1,3 +1,8 @@
+Installing on Docker Swarm
+1. After deployment, go to the exec command page in Portainer
+2. Select /bin/sh
+3. Run php artisan p:user:make and follow the prompts
+
 Updating Minecraft with Manual server.jar file when there's a Java change.
 
 1. Check the needed version of Java: https://github.com/pterodactyl/yolks/tree/master/java
