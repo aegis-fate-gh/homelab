@@ -50,8 +50,8 @@ services:
       CACHE_DRIVER: "redis"
       SESSION_DRIVER: "redis"
       QUEUE_DRIVER: "redis"
-      REDIS_HOST: REDIS-HOST
-      REDIS_PORT: REDIS-PORT
+      REDIS_HOST: "cache"
+      REDIS_PORT: 6379
       REDIS_USER: $REDIS_USER
       REDIS_PASSWORD: $REDIS_PASSWORD
       MAIL_FROM: $MAIL_FROM
@@ -63,8 +63,8 @@ services:
       MAIL_ENCRYPTION: “true”
       APP_DEBUG: “false”
       TRUSTED_PROXIES: $TRUSTED_PROXIES
-      DB_HOST: database
-      DB_PORT: DATABASE-PORT
+      DB_HOST: "database"
+      DB_PORT: 3306
       DB_USER: $MYSQL_USER
       DB_PASSWORD: $MYSQL_PASSWORD
       DB_DATABASE: $MYSQL_DATABASE
