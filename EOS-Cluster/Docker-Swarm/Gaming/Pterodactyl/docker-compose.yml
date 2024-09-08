@@ -134,3 +134,5 @@ networks:
     driver: overlay
   local_proxy:
     external: true
+  cftunnel:
+    external: true
