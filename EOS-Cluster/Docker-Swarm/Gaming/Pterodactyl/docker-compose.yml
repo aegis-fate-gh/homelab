@@ -11,6 +11,8 @@ services:
       MYSQL_USER: $MYSQL_USER
       MYSQL_PASSWORD: $MYSQL_PASSWORD
       MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    networks:
+      - pterodactyl
     deploy:
       mode: replicated
       replicas: 1
@@ -26,6 +28,8 @@ services:
     environment:
       REDIS_USER: $REDIS_USER
       REDIS_PASSWORD: $REDIS_PASSWORD
+    networks:
+      - pterodactyl
     deploy:
       mode: replicated
       replicas: 1
@@ -70,6 +74,7 @@ services:
       DB_DATABASE: $MYSQL_DATABASE
     networks:
       - local_proxy
+      - pterodactyl
     volumes:
       - var:/app/var/
       - nginx:/etc/nginx/http.d/
@@ -128,5 +133,8 @@ volumes:
       o: bind
 
 networks:
+  pterodactyl:
+    name: pterodactyl
+    driver: overlay
   local_proxy:
     external: true
