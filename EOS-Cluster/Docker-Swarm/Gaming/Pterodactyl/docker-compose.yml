@@ -71,10 +71,10 @@ services:
     networks:
       - local_proxy
     volumes:
-      - "panel/var/:/app/var/"
-      - "panel/nginx/:/etc/nginx/http.d/"
-      - "panel/certs/:/etc/letsencrypt/"
-      - "panel/logs/:/app/storage/logs"
+      - var:/app/var/
+      - nginx:/etc/nginx/http.d/
+      - certs:/etc/letsencrypt/
+      - logs:/app/storage/logs
     deploy:
       mode: replicated
       replicas: 1
@@ -102,11 +102,29 @@ volumes:
       type: none
       device: "/mnt/ceph/pterodactyl_data/db"
       o: bind
-  panel:
+  var:
     driver: local
     driver_opts:
       type: none
-      device: "/mnt/ceph/pterodactyl_data/panel"
+      device: "/mnt/ceph/pterodactyl_data/panel/var"
+      o: bind
+  nginx:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/pterodactyl_data/panel/nginx"
+      o: bind
+  certs:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/pterodactyl_data/panel/certs"
+      o: bind
+  logs:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/pterodactyl_data/panel/logs"
       o: bind
 
 networks:
