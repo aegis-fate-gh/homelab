@@ -7,18 +7,6 @@ with Diagram("Docker Prod", show=False, direction="TB"):
   unifi = Custom("UDM-Pro SE", "./local_icons/unifi.png")
   internet = Custom("Internet", "./local_icons/internet.png")
 
-  with Cluster("AWS Lightsail - US-East-1a"):
-      with Cluster("Sentinel2-AL2023 - 4GB's RAM, 2cpu"):
-        influxdb_sentinel = Custom("InfluxDB", "./local_icons/influx.png")
-        loki_sentinel = logging.Loki("Loki")
-        sentinel_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="solid") >> influxdb_sentinel
-        chronograf_sentinel = Custom("Chronograf", "./local_icons/chronograf.png") >> influxdb_sentinel
-        grafana_sentinel = monitoring.Grafana("Grafana")
-        npm_sentinel = Custom("Nginx Proxy Manager\nExternal Proxy", "./local_icons/npm.png")
-        portainer_sentinel = Custom("Portainer", "./local_icons/portainer.png")
-        uptimekuma_sentinel = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
-        watchtower = Custom("Watchtower", "./local_icons/watchtower.png")
-
   with Cluster("Eos Proxmox Cluster - 3x Physical Hosts - Ryzen 7 5700x, 64GB's ram, 2x Samsung 870 EVO (Boot), 2x Micron 7450 (CEPH), 1x Nvidia RTX 4060, 1x Dual SFP+"):
 
     with Cluster("Docker Swarm Cluster - 8x VMs"):
@@ -58,6 +46,12 @@ with Diagram("Docker Prod", show=False, direction="TB"):
         ghost_db = database.Mysql("Ghost DB") >> ghost
         uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
         prometheus = monitoring.Prometheus("Prometheus")
+        mc_monitor = Custom("mc-monitor", "./local_icons/minecraft-monitor.png")
+        mc_telegraf = Custom("MC Telegraf", "./local_icons/telegraf_logo.png")
+        pterodactyl_eos = Custom("Pterodactyl Panel", "./local_icons/pterodactyl.png")
+        ptero_redis_eos = inmemory.Redis("Ptero-Redis") >> pterodactyl_eos
+        ptero_mariadb_eos = database.Mariadb("Ptero-MariaDB") >> pterodactyl_eos
+        varken = Custom("Varken", "./local_icons/varken.png")
 
       with Cluster("VPN Worker Nodes - x2 - 8GB's RAM, 4cpu"):
         vpn_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="solid") >> influxdb
@@ -71,7 +65,7 @@ with Diagram("Docker Prod", show=False, direction="TB"):
         prowlarr = Custom("Prowlarr", "./local_icons/prowlarr.png")
         qbittorrent = Custom("qBittorrent", "./local_icons/qBittorrent.png")
 
-      with Cluster("Manager Nodes - x3 - 8GB's RAM, 4cpu"):
+      with Cluster("Manager Nodes - x3 - 12GB's RAM, 4cpu"):
         manager_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="solid") >> influxdb
         manager_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="solid") >> loki
         manager_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
@@ -87,7 +81,7 @@ with Diagram("Docker Prod", show=False, direction="TB"):
         jp_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="solid") >> influxdb
         jp_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="solid") >> loki
         jp_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
-        new_arcadia = Custom("New Arcadia", "./local_icons/minecraft-monitor.png") >> Custom("mc-monitor", "./local_icons/minecraft-monitor.png") >> Edge(color="blue", style="solid") >> Custom("MC Telegraf", "./local_icons/telegraf_logo.png") >> Edge(color="blue", style="solid") >> influxdb
+        new_arcadia = Custom("New Arcadia", "./local_icons/minecraft-monitor.png") 
 
       with Cluster("Native"):
         pterodactyl_wings = Custom("Pterodactyl Wings", "./local_icons/pterodactyl.png")
@@ -119,12 +113,6 @@ with Diagram("Docker Prod", show=False, direction="TB"):
     authentik_db >> authentik_worker
     authentik_redis >> authentik_server
     authentik_redis >> authentik_worker
-    authentik_server >> Edge(color="orangered", style="dashed") >> grafana
-    authentik_server >> Edge(color="orangered", style="dashed") >> freshrss
-    authentik_server >> Edge(color="orangered", style="dashed") >> immich
-    authentik_server >> Edge(color="orangered", style="dashed") >> portainer
-    authentik_server >> Edge(color="orangered", style="dashed") >> tautulli
-    authentik_server >> Edge(color="orangered", style="dashed") >> jellyfin
 
     npm >> Edge(color="darkred", style="bold") >> grafana
     npm >> Edge(color="darkred", style="bold") >> overseerr
@@ -148,7 +136,7 @@ with Diagram("Docker Prod", show=False, direction="TB"):
     swarm_cronjob >> Edge(color="navyblue", style="solid") >> manager_prune_nodes
     swarm_cronjob >> Edge(color="navyblue", style="solid") >> standard_prune_nodes
 
-    pmm >> plex >> tautulli
+    pmm >> plex >> tautulli >> varken >> influxdb
     jellyfin >> jellystat >> jellystat_db
 
     overseerr >> Edge(color="magenta1", style="bold") >> sonarr >> Edge(color="turquoise1", style="bold") >> qbittorrent
@@ -165,17 +153,10 @@ with Diagram("Docker Prod", show=False, direction="TB"):
 
     unpoller >> Edge(color="blue", style="dashed") >> influxdb
 
+    new_arcadia >> Edge(color="blue", style="solid") >> mc_monitor
+    mc_monitor >> Edge(color="blue", style="solid") >> mc_telegraf
+    mc_telegraf >> Edge(color="blue", style="solid") >> influxdb
+
     influxdb >> grafana
     prometheus >> grafana
     loki >> grafana
-
-    npm_sentinel >> Edge(color="darkred", style="bold") >> grafana_sentinel
-    npm_sentinel >> Edge(color="darkred", style="bold") >> influxdb_sentinel
-    npm_sentinel >> Edge(color="darkred", style="bold") >> loki_sentinel
-    npm_sentinel >> Edge(color="darkred", style="bold") >> uptimekuma_sentinel
-
-    influxdb_sentinel >> grafana_sentinel
-
-    loki_sentinel >> grafana_sentinel
-
-    internet >> npm_sentinel

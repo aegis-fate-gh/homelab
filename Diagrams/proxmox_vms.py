@@ -4,39 +4,35 @@ from diagrams.generic import os, storage
 from diagrams.custom import Custom
 
 with Diagram("Homelab VMs", show=False, direction="TB"):
-    with Cluster("Proxmox HA Cluster"):
+    with Cluster("Eos Proxmox HA Cluster"):
         cephfs = storage.Storage("CephFS")
         ceph = storage.Storage("Ceph")
 
-        with Cluster("pve-selene-01"):
+        with Cluster("pve-eos-01"):
             with Cluster("Local ZFS Storage"):
-                pihole1 = os.Ubuntu("pihole-01")
-                dsm1 = os.Ubuntu("dsp-man-01")
-                dsw_gpu1 = os.Ubuntu("dsp-w-gpu-01")
-                dsw_vpn1 = os.Ubuntu("dsp-w-vpn-01")
+                dsm1 = os.Ubuntu("Starbase-01")
+                dsw_gpu1 = os.Ubuntu("Sovereign-01")
+                dsw_vpn1 = os.Ubuntu("Defiant-01")
 
             with Cluster("Ceph Cluster Storage"):
-                w11_SB = os.Windows("Server Bridge")
+                wing_commander = os.Ubuntu("Wing-Commander")
 
-        with Cluster("pve-selene-02"):
+        with Cluster("pve-eos-02"):
             with Cluster("Local ZFS Storage"):
-                pihole2 = os.Ubuntu("pihole-02")
-                dsm2 = os.Ubuntu("dsp-man-02")
-                dsw_gpu2 = os.Ubuntu("dsp-w-gpu-02")
-                dsw_vpn2 = os.Ubuntu("dsp-w-vpn-02")
+                dsm2 = os.Ubuntu("Starbase-02")
+                dsw_gpu2 = os.Ubuntu("Sovereign-02")
+                dsw_vpn2 = os.Ubuntu("Defiant-02")
             
             with Cluster("Ceph Cluster Storage"):
-                w11_MB = os.Windows("Management Bridge")
+                w11_MB = os.Windows("Golden-Gate")
 
-        with Cluster("pve-selene-03"):
+        with Cluster("pve-eos-03"):
             with Cluster("Local ZFS Storage"):
-                pihole3 = os.Ubuntu("pihole-03")
-                dsm3 = os.Ubuntu("dsp-man-03")
-                dsw_gpu3 = os.Ubuntu("dsp-w-gpu-03")
+                dsm3 = os.Ubuntu("Starbase-03")
+                dsw_gpu3 = os.Ubuntu("Sovereign-03")
             
             with Cluster("Ceph Cluster Storage"):
-                w11_GP = os.Windows("GP / Remote Access")
-                docker1 = os.Ubuntu("ptero-wings-01")
+                docker1 = os.Ubuntu("Jurassic-Park-01")
             
     with Cluster("pve-andromeda"):
         with Cluster("Local ZFS Storage"):
@@ -80,10 +76,9 @@ with Diagram("Homelab VMs", show=False, direction="TB"):
     dsw_vpn2 << cephfs
     docker1 << cephfs
 
-    w11_GP << ceph
     w11_MB << ceph
-    w11_SB << ceph
     docker1 << ceph
+    wing_commander << ceph
 
     ceph >> cephfs >> ceph
     ceph_stage >> cephfs_stage >> ceph_stage
