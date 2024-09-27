@@ -1,0 +1,12 @@
+# To run:
+# ansible-playbook playbooks/swarm/remount_all.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Remount all mount points
+  hosts: swarm
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: mount all
+      ansible.builtin.shell: |
+        mount -a
