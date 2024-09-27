@@ -7,6 +7,6 @@
   become: true
 
   tasks:
-    - name: mount all
+    - name: Mount all mount points in fstab
       ansible.builtin.shell: |
         mount -a
