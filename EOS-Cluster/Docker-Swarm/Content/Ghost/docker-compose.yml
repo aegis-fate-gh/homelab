@@ -8,8 +8,8 @@ services:
     environment:
       database__client: mysql
       database__connection__host: db
-      database__connection__user: $DB_USER
-      database__connection__password: $DB_PASSWORD
+      database__connection__user: $ghost_db_user
+      database__connection__password: $ghost_db_password
       database__connection__database: ghost
       url: http://192.168.6.7:8082
     volumes:
@@ -17,6 +17,9 @@ services:
     networks:
       - local_proxy
       - ghost
+    secrets:
+      - ghost_db_user
+      - ghost_db_password
     deploy:
       mode: replicated
       replicas: 1
@@ -93,4 +96,10 @@ networks:
     name: ghost
     driver: overlay
   local_proxy:
+    external: true
+
+secrets:
+  ghost_db_user:
+    external: true
+  ghost_db_password:
     external: true
