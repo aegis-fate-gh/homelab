@@ -27,7 +27,7 @@ services:
   dashy:
     image: lissy93/dashy
     volumes:
-      - dashy/conf.yml:/app/user-data/conf.yml
+      - dashy:/app/user-data
     ports:
       - 4000:8080
     environment:
