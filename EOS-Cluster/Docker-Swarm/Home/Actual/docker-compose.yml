@@ -24,7 +24,7 @@ services:
       # '/data' is the path Actual will look for its files in by default, so leave that as-is.
       - actual:/data
     networks:
-      - local_proxy
+      - cftunnel
     deploy:
       mode: replicated
       replicas: 1
@@ -49,4 +49,6 @@ volumes:
 
 networks:
   local_proxy:
+    external: true
+  cftunnel:
     external: true
