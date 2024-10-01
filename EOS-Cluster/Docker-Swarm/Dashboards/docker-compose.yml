@@ -24,9 +24,48 @@ services:
         - traefik.http.services.homepage-svc.loadbalancer.server.port=3000
         - shepherd.updates=true
 
+  dashy:
+    image: lissy93/dashy
+    volumes:
+      - dashy:/app/user-data/conf.yml
+    ports:
+      - 4000:8080
+    environment:
+      - NODE_ENV=production
+      - UID=1000
+      - GID=999
+    # Configure healthchecks
+    healthcheck:
+      test: ['CMD', 'node', '/app/services/healthcheck']
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - local_proxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.dashy-rtr.entrypoints=web
+        - traefik.http.routers.dashy-rtr.rule=Host(`dashy.local.sch-apps.com`)
+        - traefik.http.routers.dashy-rtr.service=dashy-svc
+        - traefik.http.services.dashy-svc.loadbalancer.server.port=3000
+        - shepherd.updates=true
+
 volumes:
   homepage_data:
     driver: local
+  dashy:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/samba/cloud-storage/dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Dashboards/Dashy_configs/conf.yml"
+      o: bind
 
 networks:
   local_proxy:
