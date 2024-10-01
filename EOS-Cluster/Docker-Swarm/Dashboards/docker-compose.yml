@@ -55,7 +55,7 @@ services:
         - traefik.http.routers.dashy-rtr.entrypoints=web
         - traefik.http.routers.dashy-rtr.rule=Host(`dashy.local.sch-apps.com`)
         - traefik.http.routers.dashy-rtr.service=dashy-svc
-        - traefik.http.services.dashy-svc.loadbalancer.server.port=3000
+        - traefik.http.services.dashy-svc.loadbalancer.server.port=8080
         - shepherd.updates=true
 
 volumes:
