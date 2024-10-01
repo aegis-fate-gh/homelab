@@ -24,23 +24,15 @@ services:
         - traefik.http.services.homepage-svc.loadbalancer.server.port=3000
         - shepherd.updates=true
 
-  dashy:
-    image: lissy93/dashy
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
     volumes:
-      - /mnt/samba/cloud-storage/dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Dashboards/Dashy_configs/conf.yml:/app/user-data/conf.yml
+      #- /var/run/docker.sock:/var/run/docker.sock
+      - homarr_configs:/app/data/configs
+      - homarr_icons:/app/public/icons
+      - homarr_data:/data
     ports:
-      - 4000:8080
-    environment:
-      - NODE_ENV=production
-      - UID=1000
-      - GID=999
-    # Configure healthchecks
-    healthcheck:
-      test: ['CMD', 'node', '/app/services/healthcheck']
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - '7575:7575'
     networks:
       - local_proxy
     deploy:
@@ -52,15 +44,33 @@ services:
           - "node.labels.connection == standard"
       labels:
         - traefik.enable=true
-        - traefik.http.routers.dashy-rtr.entrypoints=web
-        - traefik.http.routers.dashy-rtr.rule=Host(`dashy.local.sch-apps.com`)
-        - traefik.http.routers.dashy-rtr.service=dashy-svc
-        - traefik.http.services.dashy-svc.loadbalancer.server.port=8080
+        - traefik.http.routers.homarr-rtr.entrypoints=web
+        - traefik.http.routers.homarr-rtr.rule=Host(`homarr.local.sch-apps.com`)
+        - traefik.http.routers.homarr-rtr.service=homarr-svc
+        - traefik.http.services.homarr-svc.loadbalancer.server.port=7575
         - shepherd.updates=true
 
 volumes:
   homepage_data:
     driver: local
+  homarr_configs:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/homarr_data/configs"
+      o: bind
+  homarr_icons:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/homarr_data/icons"
+      o: bind
+  homarr_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/homarr_data/data"
+      o: bind
 
 networks:
   local_proxy:

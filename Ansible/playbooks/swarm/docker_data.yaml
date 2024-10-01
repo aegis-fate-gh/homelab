@@ -79,6 +79,11 @@
         - pterodactyl_data/panel/certs
         - pterodactyl_data/panel/logs
         - pterodactyl_data/db
+        - homarr_data
+        - homarr_data/configs
+        - homarr_data/icons
+        - homarr_data/data
+
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:
