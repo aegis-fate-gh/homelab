@@ -83,6 +83,7 @@
         - homarr_data/configs
         - homarr_data/icons
         - homarr_data/data
+        - actual_data
 
 
     - name: Create docker volumes with insecure permissions
