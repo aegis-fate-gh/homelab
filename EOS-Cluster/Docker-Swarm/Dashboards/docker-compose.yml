@@ -27,7 +27,7 @@ services:
   dashy:
     image: lissy93/dashy
     volumes:
-      - dashy:/app/user-data/conf.yml
+      - dashy/conf.yml:/app/user-data/conf.yml
     ports:
       - 4000:8080
     environment:
@@ -65,7 +65,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: "/mnt/samba/cloud-storage/dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Dashboards/Dashy_configs/conf.yml"
+      device: "/mnt/samba/cloud-storage/dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Dashboards/Dashy_configs"
       o: bind
 
 networks:
