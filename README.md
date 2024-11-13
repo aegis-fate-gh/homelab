@@ -1,5 +1,5 @@
 # Homelab
-A centralized repo for everything related to my homelab
+This is centralized repo for everything related to my homelab
 
 ## Physical Infrastructure
 What I call "Eos" is composed of 3 identical servers each containing:

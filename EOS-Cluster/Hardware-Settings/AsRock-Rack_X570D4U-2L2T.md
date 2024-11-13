@@ -1,15 +1,15 @@
-Bios Settings
+# Bios Settings
 
-Boot > CSM - Disabled
+- Boot > CSM - Disabled
 
-Advanced
-    CPU Configuration > SVM - Enabled
+- Advanced
+    - CPU Configuration > SVM - Enabled
 
-    Chipset Configuration
-        Above 4G Decoding - Enabled
-        SR-IOV Support - Enabled
-        Re-Size BAR Support - Auto
+    - Chipset Configuration
+        - Above 4G Decoding - Enabled
+        - SR-IOV Support - Enabled
+        - Re-Size BAR Support - Auto
 
-    AMD PBS
-        Primary Graphics Adaptor - Onboard D-sub
-        Power olicy - Energy Efficiency Mode
+    - AMD PBS
+        - Primary Graphics Adaptor - Onboard D-sub
+        - Power policy - Energy Efficiency Mode

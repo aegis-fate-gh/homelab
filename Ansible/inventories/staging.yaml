@@ -1,0 +1,4 @@
+ubuntu-server:
+  hosts:
+    grafana-test:
+      ansible_host: 192.168.6.19

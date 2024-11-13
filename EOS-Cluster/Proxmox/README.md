@@ -2,8 +2,8 @@ Initial Proxmox Setup
 1. Install PVE, naming each server as desired. Ensure Raid 1 is set for the boot drives to ensure redundancy
 2. Change the networking config as required. In my case, the bridges needed to be manually created and assigned to their corresponding vlan before the webui was accessible
 3. Once installed and the bridges configured, update the node and reboot as needed
-4. Once all 3 nodes are up and updated, create a cluster on the first node
-5. Join the other two nodes to the cluster once they are ready
+4. Once all nodes are up and updated, create a cluster on the first node
+5. Join the other nodes to the cluster once they are ready
 
 Nvidia GPU Setup
 Note: This presumes that the goal is to attach the GPU to a VM. To use them with LXC containers, you do not want to do this.

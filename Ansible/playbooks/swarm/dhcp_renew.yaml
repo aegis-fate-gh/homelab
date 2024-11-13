@@ -2,7 +2,7 @@
 # ansible-playbook playbooks/dhcp_renew.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_password.txt
 ---
 - name: Requests a DHCP renew on all assigned Ubuntu hosts
-  hosts: pihole, docker
+  hosts: docker
   remote_user: ansible
   become: true
 

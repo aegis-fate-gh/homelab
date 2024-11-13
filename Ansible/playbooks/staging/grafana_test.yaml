@@ -1,0 +1,32 @@
+# To run:
+# ansible-playbook playbooks/staging/grafana_test.yaml -i inventories/staging.yaml --become-password-file=credentials/ansible_eos_password.txt
+
+- name: Set up and configure Grafana and its plugins
+  hosts: grafana-test
+  remote_user: ansible
+  become: true
+
+  roles:
+    - role: grafana.grafana.grafana
+      vars:
+        grafana_version: 10.4.12
+        grafana_address: 192.168.6.19
+        grafana_security:
+          admin_user: admin
+          admin_password: Avensis88
+
+  tasks:
+    - name: Install/update Grafana plugins
+      community.grafana.grafana_plugin:
+        name: "{{ item }}"
+        version: latest
+        state: present
+      loop:
+        - grafana-clock-panel
+        - grafana-image-renderer
+        - grafana-splunk-datasource
+
+    - name: Stop the service to apply the updates
+      ansible.builtin.systemd_service:
+        name: grafana-server
+        state: restarted
