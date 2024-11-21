@@ -1,0 +1,9 @@
+---
+- name: Update and upgrade all packages
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Install the Qemu Guest Agent package
+  ansible.builtin.apt:
+    pkg:
+      - qemu-guest-agent

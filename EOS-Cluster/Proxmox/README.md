@@ -38,3 +38,29 @@ ha-manager crm-command node-maintenance enable <node>
 
 Disable Maintenance mode on a node:
 ha-manager crm-command node-maintenance disable <node>
+
+Creating multiple Ceph and CephFS Pools
+In order to do this, you'll need to ensure the device classes are set correctly, and then you'll need to create new crush rules that take that into account. Note that a given device class needs to exist before creating the crush rule for it.
+
+https://pve.proxmox.com/pve-docs/chapter-pveceph.html#pve_ceph_device_classes
+
+This will show the current rules and the OSD's assigned to them: ceph osd crush tree --show-shadow
+
+Then you create a new crush rule with this: ceph osd crush rule create-replicated <rule-name> <root> <failure-domain> <class>
+For example, this will create a rule to only use nvme class drives: ceph osd crush rule create-replicated eos-nvme default host nvme
+And this will do the same for HDD class drives: ceph osd crush rule create-replicated eos-hdd default host hdd
+
+Note that once the rule is created, you'll need to then set each pool to the new rule via the GUI. Then wait for it to finish the rebalancing process.
+
+For CephFS pools, it's the same as before, except now you just select the new crush rule. One note though, is that a CephFS metadata server (MDS) is ONE per CephFS, and one per physical host. So with three hosts, you should only really have 2 MDS's for the sake of redundancy.
+
+Ceph Warnings and crashes
+https://forum.proxmox.com/threads/resetting-ceph-warnings.65778/
+
+List all warnings and crashes: ceph crash ls
+
+Display detailed info on a given id: ceph crash info <id>
+
+Clear it: ceph crash archive <id>
+
+Clear all of them: ceph crash archive-all

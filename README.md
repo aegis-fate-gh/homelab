@@ -27,7 +27,7 @@ An additional RS1221+ may be part of future expansions and be used for backups. 
 ## Software Stack
 
 ### Hypervisor
-Eos runs on Proxmox, which is configured in a cluster, and with CEPH for the clustered storage. Andromeda (The test server) also runs on Proxmox
+All of my nodes run on Proxmox, which is configured into a cluster, with CEPH for the clustered storage.
 
 ### VM's
 The VM's are a mix of Ubuntu server for everything related to Docker, and Windows 11 for when I need / want a UI. And as a place to remote into.

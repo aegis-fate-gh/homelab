@@ -8,6 +8,12 @@ pve:
       ansible_host: 192.168.6.32
 vms:
   children:
+    samba-hosts:
+      children:
+        ubuntu-noble:
+          hosts:
+            zion:
+              ansible_host: 192.168.6.190
     docker:
       children:
         standalone:

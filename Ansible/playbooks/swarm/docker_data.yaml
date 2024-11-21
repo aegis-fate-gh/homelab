@@ -13,7 +13,7 @@
         state: directory
         owner: ansible
         group: docker
-        mode: '0755'
+        mode: '0775'
       loop:
         - portainer_data
         - npm_data/npm

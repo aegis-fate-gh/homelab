@@ -1,0 +1,9 @@
+---
+- name: Create the directory for ceph configs
+  ansible.builtin.file:
+    path: /"{{ item }}"/ceph
+    state: directory
+    mode: '0755'
+  loop:
+    - mnt
+    - ceph

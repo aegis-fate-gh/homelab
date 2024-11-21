@@ -1,0 +1,48 @@
+# To run:
+# ansible-playbook playbooks/eos-prod/samba-hosts.yaml -i inventories/eos.yaml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/eos-prod/samba-hosts.yaml --check -i inventories/eos.yaml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Install and configure samba nodes
+  hosts: samba-hosts
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Import needed tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/qemu_guest_agent.yaml
+        - ../../tasks/cephfs.yaml
+      loop_control:
+        loop_var: task_list
+
+    - name: Install Samba and Ceph
+      ansible.builtin.apt:
+        pkg:
+          - cifs-utils
+          - ceph-common
+          - samba
+
+    - name: Create Samba group
+      ansible.builtin.group:
+        name: samba
+        state: present
+
+    - name: Create Samba user
+      ansible.builtin.user:
+        name: samba
+
+    - name: Create Ceph volumes
+      ansible.builtin.file:
+        path: /mnt/{{ mnt_list }}
+        state: directory
+        owner: samba
+        group: samba
+        mode: '0775'
+      loop:
+        - ceph
+        - media
+      loop_control:
+        loop_var: mnt_list
