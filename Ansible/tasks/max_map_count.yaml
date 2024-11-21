@@ -1,0 +1,8 @@
+# For context on what this actually does https://access.redhat.com/solutions/99913
+---
+- name: Update Max map count for Graylog or other applications that need it
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+    reload: true

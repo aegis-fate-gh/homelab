@@ -84,6 +84,11 @@
         - homarr_data/icons
         - homarr_data/data
         - actual_data
+        - graylog_data
+        - graylog_data/mongodb
+        - graylog_data/datanode
+        - graylog_data/graylog
+        - graylog_data/graylog_journal
 
 
     - name: Create docker volumes with insecure permissions
