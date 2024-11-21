@@ -2,27 +2,64 @@
 This is centralized repo for everything related to my homelab
 
 ## Physical Infrastructure
+### Eos
 What I call "Eos" is composed of 3 identical servers each containing:
-- CPU: AMD Ryzen 5700X 8c 16t
+- CPU: AMD Ryzen 5700X
 - CPU Cooler: Noctua NH-D9L
-- RAM: 64GB's Kingston DDR4 3200 with ECC
+- RAM: 128GB's DDR4 3200 with ECC
 - Motherboard: AsRock Rack X570D4U-2L2T
 - NIC: Intel X520-DA2 (Dual SFP+)
 - GPU: GIGABYTE GeForce RTX 4060 OC Low Profile
-- SATA SSD (Boot and Swarm VM's): 2x Samsung 500GB 870 EVO
-- NVME SSD (Ceph): 2x Micron 7450 PRO 960GB
+- SATA SSD (Proxmox boot drives): 2x Samsung 500GB 870 EVO
+- NVME SSD (Ceph NVMe storage): 2x Micron 7450 PRO 960GB
+- SATA HDD (Ceph HDD Storage): 2x Seagate Exos - 1x 24TB, 1x 20TB
 - PSU: Seasonic Focus SGX-650
 - Case: Sliger CX3150x
 - Case Fans: 2x Noctua NF-A12x25 PWM
 
-Non clustered storage is currently provided by two NAS devices
-- Synology RS1221+: Primary content / media storage, also runs Proxmox Backup server for testing, and occasionally 2 VM's for Swarm related testing
-    - 4x Seagate Exos X18 18TB HDD's
-    - 2x Samsung 500GB 870 EVO SSD's (VM Storage)
-- Synology DS: Primarily used for when Blu-Ray / DVD's are being imported, where downloaded content is temporarily stored, and for local copies of Dropbox and OneDrive files.
-    - 4x SAMSUNG 870 QVO 2TB SSD's
+Outside of those 3 main nodes are two others providing additional capabilities. Both participate in the Proxmox quorum voting process, but neither contain any additional storage for the Ceph Pools, or contain any Ceph monitors / metadata servers.
 
-An additional RS1221+ may be part of future expansions and be used for backups. But idea might get may be replaced by something custom built running Proxmox with a TruNAS Scale VM or the like.
+### Donnager
+By far my oldest server, and formerly my only homelab and storage server. It was originally built for mass video transcoding, and was then setup for remote gaming using GPU passthrough. It was last used with UnRaid, housing 6 6TB SSD's for Plex media storage. Now it runs Proxmox and houses a VM for Dropbox synching, and Proxmox Backup Server.
+- CPU: AMD Ryzen Threadripper 1950x
+- CPU Cooler: NH-U12S TR4-SP3
+- RAM: 64GB's DDR4 2133
+- Motherboard: X399M Taichi
+- NIC: Intel X520-DA2 (Dual SFP+)
+- GPU: VisionTek AMD Radeon 5450
+- NVME SSD (Boot and VM Storage): 3x 500GB WD Black
+- NVME SSD (VM Storage): 4x 2TB Samsung 990 Evo Plus
+- PSU: Corsair RM550x
+- Case: Fractal Design Node 804
+- Case Fans: 3x Noctua NF-A12x25 PWM
+
+### Andromeda
+With the CPU from my last gaming PC, this served as my main hardware testing server. It was essentially the testbed for what would become the Eos cluster. Allowing me to test out both the Intel Arc A380 and Nvidia GPU's for Plex transcoding. Now it hosts VM's for OneDrive, and soon will enable UPS battery status to be sent to other cluster members.
+- CPU: AMD Ryzen 3700X
+- CPU Cooler: Noctua NH-D9L
+- RAM: 128GB's DDR4 3200
+- Motherboard: AsRock Rack X570D4U
+- NIC: Intel X520-DA2 (Dual SFP+)
+- GPU: None
+- SATA SSD (Proxmox boot drives): 2x Samsung 500GB 870 EVO
+- NVME SSD (VM Storage): 2x WD Black SN770's
+- PSU: Corsair SF750
+- Case: Sliger CX3170a XL
+- Case Fans: 3x Noctua NF-A12x25 PWM
+
+Non clustered storage is primarily provided by two Synology devices
+
+### Syn-Vault
+- Synology RS1221+: Currently my main media storage server, but will soon become the backup for my media storage. Was upgraded to 32GB's of ram to enable VM testing.
+    - 5x Seagate Exos 18TB HDD's
+    - 2x Samsung 500GB 870 EVO SSD's (VM Storage)
+    - Synology E10G21-F2 dual SFP+
+    - 32GB's OWC DDR4 2666 ECC RAM
+
+### Syn-Coruscant
+- Synology DS923+: Primarily used for when Blu-Ray / DVD's are being imported.
+    - 4x SAMSUNG 870 QVO 2TB SSD's
+    - Synology E10G22-T1-Mini 10GBe
 
 ## Software Stack
 
