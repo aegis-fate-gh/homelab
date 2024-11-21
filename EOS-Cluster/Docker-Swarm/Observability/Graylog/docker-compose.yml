@@ -5,6 +5,8 @@ services:
     image: "mongo:5.0"
     volumes:
       - "mongodb_data:/data/db"
+    networks:
+      - graylog
     deploy:
       mode: replicated
       replicas: 1
@@ -37,6 +39,8 @@ services:
       - "9300:9300/tcp"
     volumes:
       - "graylog-datanode:/var/lib/graylog-datanode"
+    networks:
+      - graylog
     deploy:
       mode: replicated
       replicas: 1
@@ -71,6 +75,8 @@ services:
     volumes:
       - "graylog_data:/usr/share/graylog/data/data"
       - "graylog_journal:/usr/share/graylog/data/journal"
+    networks:
+      - graylog
     deploy:
       mode: replicated
       replicas: 1
@@ -83,13 +89,18 @@ services:
         - traefik.http.routers.graylog-rtr.entrypoints=web
         - traefik.http.routers.graylog-rtr.rule=Host(`graylog.local.sch-apps.com`)
         - traefik.http.routers.graylog-rtr.service=graylog-svc
-        - traefik.http.services.graylog-svc.loadbalancer.server.port=9000
+        - traefik.http.services.graylog-svc.loadbalancer.server.port=9005
         - shepherd.updates=true
         - homepage.group=Eos Swarm Cluster
         - homepage.name=graylog
         - homepage.icon=graylog.png
         - homepage.href=http://graylog.local.sch-apps.com
         - homepage.description=Graylog SIEM
+
+networks:
+  graylog:
+    name: graylog
+    driver: overlay
 
 volumes:
   mongodb_data:
