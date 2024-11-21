@@ -49,9 +49,6 @@ services:
 
   graylog:
     image: graylog/graylog:6.1
-    depends_on:
-      mongodb:
-        condition: "service_started"
     entrypoint: "/usr/bin/tini --  /docker-entrypoint.sh"
     environment:
       GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/data/node-id"
