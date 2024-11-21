@@ -95,6 +95,16 @@
         mode: '1777'
       loop:
         - grafana_data
+
+    - name: Create docker volumes for Graylog
+      ansible.builtin.file:
+        path: /mnt/ceph/{{ item }}
+        state: directory
+        recurse: yes
+        owner: 1100
+        group: 1100
+        mode: '1777'
+      loop:
         - graylog_data
         - graylog_data/mongodb
         - graylog_data/datanode
