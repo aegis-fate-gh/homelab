@@ -89,7 +89,7 @@ services:
         - traefik.http.routers.graylog-rtr.entrypoints=web
         - traefik.http.routers.graylog-rtr.rule=Host(`graylog.local.sch-apps.com`)
         - traefik.http.routers.graylog-rtr.service=graylog-svc
-        - traefik.http.services.graylog-svc.loadbalancer.server.port=9005
+        - traefik.http.services.graylog-svc.loadbalancer.server.port=9000
         - shepherd.updates=true
         - homepage.group=Eos Swarm Cluster
         - homepage.name=graylog
@@ -101,6 +101,8 @@ networks:
   graylog:
     name: graylog
     driver: overlay
+  local_proxy:
+    external: true
 
 volumes:
   mongodb_data:
