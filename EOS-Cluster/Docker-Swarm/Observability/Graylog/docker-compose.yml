@@ -77,6 +77,7 @@ services:
       - "graylog_journal:/usr/share/graylog/data/journal"
     networks:
       - graylog
+      - local_proxy
     deploy:
       mode: replicated
       replicas: 1
