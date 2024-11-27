@@ -31,7 +31,6 @@ Setting up CephFS
 
     Note the addition of the mds_namespace option. With that, you can select which pool a given mount point is using.
 
-
 Setting up Docker Swarm
 https://docs.docker.com/engine/swarm/swarm-tutorial/create-swarm/
 

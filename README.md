@@ -2,8 +2,8 @@
 This is centralized repo for everything related to my homelab
 
 ## Physical Infrastructure
-### Eos
-What I call "Eos" is composed of 3 identical servers each containing:
+### Eos 1-3
+What I call "Eos" is composed of 3 identical servers. Using what I learned from testing on Andromeda (See below), they were built to allow for an easy highly available core group of servers. They do this without lots of noise, power consumption, or cost (Relatively speaking....). Each of the 3 is composed of:
 - CPU: AMD Ryzen 5700X
 - CPU Cooler: Noctua NH-D9L
 - RAM: 128GB's DDR4 3200 with ECC
@@ -17,10 +17,10 @@ What I call "Eos" is composed of 3 identical servers each containing:
 - Case: Sliger CX3150x
 - Case Fans: 2x Noctua NF-A12x25 PWM
 
-Outside of those 3 main nodes are two others providing additional capabilities. Both participate in the Proxmox quorum voting process, but neither contain any additional storage for the Ceph Pools, or contain any Ceph monitors / metadata servers.
+Outside of those 3 main nodes are two others providing additional capabilities. Both participate in the Proxmox quorum voting process and contain OSD's and Monitors for Ceph. But do not run the Manager service or Metadata 
 
 ### Donnager
-By far my oldest server, and formerly my only homelab and storage server. It was originally built for mass video transcoding, and was then setup for remote gaming using GPU passthrough. It was last used with UnRaid, housing 6 6TB SSD's for Plex media storage. Now it runs Proxmox and houses a VM for Dropbox synching, and Proxmox Backup Server.
+By far my oldest server, and formerly my only homelab and storage server. It was originally built for mass video transcoding, and was then setup for remote gaming using GPU passthrough. It was last used with UnRaid, housing 6 6TB SSD's for Plex media storage. Now it runs Proxmox and houses a VM for Dropbox / OneDrive synching, and Proxmox Backup Server.
 - CPU: AMD Ryzen Threadripper 1950x
 - CPU Cooler: NH-U12S TR4-SP3
 - RAM: 64GB's DDR4 2133
@@ -29,12 +29,13 @@ By far my oldest server, and formerly my only homelab and storage server. It was
 - GPU: VisionTek AMD Radeon 5450
 - NVME SSD (Boot and VM Storage): 3x 500GB WD Black
 - NVME SSD (VM Storage): 4x 2TB Samsung 990 Evo Plus
+- SATA HDD (Ceph HDD Storage): 2x Seagate Exos - 1x 24TB, 1x 20TB
 - PSU: Corsair RM550x
 - Case: Fractal Design Node 804
 - Case Fans: 3x Noctua NF-A12x25 PWM
 
 ### Andromeda
-With the CPU from my last gaming PC, this served as my main hardware testing server. It was essentially the testbed for what would become the Eos cluster. Allowing me to test out both the Intel Arc A380 and Nvidia GPU's for Plex transcoding. Now it hosts VM's for OneDrive, and soon will enable UPS battery status to be sent to other cluster members.
+With the CPU from my last gaming PC, this served as my main hardware testing server. It was essentially the testbed for what would become the Eos cluster. Allowing me to test out both the Intel Arc A380 and Nvidia GPU's for Plex transcoding.
 - CPU: AMD Ryzen 3700X
 - CPU Cooler: Noctua NH-D9L
 - RAM: 128GB's DDR4 3200
@@ -43,6 +44,7 @@ With the CPU from my last gaming PC, this served as my main hardware testing ser
 - GPU: None
 - SATA SSD (Proxmox boot drives): 2x Samsung 500GB 870 EVO
 - NVME SSD (VM Storage): 2x WD Black SN770's
+- SATA HDD (Ceph HDD Storage): 2x Seagate Exos - 1x 24TB, 1x 20TB
 - PSU: Corsair SF750
 - Case: Sliger CX3170a XL
 - Case Fans: 3x Noctua NF-A12x25 PWM
