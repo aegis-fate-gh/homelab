@@ -1,0 +1,1 @@
+The Playbooks located here are created with idea of leveraging tasks vs monolithic playbooks. Over time, more and more playbooks for the Eos cluster will be transitioned here from the swarm folder.

@@ -33,6 +33,61 @@ CloudInit Prep
 Testing Ceph Performance:
 https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/1.3/html/administration_guide/benchmarking_performance
 
+As a reminder, Eos is backed by 6 Micron 7450 NVMe Drives. The hdd-pool is backed by 5 20TB, and 5 24TB Seagate Exos SATA Hdd's. Also note that Eos is the storage for the majority of the VM in the cluster, and they were not stopped during these tests. Connecting all 5 nodes is a dedicated 10Gb network connection.
+
+Dropping the caches:
+sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
+
+10 Second sequential write tests to the respective pools
+rados bench -p eos 10 write --no-cleanup
+rados bench -p hdd-pool 10 write --no-cleanup
+
+Results:
+Eos
+Bandwidth MB/s (Max, Min, Avg.): 780, 396, 649.957
+IOPS (Max, Min, Avg.): 195, 99, 162
+Latency S's (Max, Min, Avg.): 0.359, 0.016, 0.098
+
+hdd-pool
+Bandwidth MB/s (Max, Min, Avg.): 228, 148, 198.999
+IOPS (Max, Min, Avg.): 57, 37, 49
+Latency S's (Max, Min, Avg.): 1.311, 0.058, 0.317
+
+10 Second sequential read tests from the respective pools
+rados bench -p eos 10 seq
+rados bench -p hdd-pool 10 seq
+
+Results:
+eos
+Bandwidth MB/s (Avg.): 1810.41
+IOPS (Max, Min, Avg.): 477, 446, 452
+Latency S's (Max, Min, Avg.): 0.168, 0.003, 0.034
+
+hdd-pool
+Bandwidth MB/s (Avg.): 657.513
+IOPS (Max, Min, Avg.): 176, 164, 164
+Latency S's (Max, Min, Avg.): 0.688, 0.010, 0.090
+
+10 Second random read tests from the respective pools
+rados bench -p eos 10 rand
+rados bench -p hdd-pool 10 rand
+
+Results:
+eos
+Bandwidth MB/s (Avg.): 1792.93
+IOPS (Max, Min, Avg.): 471, 432, 445
+Latency S's (Max, Min, Avg.): 0.277, 0.001, 0.035
+
+hdd-pool
+Bandwidth MB/s (Avg.): 1267.87
+IOPS (Max, Min, Avg.): 337, 298, 316
+Latency S's (Max, Min, Avg.): 0.403, 0.001, 0.049
+
+When done, this cleans up the respective pool
+rados -p eos cleanup
+rados -p hdd-pool cleanup
+
+Maintenance Mode
 Enable Maintenance mode on a node:
 ha-manager crm-command node-maintenance enable <node>
 

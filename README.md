@@ -70,7 +70,7 @@ All of my nodes run on Proxmox, which is configured into a cluster, with CEPH fo
 The VM's are a mix of Ubuntu server for everything related to Docker, and Windows 11 for when I need / want a UI. And as a place to remote into.
 
 ### Windows
-Consists of a single VM for now, named Golden Gate. Which has network connections to every VLAN.
+Consists of a single VM for now, named Golden Gate.
 
 ### Ubuntu
 Within the Eos Proxmox cluster there is the Eos Docker swarm cluster. Any VM's in the swarm cluster are not set up for HA, as that is handled by the swarm and swarm managers. All also run on Ubuntu Server. They consist of:
