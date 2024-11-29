@@ -43,6 +43,6 @@
         mode: '0775'
       loop:
         - ceph
-        - media
+        - hdd_pool
       loop_control:
         loop_var: mnt_list

@@ -12,3 +12,4 @@ EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/logs/
 EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/config.cache
 EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/UUID
 Ansible/playbooks/swarm/docker_secrets.yaml
+Ansible/vars

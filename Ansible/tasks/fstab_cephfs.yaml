@@ -1,0 +1,20 @@
+#10.1.100.30,10.1.100.31,10.1.100.32:/     /mnt/ceph    ceph    name=admin,secret=SECRET_HERE,mds_namespace=hdd-cephfs,rw,noatime,_netdev    0       2
+---
+- name: Ensure the mount directories exist on the host system
+  ansible.builtin.file:
+    path: /mnt/{{ item }}
+    state: directory
+    owner: ansible
+    group: docker
+    mode: '0775'
+  loop:
+    - ceph
+    - hdd_pool
+
+- name: Update fstab to include cephfs mounts
+  ansible.posix.mount:
+    path: /mnt/hdd_pool
+    src: 10.1.100.30,10.1.100.31,10.1.100.32:/
+    fstype: ceph
+    opts: name={{ user1 }},secret={{ secret1 }},mds_namespace=hdd-cephfs,rw,noatime,_netdev
+    state: mounted

@@ -14,6 +14,12 @@ vms:
           hosts:
             zion:
               ansible_host: 192.168.6.190
+    cloud-hosts:
+      children:
+        ubuntu-noble:
+          hosts:
+            pegasus:
+              ansible_host: 192.168.6.170
     docker:
       children:
         standalone:
