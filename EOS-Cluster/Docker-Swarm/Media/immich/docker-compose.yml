@@ -37,7 +37,6 @@ services:
         - traefik.http.routers.immich-rtr.rule=Host(`immich.local.sch-apps.com`)
         - traefik.http.routers.immich-rtr.service=immich-svc
         - traefik.http.services.immich-svc.loadbalancer.server.port=3001
-        - shepherd.updates=true
         - homepage.group=Media Front End
         - homepage.name=immich
         - homepage.icon=immich.png
@@ -54,16 +53,20 @@ services:
     healthcheck:
       disable: false
     networks:
-      - immich
+      - local_proxy
     deploy:
-      mode: replicated
-      replicas: 1
+      mode: global
       placement:
         constraints: 
           - "node.role == worker"
           - "node.labels.nvidia == true"
       labels:
-        - "shepherd.updates=true"
+        - shepherd.updates=true
+        - traefik.enable=true
+        - traefik.http.routers.immich-rtr.entrypoints=web
+        - traefik.http.routers.immich-rtr.rule=Host(`immich-ml.local.sch-apps.com`)
+        - traefik.http.routers.immich-rtr.service=immich-svc
+        - traefik.http.services.immich-svc.loadbalancer.server.port=3003
 
   redis:
     image: docker.io/redis:6.2-alpine@sha256:e3b17ba9479deec4b7d1eeec1548a253acc5374d68d3b27937fcfe4df8d18c7e
@@ -106,7 +109,7 @@ services:
           - "node.role == worker"
           - "node.labels.connection == standard"
       labels:
-        - "shepherd.updates=true"
+        - shepherd.updates=true
 
 volumes:
   immich_data:
