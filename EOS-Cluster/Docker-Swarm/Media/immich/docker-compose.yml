@@ -15,7 +15,7 @@ services:
       - DB_DATA_LOCATION=$DB_DATA_LOCATION
       - TZ=$TZ
     ports:
-      - 2283:3001
+      - 2283:2283
     depends_on:
       - redis
       - database
