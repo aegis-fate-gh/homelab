@@ -58,7 +58,6 @@ services:
       mode: global
       placement:
         constraints: 
-          - "node.role == worker"
           - "node.labels.nvidia == true"
       labels:
         - shepherd.updates=true
