@@ -45,7 +45,7 @@ services:
       - TZ=America/Chicago
     volumes:
       - bazarr_data:/config
-      - '/mnt/samba/media:/media'
+      - '/mnt/hdd_pool/media:/media'
     ports:
       - 6767:6767
     networks:
@@ -81,7 +81,7 @@ services:
       - TZ=America/Chicago
     volumes:
       - sonarr_data:/config
-      - '/mnt/samba/media:/media'
+      - '/mnt/hdd_pool/media:/media'
     ports:
       - 8989:8989
     networks:
@@ -117,7 +117,7 @@ services:
       - TZ=America/Chicago
     volumes:
       - radarr_data:/config
-      - '/mnt/samba/media:/media'
+      - '/mnt/hdd_pool/media:/media'
     ports:
       - 7878:7878
     networks:
@@ -161,7 +161,7 @@ services:
       - /mnt/ceph/sonarr_data:/backup/sonarr:ro
       - /mnt/ceph/radarr_data:/backup/radarr:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/samba/cloud-storage/onedrive/Eos_Backups:/archive
+      - /mnt/hdd_pool/cloud/OneDrive/Storage/Eos_Backups:/archive
     deploy:
       mode: replicated
       replicas: 1

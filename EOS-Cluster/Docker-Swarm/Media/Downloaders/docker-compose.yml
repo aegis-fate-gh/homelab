@@ -13,7 +13,7 @@ services:
       - WEBUI_PORTS=8080/tcp,8080/udp
     volumes:
       - 'qbittorrent_data:/config'
-      - '/mnt/samba/media:/media'
+      - '/mnt/hdd_pool/media:/media'
     networks:
       - media
       - local_proxy
@@ -43,7 +43,7 @@ services:
       - "5800:5800"
     volumes:
       - 'jdownloader2_data:/config:rw'
-      - '/mnt/samba/media:/media'
+      - '/mnt/hdd_pool/media/downloads:/media'
     networks:
       - local_proxy
     deploy:
@@ -78,10 +78,10 @@ services:
       - "8998:17442"
     volumes:
       - ytdl_material_data:/app/appdata
-      - /mnt/samba/media/downloads/youtube-dl/audio:/app/audio
-      - /mnt/samba/media/downloads/youtube-dl/video:/app/video
-      - /mnt/samba/media/downloads/youtube-dl/subscriptions:/app/subscriptions
-      - /mnt/samba/media/downloads/youtube-dl/users:/app/users
+      - /mnt/hdd_pool/media/downloads/youtube-dl/audio:/app/audio
+      - /mnt/hdd_pool/media/downloads/youtube-dl/video:/app/video
+      - /mnt/hdd_pool/media/downloads/youtube-dl/subscriptions:/app/subscriptions
+      - /mnt/hdd_pool/media/downloads/youtube-dl/users:/app/users
     networks:
       - local_proxy
       - youtubedl
