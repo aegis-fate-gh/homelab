@@ -54,6 +54,7 @@ services:
       disable: false
     networks:
       - local_proxy
+      - immich
     deploy:
       mode: global
       placement:
@@ -62,10 +63,10 @@ services:
       labels:
         - shepherd.updates=true
         - traefik.enable=true
-        - traefik.http.routers.immich-ml-rtr.entrypoints=web
-        - traefik.http.routers.immich-ml;-rtr.rule=Host(`immich-ml.local.sch-apps.com`)
-        - traefik.http.routers.immich-ml-rtr.service=immich-ml-svc
-        - traefik.http.services.immich-ml-svc.loadbalancer.server.port=3003
+        - traefik.http.routers.immich_ml-rtr.entrypoints=web
+        - traefik.http.routers.immich_ml-rtr.rule=Host(`immich_ml.local.sch-apps.com`)
+        - traefik.http.routers.immich_ml-rtr.service=immich_ml-svc
+        - traefik.http.services.immich_ml-svc.loadbalancer.server.port=3003
 
   redis:
     image: docker.io/redis:6.2-alpine@sha256:e3b17ba9479deec4b7d1eeec1548a253acc5374d68d3b27937fcfe4df8d18c7e
