@@ -10,9 +10,9 @@ services:
       - VERSION=docker
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
-    # While host mode networking is preferred, bridge mode allows you to fully use docker swarms mesh networking capabilities
     volumes:
       - '/mnt/ceph/plex_data:/config'
+      - '/mnt/hdd_pool:/hdd_pool_media:ro'
       - '/mnt/samba/media:/media'
       - '/mnt/samba/cloud-storage/dropbox:/dropbox'
       - '/dev/shm:/tmp'
