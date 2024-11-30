@@ -17,7 +17,7 @@ services:
       - '/mnt/ceph/krusader_data:/config'
       - '/etc/localtime:/etc/localtime:ro'
       - '/mnt/ceph:/data/docker_volumes'
-      - '/mnt/samba:/data/samba'
+      - '/mnt/hdd_pool:/data/hdd_pool'
     networks:
       - local_proxy
     deploy:
@@ -39,7 +39,7 @@ services:
         - homepage.name=Krusader
         - homepage.icon=krusader.png
         - homepage.href=http://krusader.local.sch-apps.com/vnc.html?resize=remote&host=krusader.local.sch-apps.com&port=6080&&autoconnect=1
-        - homepage.description=Container volume and Samba mount file management
+        - homepage.description=Container volume and Ceph HDD_Pool file management
 
   filebrowser:
     image: hurlenko/filebrowser

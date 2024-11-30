@@ -7,7 +7,7 @@ services:
       - "5801:5800"
     volumes:
       - '/mnt/ceph/mkvtoolnix_data:/config:rw'
-      - '/mnt/samba/media:/media:rw'
+      - '/mnt/hdd_pool/media:/media:rw'
     networks:
       - local_proxy
     deploy:
