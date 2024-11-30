@@ -13,6 +13,7 @@ services:
       - '/dev/shm:/config/transcodes'
       - jellyfin_data:/config
       - '/mnt/samba/media:/media'
+      - '/mnt/hdd_pool:/hdd_pool_media:/hdd_pool'
       - '/mnt/samba/cloud-storage/dropbox:/dropbox'
     networks:
       - outside
@@ -96,7 +97,7 @@ services:
       - BACKUP_FILENAME=jellyfin-%Y-%m-%dT%H-%M-%S.tar.gz
       - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7am UTC, 2AM CST
       - BACKUP_PRUNING_PREFIX=jellyfin-
-      - BACKUP_RETENTION_DAYS=7
+      - BACKUP_RETENTION_DAYS=5
       - GZIP_PARALLELISM=3
       - BACKUP_STOP_DURING_BACKUP_LABEL=jellyfin_backup
     volumes:
@@ -106,7 +107,7 @@ services:
       - /mnt/ceph/jellystat_data:/backup/jellystat:ro
       - /mnt/ceph/jellyfin_data:/backup/jellyfin:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/samba/cloud-storage/onedrive/Eos_Backups:/archive
+      - /mnt/hdd_pool/cloud/OneDrive/Storage/Eos_Backups:/archive
     deploy:
       mode: replicated
       replicas: 1

@@ -7,7 +7,7 @@ services:
     environment:
       - TZ=America/Chicago
     volumes:
-      - '/mnt/samba/cloud-storage/dropbox/Kavita-Content:/content'
+      - /mnt/hdd_pool/cloud/Dropbox/Kavita-Content:/content
       - /mnt/ceph/kavita_data:/kavita/config
     ports:
       - "5000:5000"
