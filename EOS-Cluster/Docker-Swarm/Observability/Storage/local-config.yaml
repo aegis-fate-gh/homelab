@@ -16,14 +16,6 @@ common:
     kvstore:
       store: inmemory
 
-compactor:
-  working_directory: /data/retention
-  compaction_interval: 10m
-  retention_enabled: true
-  retention_delete_delay: 2h
-  retention_delete_worker_count: 150
-  delete_request_store: filesystem
-
 schema_config:
   configs:
     - from: 2020-10-24
@@ -33,6 +25,14 @@ schema_config:
       index:
         prefix: index_
         period: 24h
+
+compactor:
+  working_directory: /data/retention
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+  delete_request_store: filesystem
 
 storage_config:
     tsdb_shipper:
