@@ -9,6 +9,7 @@ services:
       - TZ=America/Chicago
     volumes:
       - '/mnt/ceph/loki_data:/etc/loki'
+      - '/mnt/ceph/loki_data/data_store:/data'
     command: -config.file=/etc/loki/local-config.yaml
     deploy:
       mode: replicated
