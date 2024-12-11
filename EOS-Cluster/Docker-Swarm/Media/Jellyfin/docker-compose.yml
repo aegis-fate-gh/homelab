@@ -13,6 +13,7 @@ services:
       - '/dev/shm:/config/transcodes'
       - jellyfin_data:/config
       - '/mnt/hdd_pool:/hdd_pool_media:/hdd_pool'
+      - '/mnt/samba/media/media:/samba_media:ro'
     networks:
       - outside
     deploy:
