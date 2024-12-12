@@ -34,14 +34,14 @@ See basic guide here: https://www.reddit.com/r/homelab/comments/b5xpua/the_ultim
 ## Testing Ceph Performance:
 https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/1.3/html/administration_guide/benchmarking_performance
 
-As a reminder, Eos is backed by 6 Micron 7450 NVMe Drives. The hdd-pool is backed by 5 20TB, and 5 24TB Seagate Exos SATA Hdd's. Also note that Eos is the storage for the majority of the VM in the cluster, and they were not stopped during these tests. Connecting all 5 nodes is a dedicated 10Gb network connection.
+As a reminder, Eos is backed by 6 Micron 7450 NVMe Drives. The eos-fs-hdd pool is backed by 5 20TB, 5 24TB Seagate Exos SATA Hdd's, and 5 Intel SATA SSD's for the DB/WAL Disks. The previous hdd-pool was only backed by the HDD's. Also note that Eos is the storage for the majority of the VM in the cluster, and they were not stopped during these tests. Connecting all 5 nodes is a dedicated 10Gb network connection.
 
 ### Dropping the caches:
 sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
 
 ### 10 Second sequential write tests to the respective pools
 - rados bench -p eos 10 write --no-cleanup
-- rados bench -p hdd-pool 10 write --no-cleanup
+- rados bench -p eos-fs-hdd_data 10 write --no-cleanup
 
 #### Results:
 ##### Eos
@@ -52,10 +52,14 @@ sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
 - Bandwidth MB/s (Max, Min, Avg.): 228, 148, 198.999
 - IOPS (Max, Min, Avg.): 57, 37, 49
 - Latency S's (Max, Min, Avg.): 1.311, 0.058, 0.317
+##### eos-fs-hdd
+- Bandwidth MB/s (Max, Min, Avg.): 372, 208, 308.62
+- IOPS (Max, Min, Avg.): 93, 52, 77
+- Latency S's (Max, Min, Avg.): 0.890, 0.040, 0.206
 
 ### 10 Second sequential read tests from the respective pools
 - rados bench -p eos 10 seq
-- rados bench -p hdd-pool 10 seq
+- rados bench -p eos-fs-hdd_data 10 seq
 
 #### Results:
 ##### Eos
@@ -66,10 +70,14 @@ sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
 - Bandwidth MB/s (Avg.): 657.513
 - IOPS (Max, Min, Avg.): 176, 164, 164
 - Latency S's (Max, Min, Avg.): 0.688, 0.010, 0.090
+##### eos-fs-hdd
+- Bandwidth MB/s (Avg.): 1049.66
+- IOPS (Max, Min, Avg.): 258, 247, 262
+- Latency S's (Max, Min, Avg.): 0.239, 0.0009, 0.059
 
 ### 10 Second random read tests from the respective pools
 - rados bench -p eos 10 rand
-- rados bench -p hdd-pool 10 rand
+- rados bench -p eos-fs-hdd_data 10 rand
 
 #### Results:
 ##### Eos
@@ -80,10 +88,14 @@ sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
 - Bandwidth MB/s (Avg.): 1267.87
 - IOPS (Max, Min, Avg.): 337, 298, 316
 - Latency S's (Max, Min, Avg.): 0.403, 0.001, 0.049
+##### eos-fs-hdd
+- Bandwidth MB/s (Avg.): 1303.78
+- IOPS (Max, Min, Avg.): 340, 282, 325
+- Latency S's (Max, Min, Avg.): 0.329, 0.001, 0.048
 
 ### When done, this cleans up the respective pool
 - rados -p eos cleanup
-- rados -p hdd-pool cleanup
+- rados -p eos-fs-hdd_data cleanup
 
 ## Proxmox Maintenance Mode
 ### Enable Maintenance mode on a node:

@@ -13,6 +13,7 @@ What I call "Eos" is composed of 3 identical servers. Using what I learned from 
 - SATA SSD (Proxmox boot drives): 2x Samsung 500GB 870 EVO
 - NVME SSD (Ceph NVMe storage): 2x Micron 7450 PRO 960GB
 - SATA HDD (Ceph HDD Storage): 2x Seagate Exos - 1x 24TB, 1x 20TB
+- SATA SSD (Ceph DB/WAL): 1x Intel SSDSC2BA400G3 400GB
 - PSU: Seasonic Focus SGX-650
 - Case: Sliger CX3150x
 - Case Fans: 2x Noctua NF-A12x25 PWM
@@ -30,6 +31,7 @@ By far my oldest server, and formerly my only homelab and storage server. It was
 - NVME SSD (Boot and VM Storage): 3x 500GB WD Black
 - NVME SSD (VM Storage): 4x 2TB Samsung 990 Evo Plus
 - SATA HDD (Ceph HDD Storage): 2x Seagate Exos - 1x 24TB, 1x 20TB
+- SATA SSD (Ceph DB/WAL): 1x Intel SSDSC2BA400G3 400GB
 - PSU: Corsair RM550x
 - Case: Fractal Design Node 804
 - Case Fans: 3x Noctua NF-A12x25 PWM
@@ -45,6 +47,7 @@ With the CPU from my last gaming PC, this served as my main hardware testing ser
 - SATA SSD (Proxmox boot drives): 2x Samsung 500GB 870 EVO
 - NVME SSD (VM Storage): 2x WD Black SN770's
 - SATA HDD (Ceph HDD Storage): 2x Seagate Exos - 1x 24TB, 1x 20TB
+- SATA SSD (Ceph DB/WAL): 1x Intel SSDSC2BA400G3 400GB
 - PSU: Corsair SF750
 - Case: Sliger CX3170a XL
 - Case Fans: 3x Noctua NF-A12x25 PWM
@@ -87,7 +90,3 @@ Additionally, there are 2 standalone VM's for Docker, each set up in HA mode on 
 - 1 For hosting Pterodactyl Wings, known as Jurassic Park 01
 
 Finally, there is the Voyager type of node, which has / will run on the Synology NAS's (Or whatever replaces them...), and act as the lower powered version of the Sovereign nodes. The basic premise is that anything not requiring a GPU or VPN connection would run on the Voyager nodes.
-
-
-
-

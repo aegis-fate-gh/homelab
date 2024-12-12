@@ -1,0 +1,21 @@
+# To run:
+# ansible-playbook playbooks/eos-prod/cephfs_test.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/eos-prod/cephfs_test.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Install and configure cloud nodes
+  hosts: swarm
+  remote_user: ansible
+  become: true
+  vars_files:
+    - ../../vars/cephfs_vars.yml
+
+  tasks:
+    - name: Import needed tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/cephfs_keyring.yml
+        - ../../tasks/fstab_cephfs.yml
+      loop_control:
+        loop_var: task_list

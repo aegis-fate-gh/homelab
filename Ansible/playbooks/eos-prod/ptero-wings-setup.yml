@@ -1,0 +1,22 @@
+# To run:
+# ansible-playbook playbooks/eos-prod/ptero-wings-setup.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/eos-prod/ptero-wings-setup.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Install and configure Pterodactyl Wings nodes
+  hosts: pterodactyl
+  remote_user: ansible
+  become: true
+  vars_files:
+    - ../../vars/cephfs_vars.yml
+
+  tasks:
+    - name: Import needed tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/qemu_guest_agent.yml
+        - ../../tasks/cephfs_keyring.yml
+        - ../../tasks/fstab_cephfs.yml
+      loop_control:
+        loop_var: task_list

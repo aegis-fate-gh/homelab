@@ -28,6 +28,12 @@ vms:
               ansible_host: 192.168.6.90
             jurassic-park-01:
               ansible_host: 192.168.6.100
+        pterodactyl:
+          hosts:
+            ptero-wings-01:
+              ansible-host:
+            ptero-wings-02:
+              ansible_host:
         swarm:
           children:
             managers:

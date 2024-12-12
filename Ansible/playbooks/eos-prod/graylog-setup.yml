@@ -3,12 +3,17 @@
 # To Test:
 # ansible-playbook playbooks/eos-prod/graylog-setup.yaml --check -i inventories/eos.yaml --become-password-file=credentials/ansible_eos_password.txt
 ---
-- name: Install and configure the Sovereign nodes for Graylog
-  hosts: gpu
+- name: Install and configure the Graylog nodes
+  hosts: graylog
   remote_user: ansible
   become: true
 
   tasks:
-    - name: Import needed tasks
+    - name: Import and run the needed tasks
       ansible.builtin.include_tasks:
-        file: ../../tasks/max_map_count.yaml
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/qemu_guest_agent.yaml
+        - ../../tasks/max_map_count.yaml
+      loop_control:
+        loop_var: task_list

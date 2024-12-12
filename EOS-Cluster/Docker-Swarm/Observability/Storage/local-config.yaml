@@ -41,6 +41,9 @@ storage_config:
 
 limits_config:
   retention_period: 720h
+  max_query_length: 0
+  max_entries_limit_per_query: 10000
+  ingestion_rate_mb: 10
 
 ruler:
   alertmanager_url: http://localhost:9093

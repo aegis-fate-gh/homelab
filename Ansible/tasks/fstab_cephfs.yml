@@ -16,5 +16,5 @@
     path: /mnt/hdd_pool
     src: 10.1.100.30,10.1.100.31,10.1.100.32:/
     fstype: ceph
-    opts: name={{ user1 }},secret={{ secret1 }},mds_namespace=hdd-cephfs,rw,noatime,_netdev
+    opts: name={{ user1 }},secret={{ secret1 }},mds_namespace=eos-fs-hdd,rw,noatime,_netdev
     state: mounted
