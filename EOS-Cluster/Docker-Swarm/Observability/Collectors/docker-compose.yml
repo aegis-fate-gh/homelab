@@ -7,7 +7,7 @@ services:
     environment:
       - "TZ=America/Chicago"
     volumes:
-      - '/mnt/hdd_pool/cloud/Dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Observability/Collectors/configs/promtail_swarm.yaml:/etc/promtail/docker-config.yaml:ro'
+      - '/mnt/ceph/promtail_data/promtail_swarm.yaml:/etc/promtail/docker-config.yaml:ro'
       - '/mnt/ceph/promtail_data/positions:/positions'
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -54,7 +54,7 @@ services:
       - TELEGRAF_INFLUX_USER=$TELEGRAF_INFLUX_USER
       - TELEGRAF_INFLUX_DB=$TELEGRAF_INFLUX_DB
     volumes:
-      - '/mnt/hdd_pool/cloud/Dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Observability/Collectors/configs/telegraf_docker.conf:/etc/telegraf/telegraf.conf:ro'
+      - '/mnt/ceph/telegraf_data/standard/telegraf_docker.conf:/etc/telegraf/telegraf.conf:ro'
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/rootfs/sys:ro
       - /proc:/rootfs/proc:ro
@@ -85,7 +85,7 @@ services:
       - TELEGRAF_INFLUX_USER=$TELEGRAF_INFLUX_USER
       - TELEGRAF_INFLUX_DB=$TELEGRAF_INFLUX_DB
     volumes:
-      - '/mnt/hdd_pool/cloud/Dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Observability/Collectors/configs/telegraf_docker_gpu.conf:/etc/telegraf/telegraf.conf:ro'
+      - '/mnt/ceph/telegraf_data/standard/telegraf_docker_gpu.conf:/etc/telegraf/telegraf.conf:ro'
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/rootfs/sys:ro
       - /proc:/rootfs/proc:ro

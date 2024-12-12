@@ -12,6 +12,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
       - '/mnt/ceph/plex_data:/config'
+      - '/mnt/hdd_pool/media:/ceph_media:ro'
       - '/mnt/samba/media/media:/samba_media:ro'
       - '/dev/shm:/tmp'
     networks:
