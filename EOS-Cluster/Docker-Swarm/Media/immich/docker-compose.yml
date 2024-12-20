@@ -24,6 +24,7 @@ services:
     networks:
       - local_proxy
       - immich
+      - cftunnel
     deploy:
       mode: replicated
       replicas: 1
@@ -120,5 +121,7 @@ networks:
     name: immich
     driver: overlay
   local_proxy:
+    external: true
+  cftunnel:
     external: true
   
