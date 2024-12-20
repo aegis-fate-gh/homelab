@@ -112,6 +112,34 @@ services:
       labels:
         - shepherd.updates=true
 
+  backup:
+    image: offen/docker-volume-backup:v2
+    environment:
+      - BACKUP_FILENAME=immich-%Y-%m-%dT%H-%M-%S.tar.gz
+      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7am UTC, 2AM CST
+      - BACKUP_PRUNING_PREFIX=immich-
+      - BACKUP_RETENTION_DAYS=5
+      - GZIP_PARALLELISM=3
+      - BACKUP_STOP_DURING_BACKUP_LABEL=immich_backup
+    volumes:
+      - /dev/shm:/tmp
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/ceph/immich_data/:/backup/immich_data:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/hdd_pool/cloud/OneDrive/Storage/Eos_Backups:/archive
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 2000M
+      placement:
+        constraints: 
+          - "node.role == manager"
+      labels:
+        - "shepherd.updates=true"
+
 volumes:
   immich_data:
     driver: local
