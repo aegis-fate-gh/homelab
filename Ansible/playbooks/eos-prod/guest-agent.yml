@@ -1,0 +1,18 @@
+# To run:
+# ansible-playbook playbooks/eos-prod/guest-agent.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/eos-prod/guest-agent.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Install and configure the QEMU Guest Agent
+  hosts: guests
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Import needed tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/qemu_guest_agent.yml
+      loop_control:
+        loop_var: task_list

@@ -14,6 +14,13 @@ vms:
           hosts:
             zion:
               ansible_host: 192.168.6.190
+    guests:
+      children:
+        julius:
+          hosts:
+            lunaland:
+              ansible_host: 192.168.100.109
+
     cloud-hosts:
       children:
         ubuntu-noble:

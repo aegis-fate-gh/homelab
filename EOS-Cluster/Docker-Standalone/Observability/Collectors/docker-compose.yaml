@@ -19,6 +19,7 @@ services:
 
   telegraf:
     image: docker.io/telegraf:latest
+    restart: always
     container_name: telegraf
     environment:
       - TZ=America/Chicago
