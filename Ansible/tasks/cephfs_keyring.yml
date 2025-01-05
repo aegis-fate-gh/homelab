@@ -1,4 +1,13 @@
 ---
+- name: Create Ceph directory
+  ansible.builtin.file:
+    path: /etc/ceph
+    state: directory
+    recurse: yes
+    owner: root
+    group: sudo
+    mode: '0755'
+
 - name: Copy keyring file
   ansible.builtin.copy:
     src: ../credentials/ceph.client.admin.keyring

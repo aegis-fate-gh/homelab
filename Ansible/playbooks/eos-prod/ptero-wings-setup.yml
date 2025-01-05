@@ -16,7 +16,22 @@
         file: "{{ task_list }}"
       loop:
         - ../../tasks/qemu_guest_agent.yml
+        - ../../tasks/docker_setup.yml
         - ../../tasks/cephfs_keyring.yml
-        - ../../tasks/fstab_cephfs.yml
+        - ../../tasks/fstab_cephfs_hdd-pool.yml
       loop_control:
         loop_var: task_list
+
+    - name: Create Pterodactyl and associated volumes
+      ansible.builtin.file:
+        path: "{{ ptero_list }}"
+        state: directory
+        owner: ansible
+        group: docker
+        mode: '0775'
+      loop:
+        - /etc/pterodactyl
+        - /var/lib/pterodactyl
+        - /etc/letsencrypt
+      loop_control:
+        loop_var: ptero_list
