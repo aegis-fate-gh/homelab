@@ -1,0 +1,26 @@
+---
+- name: Update and upgrade all packages
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Ensure the ca-certificates package is installed
+  ansible.builtin.apt:
+    pkg:
+      - ca-certificates
+
+- name: Install Acme.sh
+  ansible.builtin.shell: |
+    curl https://get.acme.sh | sh
+
+- name: Change multiple lines  
+  ansible.builtin.lineinfile:  
+    path: /etc/environment
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
+  loop:
+    - line: CF_Token={{ CF_Token }}
+      regexp: ^CF_Token
+    - line: CF_Account_ID={{ CF_Account_ID }}
+      regexp: ^CF_Account_ID
+    - line: CF_Zone_ID={{ CF_Zone_ID }}
+      regexp: ^CF_Zone_ID

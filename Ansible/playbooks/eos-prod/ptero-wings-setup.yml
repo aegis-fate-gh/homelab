@@ -9,6 +9,7 @@
   become: true
   vars_files:
     - ../../vars/cephfs_vars.yml
+    - ../../vars/cloudflare.yml
 
   tasks:
     - name: Import needed tasks
@@ -19,10 +20,11 @@
         - ../../tasks/docker_setup.yml
         - ../../tasks/cephfs_keyring.yml
         - ../../tasks/fstab_cephfs_hdd-pool.yml
+        - ../../tasks/ssl_certs_cloudflare.yml
       loop_control:
         loop_var: task_list
 
-    - name: Create Pterodactyl and associated volumes
+    - name: Create Pterodactyl folders
       ansible.builtin.file:
         path: "{{ ptero_list }}"
         state: directory
@@ -32,6 +34,16 @@
       loop:
         - /etc/pterodactyl
         - /var/lib/pterodactyl
-        - /etc/letsencrypt
       loop_control:
         loop_var: ptero_list
+
+    - name: Create Letsencrypt folder
+      ansible.builtin.file:
+        path: /etc/letsencrypt/live/{{ inventory_hostname }}.sch-apps.com
+        state: directory
+        owner: root
+        group: sudo
+        mode: '0775'
+
+    - name: Reboot immediately
+      ansible.builtin.reboot:
