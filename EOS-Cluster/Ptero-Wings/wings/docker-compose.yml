@@ -4,6 +4,7 @@ services:
   wings:
     image: ghcr.io/pterodactyl/wings:latest
     restart: always
+    container_name: wings
     networks:
       - wings0
     ports:
@@ -11,7 +12,7 @@ services:
       - "3022:3022"
     tty: true
     environment:
-      TZ: "CST"
+      TZ: "America/Chicago"
       WINGS_UID: 988
       WINGS_GID: 988
       WINGS_USERNAME: pterodactyl

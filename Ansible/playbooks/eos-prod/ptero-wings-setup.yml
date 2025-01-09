@@ -34,6 +34,7 @@
       loop:
         - /etc/pterodactyl
         - /var/lib/pterodactyl
+        - /var/log/pterodactyl
       loop_control:
         loop_var: ptero_list
 
