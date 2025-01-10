@@ -38,6 +38,20 @@
       loop_control:
         loop_var: ptero_list
 
+    - name: Create Docker volume folders
+      ansible.builtin.file:
+        path: "{{ docker_list }}"
+        state: directory
+        owner: ansible
+        group: docker
+        mode: '0775'
+      loop:
+        - /var/lib/docker/volumes/promtail_data
+        - /var/lib/docker/volumes/promtail_data/positions
+        - /var/lib/docker/volumes/telegraf_data
+      loop_control:
+        loop_var: docker_list
+
     - name: Create Letsencrypt folder
       ansible.builtin.file:
         path: /etc/letsencrypt/live/{{ inventory_hostname }}.sch-apps.com

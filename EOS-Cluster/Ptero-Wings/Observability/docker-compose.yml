@@ -8,11 +8,11 @@ services:
     environment:
       - "TZ=America/Chicago"
     volumes:
-      - '/var/lib/docker/volumes/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml'
+      - '/var/lib/docker/volumes/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml:ro'
       - '/var/lib/docker/volumes/promtail_data/positions:/positions'
-      - /var/lib/docker/containers:/var/lib/docker/containers
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/log:/var/log
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log:/var/log:ro
     command: -config.file=/etc/promtail/docker-config.yaml
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
@@ -21,6 +21,7 @@ services:
     image: docker.io/telegraf:latest
     restart: always
     container_name: telegraf
+    user: telegraf:988
     environment:
       - TZ=America/Chicago
       - HOST_OS=ubuntu
@@ -28,6 +29,9 @@ services:
       - HOST_SYS=/rootfs/sys
       - HOST_ETC=/rootfs/etc
       - HOST_MOUNT_PREFIX=/rootfs
+      - TELEGRAF_INFLUX_PASS=$TELEGRAF_INFLUX_PASS
+      - TELEGRAF_INFLUX_USER=$TELEGRAF_INFLUX_USER
+      - TELEGRAF_INFLUX_DB=$TELEGRAF_INFLUX_DB
     volumes:
       - /var/lib/docker/volumes/telegraf_data/telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
