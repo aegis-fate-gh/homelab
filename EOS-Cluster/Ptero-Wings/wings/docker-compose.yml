@@ -24,6 +24,8 @@ services:
       - "/var/log/pterodactyl/:/var/log/pterodactyl/"
       - "/etc/ssl/certs:/etc/ssl/certs:ro"
       - "/etc/letsencrypt/:/etc/letsencrypt/"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
 networks:
   wings0:

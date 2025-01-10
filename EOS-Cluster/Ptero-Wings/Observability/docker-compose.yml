@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   promtail:
@@ -14,6 +14,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/log:/var/log
     command: -config.file=/etc/promtail/docker-config.yaml
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   telegraf:
     image: docker.io/telegraf:latest
@@ -32,3 +34,5 @@ services:
       - /sys:/rootfs/sys:ro
       - /proc:/rootfs/proc:ro
       - /etc:/rootfs/etc:ro
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
