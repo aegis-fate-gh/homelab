@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  crowdsec:
+    image: crowdsecurity/crowdsec
+    container_name: crowdsec
+    restart: always
+    ports:
+      - "8081:8080"
+      - "6061:6060"
+    environment:
+      COLLECTIONS: "lourys/pterodactyl"
+      PARSERS: "lourys/pterodactyl-wings-logs"
+      SCENARIOS: "lourys/pterodactyl-wings-bf"
+      ENROLL_KEY: "$CROWDSEC_KEY"
+      ENROLL_INSTANCE_NAME: "INSERT_HERE"
+      GID: "${GID-1000}"
+    volumes:
+      - /var/log/pterodactyl/:/var/log/pterodactyl/:ro
+      - /var/lib/docker/volumes/crowdsec_data/config/acquis.yaml:/etc/crowdsec/acquis.yaml
+      - /var/lib/docker/volumes/crowdsec_data/data/:/var/lib/crowdsec/data/
+      - /var/lib/docker/volumes/crowdsec_data/config/:/etc/crowdsec/
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"

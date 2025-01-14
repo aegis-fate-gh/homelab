@@ -1,0 +1,4 @@
+filenames:
+  - /var/log/pterodactyl/wings.log
+labels:
+  type: pterodactyl
