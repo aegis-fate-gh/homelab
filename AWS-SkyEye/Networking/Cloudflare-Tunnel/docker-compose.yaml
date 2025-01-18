@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  tunnel:
+    container_name: cftunnel
+    image: cloudflare/cloudflared:latest
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment: 
+      - TUNNEL_TOKEN=$CFTTOKEN
+    networks:
+      - cftunnel
+
+networks:
+  cftunnel:
+    name: cftunnel
