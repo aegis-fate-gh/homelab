@@ -79,7 +79,9 @@
         - homarr_data/data
         - actual_data
         - rclone_data
-        - rclone_data/config
+        - rclone_data/config_b2
+        - rclone_data/config_media
+        - rclone_data/config_immich
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:

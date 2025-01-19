@@ -18,7 +18,7 @@ services:
     devices:
       - /dev/fuse:/dev/fuse
     deploy:
-      replicas: 0
+      replicas: 1
       restart_policy:
         condition: none
       placement:
@@ -34,23 +34,18 @@ services:
 
   media:
     image: rclone/rclone
-    command: sync /data /samba --exclude="downloads/**" --ignore-existing -v
+    command: sync /data /samba --exclude="downloads/**" --transfers=1 --ignore-existing -v
     volumes:
       - /mnt/ceph/rclone_data/config_media:/config/rclone
       - /mnt/hdd_pool/media:/data
       - media_share:/samba
-      - /etc/passwd:/etc/passwd:ro
-      - /etc/group:/etc/group:ro
+
     environment:
       - PHP_TZ=America/Chicago
       - PUID=1000
       - PGID=1000
-    cap_add:
-      - SYS_ADMIN
-    devices:
-      - /dev/fuse:/dev/fuse
     deploy:
-      replicas: 0
+      replicas: 1
       restart_policy:
         condition: none
       placement:
@@ -66,21 +61,15 @@ services:
 
   immich:
     image: rclone/rclone
-    command: sync /data /samba --exclude="downloads/**" --ignore-existing -v
+    command: sync /data /samba --exclude="downloads/**" --transfers=1 --ignore-existing -v
     volumes:
       - /mnt/ceph/rclone_data/config_immich:/config/rclone
       - /mnt/hdd_pool/immich-storage:/data
       - immich_share:/samba
-      - /etc/passwd:/etc/passwd:ro
-      - /etc/group:/etc/group:ro
     environment:
       - PHP_TZ=America/Chicago
       - PUID=1000
       - PGID=1000
-    cap_add:
-      - SYS_ADMIN
-    devices:
-      - /dev/fuse:/dev/fuse
     deploy:
       replicas: 1
       restart_policy:
