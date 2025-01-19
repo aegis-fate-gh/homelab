@@ -1,0 +1,113 @@
+version: '3.9'
+
+services:  
+  b2:
+    image: rclone/rclone
+    command: sync /data B2:sch-apps-backups --b2-hard-delete -v
+    volumes:
+      - /mnt/ceph/rclone_data/config_b2:/config/rclone
+      - /mnt/hdd_pool/cloud/B2:/data
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+    environment:
+      - PHP_TZ=America/Chicago
+      - PUID=1000
+      - PGID=1000
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse:/dev/fuse
+    deploy:
+      replicas: 0
+      restart_policy:
+        condition: none
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+          - "node.labels.host_type == proxmox"
+      labels:
+        - "swarm.cronjob.enable=true"
+        # Start Sync every day at 6am
+        - "swarm.cronjob.schedule=0 0 6 * * *"
+        - "swarm.cronjob.skip-running=false"
+
+  media:
+    image: rclone/rclone
+    command: sync /data /samba --exclude="downloads/**" --ignore-existing -v
+    volumes:
+      - /mnt/ceph/rclone_data/config_media:/config/rclone
+      - /mnt/hdd_pool/media:/data
+      - media_share:/samba
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+    environment:
+      - PHP_TZ=America/Chicago
+      - PUID=1000
+      - PGID=1000
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse:/dev/fuse
+    deploy:
+      replicas: 0
+      restart_policy:
+        condition: none
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+          - "node.labels.host_type == proxmox"
+      labels:
+        - "swarm.cronjob.enable=true"
+        # Start Sync every day at 10:15 PM
+        - "swarm.cronjob.schedule=0 15 22 * * *"
+        - "swarm.cronjob.skip-running=false"
+
+  immich:
+    image: rclone/rclone
+    command: sync /data /samba --exclude="downloads/**" --ignore-existing -v
+    volumes:
+      - /mnt/ceph/rclone_data/config_immich:/config/rclone
+      - /mnt/hdd_pool/immich-storage:/data
+      - immich_share:/samba
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+    environment:
+      - PHP_TZ=America/Chicago
+      - PUID=1000
+      - PGID=1000
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse:/dev/fuse
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+          - "node.labels.host_type == proxmox"
+      labels:
+        - "swarm.cronjob.enable=true"
+        # Start Sync every day at 1:00 AM
+        - "swarm.cronjob.schedule=0 0 1 * * *"
+        - "swarm.cronjob.skip-running=false"
+
+volumes:
+  rclone_data:
+    driver: local
+  media_share:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: username=$SMB_USER,password=$SMB_PASSWORD,vers=3.0
+      device: //192.168.100.192/Media
+  immich_share:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: username=$SMB_USER,password=$SMB_PASSWORD,vers=3.0
+      device: //192.168.100.192/immich-backups/immich-storage

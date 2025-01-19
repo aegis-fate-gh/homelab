@@ -49,7 +49,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /mnt/ceph/freshrss_data:/backup/freshrss:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/hdd_pool/cloud/OneDrive/Storage/Eos_Backups:/archive
+      - /mnt/hdd_pool/cloud/B2/eos:/archive
     deploy:
       mode: replicated
       replicas: 1

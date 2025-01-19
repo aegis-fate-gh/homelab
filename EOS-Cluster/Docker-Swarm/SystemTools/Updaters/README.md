@@ -1,2 +1,2 @@
-Note that swarm cronjob uses spring Cron:
-https://www.baeldung.com/cron-syntax-linux-vs-spring
+Note that swarm cronjob uses 6 fields:
+https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format

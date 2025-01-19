@@ -114,7 +114,7 @@ services:
       - /mnt/ceph/uptime-kuma_data:/backup/uptime-kuma:ro
       - /mnt/ceph/grafana_data:/backup/grafana:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/hdd_pool/cloud/OneDrive/Storage/Eos_Backups:/archive
+      - /mnt/hdd_pool/cloud/B2/eos:/archive
     deploy:
       mode: replicated
       replicas: 1

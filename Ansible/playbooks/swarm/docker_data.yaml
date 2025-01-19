@@ -20,7 +20,6 @@
         - influxdb2_data
         - chronograf_data
         - loki_data
-        - loki_data/data_store
         - telegraf_data
         - telegraf_data/gpu
         - telegraf_data/standard
@@ -79,6 +78,8 @@
         - homarr_data/icons
         - homarr_data/data
         - actual_data
+        - rclone_data
+        - rclone_data/config
 
     - name: Create docker volumes with insecure permissions
       ansible.builtin.file:

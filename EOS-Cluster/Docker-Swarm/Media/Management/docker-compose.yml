@@ -38,8 +38,8 @@ services:
       - KOMETA_RUN=true
       - KOMETA_CONFIG=/db_configs/config.yml
     volumes:
-      - '/mnt/hdd_pool/cloud/Dropbox/VS Studio Code/homelab/EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs:/db_configs'
-      - /mnt/ceph/kometa_data:/config
+      - /mnt/ceph/kometa_data/db_configs:/db_configs
+      - /mnt/ceph/kometa_data/configs:/config
     deploy:
       mode: replicated
       replicas: 1
