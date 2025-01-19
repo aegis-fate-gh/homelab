@@ -8,6 +8,7 @@ services:
     volumes:
       - '/mnt/ceph/mkvtoolnix_data:/config:rw'
       - '/mnt/hdd_pool/media:/media:rw'
+      - '/mnt/hdd_pool/disk-imports :/disk-imports:rw'
     networks:
       - local_proxy
     deploy:
