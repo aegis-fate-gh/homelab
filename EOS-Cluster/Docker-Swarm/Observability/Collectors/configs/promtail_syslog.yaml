@@ -1,0 +1,20 @@
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://192.168.6.7:3100/loki/api/v1/push
+    external_labels:
+      nodename: promtail_syslog
+
+scrape_configs:
+  - job_name: syslog
+    syslog:
+      listen_address: 0.0.0.0:1514
+      listen_protocol: tcp
+      idle_timeout: 60s
+      label_structured_data: yes
+      labels:
+        job: "syslog"
+    relabel_configs:
+      - source_labels: ['__syslog_message_hostname']
+        target_label: 'host'

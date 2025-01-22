@@ -20,7 +20,8 @@ services:
     deploy:
       replicas: 1
       restart_policy:
-        condition: none
+        condition: on-failure
+        max_attempts: 5
       placement:
         constraints: 
           - "node.role == worker"
@@ -34,12 +35,11 @@ services:
 
   media:
     image: rclone/rclone
-    command: sync /data /samba --exclude="downloads/**" --transfers=1 --ignore-existing -v
+    command: sync /data /samba --exclude="downloads/**" --transfers=1 --ignore-existing --ignore-errors --delete-before -v
     volumes:
       - /mnt/ceph/rclone_data/config_media:/config/rclone
       - /mnt/hdd_pool/media:/data
       - media_share:/samba
-
     environment:
       - PHP_TZ=America/Chicago
       - PUID=1000
@@ -47,7 +47,8 @@ services:
     deploy:
       replicas: 1
       restart_policy:
-        condition: none
+        condition: on-failure
+        max_attempts: 5
       placement:
         constraints: 
           - "node.role == worker"
@@ -61,7 +62,7 @@ services:
 
   immich:
     image: rclone/rclone
-    command: sync /data /samba --exclude="downloads/**" --transfers=1 --ignore-existing -v
+    command: sync /data /samba --exclude="downloads/**" --transfers=1 --ignore-existing --ignore-errors --delete-before -v
     volumes:
       - /mnt/ceph/rclone_data/config_immich:/config/rclone
       - /mnt/hdd_pool/immich-storage:/data
@@ -73,7 +74,8 @@ services:
     deploy:
       replicas: 1
       restart_policy:
-        condition: none
+        condition: on-failure
+        max_attempts: 5
       placement:
         constraints: 
           - "node.role == worker"

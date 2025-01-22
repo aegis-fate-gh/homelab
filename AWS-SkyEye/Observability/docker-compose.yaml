@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  promtail:
+    image: grafana/promtail:latest
+    restart: always
+    container_name: promtail
+    network_mode: "container:gluetun"
+    environment:
+      - "TZ=America/Chicago"
+    volumes:
+      - '/var/lib/docker/volumes/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml'
+      - '/var/lib/docker/volumes/promtail_data/positions:/positions'
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/docker-config.yaml
+
+  telegraf:
+    image: docker.io/telegraf:latest
+    restart: always
+    container_name: telegraf
+
+    user: telegraf:988
+    network_mode: "container:gluetun"
+    environment:
+      - TZ=America/Chicago
+      - HOST_OS=ubuntu
+      - HOST_PROC=/rootfs/proc
+      - HOST_SYS=/rootfs/sys
+      - HOST_ETC=/rootfs/etc
+      - HOST_MOUNT_PREFIX=/rootfs
+      - TELEGRAF_INFLUX_PASS=$TELEGRAF_INFLUX_PASS
+      - TELEGRAF_INFLUX_USER=$TELEGRAF_INFLUX_USER
+      - TELEGRAF_INFLUX_DB=$TELEGRAF_INFLUX_DB
+    volumes:
+      - /var/lib/docker/volumes/telegraf_data/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/rootfs/sys:ro
+      - /proc:/rootfs/proc:ro
+      - /etc:/rootfs/etc:ro

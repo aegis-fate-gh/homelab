@@ -20,6 +20,25 @@ services:
     networks:
       - monitoring
 
+  promtail-syslog:
+    image: grafana/promtail:latest
+    environment:
+      - "TZ=America/Chicago"
+    volumes:
+      - '/mnt/ceph/promtail_data/promtail_syslog.yaml:/etc/promtail/docker-config.yaml:ro'
+    command: -config.file=/etc/promtail/docker-config.yaml
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
   unpoller:
     image: ghcr.io/unpoller/unpoller:latest
     environment:
