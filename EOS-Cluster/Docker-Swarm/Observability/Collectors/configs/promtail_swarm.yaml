@@ -3,7 +3,7 @@ server:
   grpc_listen_port: 0
 
 positions:
-  filename: /positions/positions.yaml
+  filename: /tmp/positions.yaml
 
 clients:
   - url: http://192.168.6.7:3100/loki/api/v1/push

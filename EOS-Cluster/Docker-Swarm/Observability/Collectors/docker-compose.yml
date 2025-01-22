@@ -8,7 +8,6 @@ services:
       - "TZ=America/Chicago"
     volumes:
       - '/mnt/ceph/promtail_data/promtail_swarm.yaml:/etc/promtail/docker-config.yaml:ro'
-      - '/mnt/ceph/promtail_data/positions:/positions'
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/log:/var/log:ro
