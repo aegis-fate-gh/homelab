@@ -32,6 +32,40 @@ services:
         - homepage.description=Plex media server
         - docker-volume-backup.stop-during-backup=plex_backup
 
+  beta:
+    image: lscr.io/linuxserver/plex:latest
+    environment:
+      - TZ=America/Chicago
+      - PUID=1000
+      - PGID=999
+      - VERSION=docker
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+    volumes:
+      - plex_beta_data:/config
+      - '/mnt/hdd_pool/media:/ceph_media:ro'
+      - '/dev/shm:/tmp'
+    ports:
+      - 32420:32400/tcp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.nvidia == true"
+      labels:
+        - shepherd.updates=true
+        - homepage.group=Media Front End
+        - homepage.name=Plex Beta
+        - homepage.icon=plex.png
+        - homepage.href=http://192.168.6.7:32420
+        - homepage.description=Plex media server Beta
+
   tautulli:
     image: ghcr.io/tautulli/tautulli
     environment:
@@ -101,6 +135,12 @@ volumes:
     driver_opts:
       type: none
       device: "/mnt/ceph/plex_data"
+      o: bind
+  plex_beta_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/plex_beta_data"
       o: bind 
   tautulli_data:
     driver: local

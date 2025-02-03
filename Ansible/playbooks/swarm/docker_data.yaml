@@ -93,4 +93,5 @@
         mode: '1777'
       loop:
         - grafana_data
+        - loki_data
         - loki_data/data_store/
