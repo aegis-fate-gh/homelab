@@ -11,7 +11,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
-      - '/mnt/ceph/plex_data:/config'
+      - plex_data:/config
       - '/mnt/hdd_pool/media:/ceph_media:ro'
       - '/dev/shm:/tmp'
     networks:
@@ -41,7 +41,7 @@ services:
     ports:
       - 8181:8181
     volumes:
-      - '/mnt/ceph/tautulli_data:/config'
+      - tautulli_data:/config
     networks:
       - media
       - local_proxy
@@ -98,8 +98,16 @@ services:
 volumes:
   plex_data:
     driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/plex_data"
+      o: bind 
   tautulli_data:
     driver: local
+    driver_opts:
+      type: none
+      device: "/mnt/ceph/tautulli_data"
+      o: bind
 
 networks:
   media:
