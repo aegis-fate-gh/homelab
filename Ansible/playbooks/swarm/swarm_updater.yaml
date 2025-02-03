@@ -1,5 +1,8 @@
 # To run:
 # ansible-playbook playbooks/swarm/swarm_updater.yaml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+
+# To test:
+# ansible-playbook playbooks/swarm/swarm_updater.yaml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
 ---
 - name: Run Package and kernel updates on the Swarm nodes one at a time. Rebooting if necessary
   hosts: swarm

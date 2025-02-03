@@ -30,6 +30,7 @@ services:
         - homepage.icon=plex.png
         - homepage.href=http://192.168.6.206:32400
         - homepage.description=Plex media server
+        - docker-volume-backup.stop-during-backup=plex_backup
 
   tautulli:
     image: ghcr.io/tautulli/tautulli
@@ -63,6 +64,36 @@ services:
         - homepage.icon=tautulli.png
         - homepage.href=http://tautulli.local.sch-apps.com
         - homepage.description=Plex server stats and metrics
+        - docker-volume-backup.stop-during-backup=plex_backup
+
+  backup:
+    image: offen/docker-volume-backup:v2
+    environment:
+      - BACKUP_FILENAME=plex-%Y-%m-%dT%H-%M-%S.tar.gz
+      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7am UTC, 2AM CST
+      - BACKUP_PRUNING_PREFIX=plex-
+      - BACKUP_RETENTION_DAYS=5
+      - GZIP_PARALLELISM=3
+      - BACKUP_STOP_DURING_BACKUP_LABEL=plex_backup
+    volumes:
+      - /mnt/ceph/scratch_data:/tmp
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/ceph/tautulli_data:/backup/tautulli:ro
+      - /mnt/ceph/plex_data:/backup/plex:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/hdd_pool/cloud/B2/eos:/archive
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 2000M
+      placement:
+        constraints: 
+          - "node.role == manager"
+      labels:
+        - "shepherd.updates=true"
 
 volumes:
   plex_data:

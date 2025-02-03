@@ -87,6 +87,33 @@ services:
         - "swarm.cronjob.schedule=0 0 1 * * *"
         - "swarm.cronjob.skip-running=false"
 
+  cloud-vault:
+    image: rclone/rclone
+    command: sync /data /samba --exclude="downloads/**" --transfers=1 --ignore-existing --ignore-errors --delete-before -v
+    volumes:
+      - /mnt/ceph/rclone_data/config_immich:/config/rclone
+      - /mnt/hdd_pool/cloud:/data
+      - cloud-backups:/samba
+    environment:
+      - PHP_TZ=America/Chicago
+      - PUID=1000
+      - PGID=1000
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == standard"
+          - "node.labels.host_type == proxmox"
+      labels:
+        - "swarm.cronjob.enable=true"
+        # Start Sync every day at 6:00 AM
+        - "swarm.cronjob.schedule=0 0 6 * * *"
+        - "swarm.cronjob.skip-running=false"
+
 volumes:
   rclone_data:
     driver: local
@@ -102,3 +129,9 @@ volumes:
       type: cifs
       o: username=$SMB_USER,password=$SMB_PASSWORD,vers=3.0
       device: //192.168.100.192/immich-backups/immich-storage
+  cloud-backups:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: username=$SMB_USER,password=$SMB_PASSWORD,vers=3.0
+      device: //192.168.100.192/cloud-backups
