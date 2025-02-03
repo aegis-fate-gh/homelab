@@ -33,20 +33,24 @@ services:
         - docker-volume-backup.stop-during-backup=plex_backup
 
   beta:
-    image: lscr.io/linuxserver/plex:latest
+    image: plexinc/pms-docker:beta
     environment:
       - TZ=America/Chicago
       - PUID=1000
       - PGID=999
-      - VERSION=docker
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+      - PLEX_CLAIM=$plex_claim
+      - ADVERTISE_IP=http://192.168.6.6:32420/
     volumes:
       - plex_beta_data:/config
       - '/mnt/hdd_pool/media:/ceph_media:ro'
-      - '/dev/shm:/tmp'
+      - '/dev/shm:/transcode'
     ports:
       - 32420:32400/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
       - 32410:32410/udp
       - 32412:32412/udp
       - 32413:32413/udp
