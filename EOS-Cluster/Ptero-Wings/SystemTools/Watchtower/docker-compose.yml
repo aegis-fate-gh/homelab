@@ -4,6 +4,7 @@ services:
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
+    restart: always
     environment:
       - WATCHTOWER_LABEL_ENABLE=true
       - TZ=America/Chicago
