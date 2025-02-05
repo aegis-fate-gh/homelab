@@ -14,6 +14,8 @@ services:
       - plex_data:/config
       - '/mnt/hdd_pool/media:/ceph_media:ro'
       - '/dev/shm:/tmp'
+    devices:
+      - "/dev/dri/:/dev/dri/"
     networks:
       - outside
     deploy:
@@ -47,8 +49,7 @@ services:
       - '/mnt/hdd_pool/media:/ceph_media:ro'
       - '/dev/shm:/transcode'
     devices:
-      - "/dev/dri/card1:/dev/dri/card1"
-      - "/dev/dri/renderD128:/dev/dri/renderD128"
+      - "/dev/dri:/dev/dri"
     ports:
       - 32420:32400/tcp
       - 8324:8324/tcp
