@@ -29,8 +29,8 @@ services:
           - "node.labels.host_type == proxmox"
       labels:
         - "swarm.cronjob.enable=true"
-        # Start Sync every day at 6am
-        - "swarm.cronjob.schedule=0 0 6 * * *"
+        # Sync every 3 hours
+        - "swarm.cronjob.schedule=0 0 */3 * * *"
         - "swarm.cronjob.skip-running=false"
 
   media:
@@ -110,8 +110,8 @@ services:
           - "node.labels.host_type == proxmox"
       labels:
         - "swarm.cronjob.enable=true"
-        # Start Sync every day at 6:00 AM
-        - "swarm.cronjob.schedule=0 0 6 * * *"
+        # Start Sync every day at 3:00 AM
+        - "swarm.cronjob.schedule=0 0 3 * * *"
         - "swarm.cronjob.skip-running=false"
 
 volumes:
