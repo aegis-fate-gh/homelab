@@ -46,6 +46,9 @@ services:
       - plex_beta_data:/config
       - '/mnt/hdd_pool/media:/ceph_media:ro'
       - '/dev/shm:/transcode'
+    devices:
+      - '/dev/dri/card1:/dev/dri/card1'
+      - '/dev/dri/renderD128:/dev/dri/renderD128'
     ports:
       - 32420:32400/tcp
       - 8324:8324/tcp
@@ -108,7 +111,7 @@ services:
     image: offen/docker-volume-backup:v2
     environment:
       - BACKUP_FILENAME=plex-%Y-%m-%dT%H-%M-%S.tar.gz
-      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7am UTC, 2AM CST
+      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7am UTC, 1AM CST
       - BACKUP_PRUNING_PREFIX=plex-
       - BACKUP_RETENTION_DAYS=5
       - GZIP_PARALLELISM=3
