@@ -34,6 +34,7 @@ services:
 
   beta:
     image: plexinc/pms-docker:beta
+    runtime: nvidia
     environment:
       - TZ=America/Chicago
       - PUID=1000
