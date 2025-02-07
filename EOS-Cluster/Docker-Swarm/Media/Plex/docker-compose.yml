@@ -48,8 +48,7 @@ services:
       - plex_beta_data:/config
       - '/mnt/hdd_pool/media:/ceph_media:ro'
       - '/dev/shm:/transcode'
-    devices:
-      - "/dev/dri:/dev/dri"
+      - '/dev/dri:/dev/dri'
     ports:
       - 32420:32400/tcp
       - 8324:8324/tcp
