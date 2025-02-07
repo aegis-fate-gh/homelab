@@ -14,8 +14,7 @@ services:
       - plex_data:/config
       - '/mnt/hdd_pool/media:/ceph_media:ro'
       - '/dev/shm:/tmp'
-    devices:
-      - "/dev/dri/:/dev/dri/"
+      - '/dev/dri:/dev/dri'
     networks:
       - outside
     deploy:
