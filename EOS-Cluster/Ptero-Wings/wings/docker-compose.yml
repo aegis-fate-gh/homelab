@@ -7,13 +7,15 @@ services:
     container_name: wings
     networks:
       - wings0
+    privileged: true
+
     ports:
       - "9443:9443"
       - "3022:3022"
     tty: true
     environment:
       TZ: "America/Chicago"
-      WINGS_UID: 988
+      WINGS_UID: 1000
       WINGS_GID: 988
       WINGS_USERNAME: pterodactyl
     volumes:
@@ -24,6 +26,8 @@ services:
       - "/var/log/pterodactyl/:/var/log/pterodactyl/"
       - "/etc/ssl/certs:/etc/ssl/certs:ro"
       - "/etc/letsencrypt/:/etc/letsencrypt/"
+      - "/tmp/:/tmp/"
+      - "/mnt/hdd_pool/backups/pterodactyl/JP02/:/mnt/hdd_pool/backups/pterodactyl/JP02/"
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 

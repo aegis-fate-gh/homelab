@@ -1,0 +1,27 @@
+# To run:
+# ansible-playbook playbooks/eos-prod/eos-swarm.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/eos-prod/eos-swarm.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Install and configure Eos docker nodes
+  hosts: wan2
+  remote_user: ansible
+  become: true
+  vars_files:
+    - ../../vars/cephfs_vars.yml
+
+  tasks:
+    - name: Import needed tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/qemu_guest_agent.yml
+        - ../../tasks/docker_setup.yml
+        - ../../tasks/cephfs_keyring.yml
+        - ../../tasks/fstab_cephfs_eos.yml
+        - ../../tasks/fstab_cephfs_hdd-pool.yml
+      loop_control:
+        loop_var: task_list
+
+    - name: Reboot immediately
+      ansible.builtin.reboot:
