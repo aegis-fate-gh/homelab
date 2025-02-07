@@ -6,6 +6,7 @@ services:
     volumes:
       - $UPLOAD_LOCATION:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
+      - '/dev/dri:/dev/dri'
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
@@ -48,6 +49,7 @@ services:
     image: ghcr.io/immich-app/immich-machine-learning:main-cuda
     volumes:
       - /mnt/ceph/immich_data/model-cache:/cache
+      - '/dev/dri:/dev/dri'
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
@@ -116,7 +118,7 @@ services:
     image: offen/docker-volume-backup:v2
     environment:
       - BACKUP_FILENAME=immich-%Y-%m-%dT%H-%M-%S.tar.gz
-      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7am UTC, 2AM CST
+      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7am UTC, 1AM CST
       - BACKUP_PRUNING_PREFIX=immich-
       - BACKUP_RETENTION_DAYS=5
       - GZIP_PARALLELISM=3

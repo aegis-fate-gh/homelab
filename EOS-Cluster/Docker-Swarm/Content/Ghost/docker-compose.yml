@@ -61,7 +61,7 @@ services:
     image: offen/docker-volume-backup:v2
     environment:
       - BACKUP_FILENAME=ghost-%Y-%m-%dT%H-%M-%S.tar.gz
-      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7:00am UTC, 2:00AM CST
+      - BACKUP_CRON_EXPRESSION=0 7 * * * #Run at 7:00am UTC, 1:00AM CST
       - BACKUP_PRUNING_PREFIX=ghost-
       - BACKUP_RETENTION_DAYS=7
       - GZIP_PARALLELISM=3

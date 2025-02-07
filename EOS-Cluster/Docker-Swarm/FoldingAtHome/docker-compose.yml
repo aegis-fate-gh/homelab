@@ -12,6 +12,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
       - '/mnt/ceph/folding_at_home/node1:/config'
+      - '/dev/dri:/dev/dri'
     ports:
       - 7396:7396
       - 36330:36330 #optional
@@ -36,6 +37,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
       - '/mnt/ceph/folding_at_home/node2:/config'
+      - '/dev/dri:/dev/dri'
     ports:
       - 7397:7396
       - 36331:36330 #optional
@@ -59,6 +61,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
       - '/mnt/ceph/folding_at_home/node3:/config'
+      - '/dev/dri:/dev/dri'
     ports:
       - 7398:7396
       - 36332:36330 #optional
