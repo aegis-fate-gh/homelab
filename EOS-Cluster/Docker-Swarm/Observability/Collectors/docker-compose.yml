@@ -6,6 +6,8 @@ services:
     hostname: "{{.Node.Hostname}}"
     environment:
       - "TZ=America/Chicago"
+      - PUID=1000
+      - PGID=999
     volumes:
       - '/mnt/ceph/promtail_data/promtail_swarm.yaml:/etc/promtail/docker-config.yaml:ro'
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
@@ -73,6 +75,8 @@ services:
       - TELEGRAF_INFLUX_PASS=$TELEGRAF_INFLUX_PASS
       - TELEGRAF_INFLUX_USER=$TELEGRAF_INFLUX_USER
       - TELEGRAF_INFLUX_DB=$TELEGRAF_INFLUX_DB
+      - PUID=1000
+      - PGID=999
     volumes:
       - '/mnt/ceph/telegraf_data/standard/telegraf_docker.conf:/etc/telegraf/telegraf.conf:ro'
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -104,6 +108,8 @@ services:
       - TELEGRAF_INFLUX_PASS=$TELEGRAF_INFLUX_PASS
       - TELEGRAF_INFLUX_USER=$TELEGRAF_INFLUX_USER
       - TELEGRAF_INFLUX_DB=$TELEGRAF_INFLUX_DB
+      - PUID=1000
+      - PGID=999
     volumes:
       - '/mnt/ceph/telegraf_data/gpu/telegraf_docker_gpu.conf:/etc/telegraf/telegraf.conf:ro'
       - /var/run/docker.sock:/var/run/docker.sock:ro
