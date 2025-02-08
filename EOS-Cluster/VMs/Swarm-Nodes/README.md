@@ -57,6 +57,7 @@ docker node update --label-add nvidia=true sovereign-01
 docker node update --label-add nvidia=false starbase-01
 docker node update --label-add connection=standard voyager-01
 docker node update --label-add connection=vpn defiant-03
+docker node update --label-add connection=wan2 excelsior-01
 
 docker node update --label-add host_type=proxmox sovereign-01
 docker node update --label-add host_type=proxmox sovereign-02
