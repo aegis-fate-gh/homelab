@@ -52,5 +52,7 @@ scrape_configs:
       stack_name:
       swarm_service_name:
       swarm_task_name:
+  - static_labels:
+      host: "{{ hostname }}"
   - output:
       source: log
