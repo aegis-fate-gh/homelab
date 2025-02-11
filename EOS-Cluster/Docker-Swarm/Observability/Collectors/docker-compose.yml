@@ -13,7 +13,7 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/log:/var/log:ro
-    command: -config.file=/etc/promtail/docker-config.yaml -client.external-labels=hostname=$(hostname)
+    command: -config.file=/etc/promtail/docker-config.yaml
     deploy:
       mode: global
       labels:
