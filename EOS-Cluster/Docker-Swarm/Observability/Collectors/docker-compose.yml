@@ -122,7 +122,6 @@ services:
         constraints: 
           - "node.role == worker"
           - "node.labels.connection == wan2"
-          - "node.labels.host_type == proxmox"
       labels:
         - "shepherd.updates=true"
     networks:
