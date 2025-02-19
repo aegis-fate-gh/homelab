@@ -65,7 +65,6 @@ services:
   telegraf-standard:
     image: docker.io/telegraf:latest
     hostname: "{{.Node.Hostname}}"
-    user: telegraf:988
     environment:
       - TZ=America/Chicago
       - HOST_OS=ubuntu
@@ -76,6 +75,8 @@ services:
       - TELEGRAF_INFLUX_PASS=$TELEGRAF_INFLUX_PASS
       - TELEGRAF_INFLUX_USER=$TELEGRAF_INFLUX_USER
       - TELEGRAF_INFLUX_DB=$TELEGRAF_INFLUX_DB
+      - PUID=1000
+      - PGID=999
     volumes:
       - '/mnt/ceph/telegraf_data/standard/telegraf_docker.conf:/etc/telegraf/telegraf.conf:ro'
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -96,6 +97,7 @@ services:
   telegraf-excelsior:
     image: docker.io/telegraf:latest
     hostname: "{{.Node.Hostname}}"
+    user: telegraf:988
     environment:
       - TZ=America/Chicago
       - HOST_OS=ubuntu
