@@ -13,7 +13,7 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/log:/var/log:ro
-    command: -config.file=/etc/promtail/docker-config.yaml
+    command: -config.file=/etc/promtail/docker-config.yaml -client.external-labels=hostname=%H
     deploy:
       mode: global
       labels:
@@ -88,6 +88,40 @@ services:
       placement:
         constraints: 
           - "node.labels.nvidia == false"
+          - "node.labels.connection != wan2"
+      labels:
+        - "shepherd.updates=true"
+    networks:
+      - monitoring
+
+  telegraf-excelsior:
+    image: docker.io/telegraf:latest
+    hostname: "{{.Node.Hostname}}"
+    environment:
+      - TZ=America/Chicago
+      - HOST_OS=ubuntu
+      - HOST_PROC=/rootfs/proc
+      - HOST_SYS=/rootfs/sys
+      - HOST_ETC=/rootfs/etc
+      - HOST_MOUNT_PREFIX=/rootfs
+      - TELEGRAF_INFLUX_PASS=$TELEGRAF_INFLUX_PASS
+      - TELEGRAF_INFLUX_USER=$TELEGRAF_INFLUX_USER
+      - TELEGRAF_INFLUX_DB=$TELEGRAF_INFLUX_DB
+      - PUID=1000
+      - PGID=988
+    volumes:
+      - '/mnt/ceph/telegraf_data/standard/telegraf_docker.conf:/etc/telegraf/telegraf.conf:ro'
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/rootfs/sys:ro
+      - /proc:/rootfs/proc:ro
+      - /etc:/rootfs/etc:ro
+    deploy:
+      mode: global
+      placement:
+        constraints: 
+          - "node.role == worker"
+          - "node.labels.connection == wan2"
+          - "node.labels.host_type == proxmox"
       labels:
         - "shepherd.updates=true"
     networks:
