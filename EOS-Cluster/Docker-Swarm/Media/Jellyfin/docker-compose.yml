@@ -18,7 +18,7 @@ services:
       - '/dev/dri:/dev/dri'
     networks:
       - outside
-      - cftunnel
+      - cftunnel-draper
     deploy:
       mode: replicated
       replicas: 1
@@ -153,6 +153,6 @@ networks:
       name: "host"
   local_proxy:
     external: true
-  cftunnel:
+  cftunnel-draper:
     external: true
     
