@@ -4,7 +4,7 @@
 # ansible-playbook playbooks/eos-prod/ptero-wings-setup.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
 ---
 - name: Install and configure Pterodactyl Wings nodes
-  hosts: pterodactyl
+  hosts: jurassic-park-01
   remote_user: ansible
   become: true
   vars_files:
@@ -21,7 +21,7 @@
         - ../../tasks/cephfs_keyring.yml
         - ../../tasks/fstab_cephfs_hdd-pool.yml
         - ../../tasks/ssl_certs_cloudflare.yml
-        - ../../tasks/crowdsec.yml
+        #- ../../tasks/crowdsec.yml
       loop_control:
         loop_var: task_list
 

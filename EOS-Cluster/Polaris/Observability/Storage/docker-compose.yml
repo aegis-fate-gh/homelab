@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: always
+    ports:
+      - '3100:3100'
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - '/var/lib/docker/volumes/loki_data:/etc/loki'
+      - '/var/lib/docker/volumes/loki_data/data_store:/data'
+    command: -config.file=/etc/loki/local-config.yaml

@@ -19,7 +19,6 @@
         - influxdb_data
         - influxdb2_data
         - chronograf_data
-        - loki_data
         - telegraf_data
         - telegraf_data/gpu
         - telegraf_data/standard

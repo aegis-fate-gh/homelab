@@ -1,0 +1,60 @@
+# To run:
+# ansible-playbook playbooks/eos-prod/loki-docker.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/eos-prod/loki-docker.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Install and configure Eos docker nodes
+  hosts: polaris
+  remote_user: ansible
+  become: true
+  vars_files:
+    - ../../vars/cephfs_vars.yml
+
+  tasks:
+    - name: Import needed tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/qemu_guest_agent.yml
+        - ../../tasks/docker_setup.yml
+      loop_control:
+        loop_var: task_list
+
+    - name: Create Docker volume folders
+      ansible.builtin.file:
+        path: "{{ docker_list }}"
+        state: directory
+        owner: ansible
+        group: docker
+        mode: '0775'
+      loop:
+        - /var/lib/docker/volumes/promtail_data
+        - /var/lib/docker/volumes/promtail_data/positions
+        - /var/lib/docker/volumes/telegraf_data
+      loop_control:
+        loop_var: docker_list
+
+    - name: Create Docker volume folders
+      ansible.builtin.file:
+        path: "{{ docker_list }}"
+        state: directory
+        owner: ansible
+        group: docker
+        mode: '0777'
+      loop:
+        - /var/lib/docker/volumes/loki_data
+        - /var/lib/docker/volumes/loki_data/data_store
+      loop_control:
+        loop_var: insecure_list
+
+    - name: Copy daemon.json file
+      ansible.builtin.copy:
+        src: ../../files/daemon-standard.json
+        dest: /etc/docker.daemon.json
+    
+    - name: Docker Plugin Install
+      ansible.builtin.shell: |
+        docker plugin install grafana/loki-docker-driver:3.4.2-amd64 --alias loki --grant-all-permissions
+
+    - name: Reboot immediately
+      ansible.builtin.reboot:

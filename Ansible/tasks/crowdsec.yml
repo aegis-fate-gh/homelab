@@ -5,6 +5,7 @@
       - apt-transport-https
       - curl
       - gnupg
+      - debian-archive-keyring
 
 - name: Update and upgrade all packages
   ansible.builtin.apt:

@@ -52,6 +52,7 @@
     - containerd.io
     - docker-buildx-plugin
     - docker-compose-plugin
+  when: not ansible_check_mode
 
 - name: Add the Docker group
   ansible.builtin.group:
@@ -63,6 +64,7 @@
     name: "{{ ansible_user }}"
     groups: docker
     append: true
+  when: not ansible_check_mode
 
 - name: Enable and start Docker services
   ansible.builtin.systemd:
@@ -72,5 +74,6 @@
   loop:
     - docker.service
     - containerd.service
+  when: not ansible_check_mode
 
     

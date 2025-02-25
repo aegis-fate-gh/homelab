@@ -1,0 +1,14 @@
+# To run:
+# ansible-playbook playbooks/eos-prod/docker_loki_driver.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/eos-prod/docker_loki_driver.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Install and configure cloud nodes
+  hosts: swarm
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Docker Plugin Install
+      ansible.builtin.shell: |
+        docker plugin install grafana/loki-docker-driver:3.4.2-amd64 --alias loki --grant-all-permissions
