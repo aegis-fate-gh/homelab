@@ -8,7 +8,7 @@ positions:
 clients:
   - url: http://192.168.6.195:3100/loki/api/v1/push
     external_labels:
-      nodename: InsertHere
+      nodename: Polaris
 
 scrape_configs:
 - job_name: system
@@ -18,14 +18,6 @@ scrape_configs:
     labels:
       job: varlogs
       __path__: /var/log/*log
-      
-- job_name: pterodactyl
-  static_configs:
-  - targets:
-      - localhost
-    labels:
-      job: pterodactyl
-      __path__: /var/log/pterodactyl/*log
 
 - job_name: docker
   # use docker.sock to filter containers
