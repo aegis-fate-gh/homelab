@@ -19,7 +19,6 @@ services:
     networks:
       - outside
       - cftunnel
-      - cftunnel-wan2
     deploy:
       mode: replicated
       replicas: 1
@@ -155,7 +154,5 @@ networks:
   local_proxy:
     external: true
   cftunnel:
-    external: true
-  cftunnel-wan2:
     external: true
     
