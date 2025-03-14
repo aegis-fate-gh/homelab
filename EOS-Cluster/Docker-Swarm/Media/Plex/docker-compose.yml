@@ -71,6 +71,7 @@ services:
         - homepage.icon=plex.png
         - homepage.href=http://192.168.6.7:32420
         - homepage.description=Plex media server Beta
+        - docker-volume-backup.stop-during-backup=plex_backup
 
   tautulli:
     image: ghcr.io/tautulli/tautulli
@@ -121,6 +122,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /mnt/ceph/tautulli_data:/backup/tautulli:ro
       - /mnt/ceph/plex_data:/backup/plex:ro
+      - plex_beta_data:/backup/plex_beta:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/hdd_pool/cloud/B2/eos:/archive
     deploy:
