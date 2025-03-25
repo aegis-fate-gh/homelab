@@ -86,6 +86,7 @@ services:
     networks:
       - media
       - local_proxy
+      - cftunnel
     deploy:
       mode: replicated
       replicas: 1
@@ -164,4 +165,6 @@ networks:
     external:
       name: "host"
   local_proxy:
+    external: true
+  cftunnel:
     external: true
