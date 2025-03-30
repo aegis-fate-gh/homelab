@@ -17,7 +17,6 @@ services:
       - '/mnt/hdd_pool/media:/ceph_media'
       - '/dev/dri:/dev/dri'
     networks:
-      - outside
       - cftunnel
     deploy:
       mode: replicated

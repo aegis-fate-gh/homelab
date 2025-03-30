@@ -32,7 +32,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - local_proxy
-      - outside
     deploy:
       mode: global
       placement:
@@ -50,6 +49,3 @@ networks:
     name: local_proxy
     driver: overlay
     attachable: true
-  outside:
-    external: true
-    name: host
