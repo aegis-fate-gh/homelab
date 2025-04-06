@@ -11,7 +11,7 @@ services:
     networks:
       - local_proxy
     environment:
-      - HOMEPAGE_ALLOWED_HOSTS=homepage.local.sch-apps.com,192.168.6.7:3200
+      - HOMEPAGE_ALLOWED_HOSTS=homepage.eos.local.sch-apps.com,192.168.6.7:3200
     deploy:
       mode: replicated
       replicas: 1
