@@ -21,7 +21,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.homepage-rtr.entrypoints=web
-        - traefik.http.routers.homepage-rtr.rule=Host(`homepage.local.sch-apps.com`)
+        - traefik.http.routers.homepage-rtr.rule=Host(`homepage.eos.local.sch-apps.com`)
         - traefik.http.routers.homepage-rtr.service=homepage-svc
         - traefik.http.services.homepage-svc.loadbalancer.server.port=3000
         - shepherd.updates=true
@@ -47,7 +47,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.homarr-rtr.entrypoints=web
-        - traefik.http.routers.homarr-rtr.rule=Host(`homarr.local.sch-apps.com`)
+        - traefik.http.routers.homarr-rtr.rule=Host(`homarr.eos.local.sch-apps.com`)
         - traefik.http.routers.homarr-rtr.service=homarr-svc
         - traefik.http.services.homarr-svc.loadbalancer.server.port=7575
         - shepherd.updates=true

@@ -31,14 +31,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.krusader-rtr.entrypoints=web
-        - traefik.http.routers.krusader-rtr.rule=Host(`krusader.local.sch-apps.com`)
+        - traefik.http.routers.krusader-rtr.rule=Host(`krusader.eos.local.sch-apps.com`)
         - traefik.http.routers.krusader-rtr.service=krusader-svc
         - traefik.http.services.krusader-svc.loadbalancer.server.port=6080
         - shepherd.updates=true
         - homepage.group=Eos Swarm Cluster
         - homepage.name=Krusader
         - homepage.icon=krusader.png
-        - homepage.href=http://krusader.local.sch-apps.com/vnc.html?resize=remote&host=krusader.local.sch-apps.com&port=6080&&autoconnect=1
+        - homepage.href=http://krusader.eos.local.sch-apps.com/vnc.html?resize=remote&host=krusader.local.sch-apps.com&port=6080&&autoconnect=1
         - homepage.description=Container volume and Ceph HDD_Pool file management
 
   filebrowser:
@@ -65,14 +65,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.filebrowser-rtr.entrypoints=web
-        - traefik.http.routers.filebrowser-rtr.rule=Host(`filebrowser.local.sch-apps.com`)
+        - traefik.http.routers.filebrowser-rtr.rule=Host(`filebrowser.eos.local.sch-apps.com`)
         - traefik.http.routers.filebrowser-rtr.service=filebrowser-svc
         - traefik.http.services.filebrowser-svc.loadbalancer.server.port=8080
         - shepherd.updates=true
         - homepage.group=Eos Swarm Cluster
         - homepage.name=FileBrowser
         - homepage.icon=filebrowser.png
-        - homepage.href=http://filebrowser.local.sch-apps.com/filebrowser/login?redirect=/files/
+        - homepage.href=http://filebrowser.eos.local.sch-apps.com/filebrowser/login?redirect=/files/
         - homepage.description=Container volume file management and manipulation
 
 volumes:

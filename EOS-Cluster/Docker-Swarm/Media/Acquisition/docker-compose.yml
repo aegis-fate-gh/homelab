@@ -25,14 +25,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.prowlarr-rtr.entrypoints=web
-        - traefik.http.routers.prowlarr-rtr.rule=Host(`prowlarr.local.sch-apps.com`)
+        - traefik.http.routers.prowlarr-rtr.rule=Host(`prowlarr.eos.local.sch-apps.com`)
         - traefik.http.routers.prowlarr-rtr.service=prowlarr-svc
         - traefik.http.services.prowlarr-svc.loadbalancer.server.port=9696
         - shepherd.updates=true
         - homepage.group=Media Acquisition
         - homepage.name=Prowlarr
         - homepage.icon=prowlarr.png
-        - homepage.href=http://prowlarr.local.sch-apps.com
+        - homepage.href=http://prowlarr.eos.local.sch-apps.com
         - homepage.description=Indexer Management
         - docker-volume-backup.stop-during-backup=true
 
@@ -61,14 +61,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.bazarr-rtr.entrypoints=web
-        - traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.local.sch-apps.com`)
+        - traefik.http.routers.bazarr-rtr.rule=Host(`bazarr.eos.local.sch-apps.com`)
         - traefik.http.routers.bazarr-rtr.service=bazarr-svc
         - traefik.http.services.bazarr-svc.loadbalancer.server.port=6767
         - shepherd.updates=true
         - homepage.group=Media Acquisition
         - homepage.name=Bazarr
         - homepage.icon=bazarr.png
-        - homepage.href=http://bazarr.local.sch-apps.com
+        - homepage.href=http://bazarr.eos.local.sch-apps.com
         - homepage.description=Subtitle Acquisition
         - docker-volume-backup.stop-during-backup=true
 
@@ -97,14 +97,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.sonarr-rtr.entrypoints=web
-        - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.local.sch-apps.com`)
+        - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.eos.local.sch-apps.com`)
         - traefik.http.routers.sonarr-rtr.service=sonarr-svc
         - traefik.http.services.sonarr-svc.loadbalancer.server.port=8989
         - shepherd.updates=true
         - homepage.group=Media Acquisition
         - homepage.name=Sonarr
         - homepage.icon=sonarr.png
-        - homepage.href=http://sonarr.local.sch-apps.com
+        - homepage.href=http://sonarr.eos.local.sch-apps.com
         - homepage.description=Show Acquisition
         - docker-volume-backup.stop-during-backup=true
 
@@ -133,14 +133,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.radarr-rtr.entrypoints=web
-        - traefik.http.routers.radarr-rtr.rule=Host(`radarr.local.sch-apps.com`)
+        - traefik.http.routers.radarr-rtr.rule=Host(`radarr.eos.local.sch-apps.com`)
         - traefik.http.routers.radarr-rtr.service=radarr-svc
         - traefik.http.services.radarr-svc.loadbalancer.server.port=7878
         - shepherd.updates=true
         - homepage.group=Media Acquisition
         - homepage.name=radarr
         - homepage.icon=radarr.png
-        - homepage.href=http://radarr.local.sch-apps.com
+        - homepage.href=http://radarr.eos.local.sch-apps.com
         - homepage.description=Movie Acquisition
         - docker-volume-backup.stop-during-backup=true
 

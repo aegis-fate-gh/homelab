@@ -19,14 +19,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.grafana-rtr.entrypoints=web
-        - traefik.http.routers.grafana-rtr.rule=Host(`grafana.local.sch-apps.com`)
+        - traefik.http.routers.grafana-rtr.rule=Host(`grafana.eos.local.sch-apps.com`)
         - traefik.http.routers.grafana-rtr.service=grafana-svc
         - traefik.http.services.grafana-svc.loadbalancer.server.port=3000
         - shepherd.updates=true
         - homepage.group=Eos Swarm Cluster
         - homepage.name=Grafana
         - homepage.icon=grafana.png
-        - homepage.href=http://grafana.local.sch-apps.com
+        - homepage.href=http://grafana.eos.local.sch-apps.com
         - homepage.description=Dashboarding and metrics
     networks:
       - monitoring
@@ -50,14 +50,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.uptime-kuma-rtr.entrypoints=web
-        - traefik.http.routers.uptime-kuma-rtr.rule=Host(`uptime-kuma.local.sch-apps.com`)
+        - traefik.http.routers.uptime-kuma-rtr.rule=Host(`uptime-kuma.eos.local.sch-apps.com`)
         - traefik.http.routers.uptime-kuma-rtr.service=uptime-kuma-svc
         - traefik.http.services.uptime-kuma-svc.loadbalancer.server.port=3001
         - shepherd.updates=true"
         - homepage.group=Eos Swarm Cluster
         - homepage.name=Uptime-Kuma
         - homepage.icon=uptime-kuma.png
-        - homepage.href=http://uptime-kuma.local.sch-apps.com
+        - homepage.href=http://uptime-kuma.eos.local.sch-apps.com
         - homepage.description=External service status
     networks:
       - monitoring
@@ -85,14 +85,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.chronograf-rtr.entrypoints=web
-        - traefik.http.routers.chronograf-rtr.rule=Host(`chronograf.local.sch-apps.com`)
+        - traefik.http.routers.chronograf-rtr.rule=Host(`chronograf.eos.local.sch-apps.com`)
         - traefik.http.routers.chronograf-rtr.service=chronograf-svc
         - traefik.http.services.chronograf-svc.loadbalancer.server.port=8888
         - shepherd.updates=true
         - homepage.group=Eos Swarm Cluster
         - homepage.name=Chronograf
         - homepage.icon=chronograf.png
-        - homepage.href=http://chronograf.local.sch-apps.com
+        - homepage.href=http://chronograf.eos.local.sch-apps.com
         - homepage.description=InxluxDB Management
     networks:
       - monitoring

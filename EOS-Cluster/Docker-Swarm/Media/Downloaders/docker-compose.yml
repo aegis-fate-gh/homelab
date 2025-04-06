@@ -27,13 +27,13 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.qbittorrent-rtr.entrypoints=web
-        - traefik.http.routers.qbittorrent-rtr.rule=Host(`qbittorrent.local.sch-apps.com`)
+        - traefik.http.routers.qbittorrent-rtr.rule=Host(`qbittorrent.eos.local.sch-apps.com`)
         - traefik.http.routers.qbittorrent-rtr.service=qbittorrent-svc
         - traefik.http.services.qbittorrent-svc.loadbalancer.server.port=8080
         - homepage.group=Media Acquisition
         - homepage.name=qBittorrent
         - homepage.icon=qbittorrent.png
-        - homepage.href=http://qbittorrent.local.sch-apps.com
+        - homepage.href=http://qbittorrent.eos.local.sch-apps.com
         - homepage.description=Content downloader
         - shepherd.updates=true
 
@@ -56,13 +56,13 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.jdownloader-rtr.entrypoints=web
-        - traefik.http.routers.jdownloader-rtr.rule=Host(`jdownloader.local.sch-apps.com`)
+        - traefik.http.routers.jdownloader-rtr.rule=Host(`jdownloader.eos.local.sch-apps.com`)
         - traefik.http.routers.jdownloader-rtr.service=jdownloader-svc
         - traefik.http.services.jdownloader-svc.loadbalancer.server.port=5800
         - homepage.group=Media Acquisition
         - homepage.name=JDownloader
         - homepage.icon=jdownloader.png
-        - homepage.href=http://jdownloader.local.sch-apps.com
+        - homepage.href=http://jdownloader.eos.local.sch-apps.com
         - homepage.description=Web video downloader
         - shepherd.updates=true
 
@@ -95,13 +95,13 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.youtubedl-rtr.entrypoints=web
-        - traefik.http.routers.youtubedl-rtr.rule=Host(`youtubedl.local.sch-apps.com`)
+        - traefik.http.routers.youtubedl-rtr.rule=Host(`youtubedl.eos.local.sch-apps.com`)
         - traefik.http.routers.youtubedl-rtr.service=youtubedl-svc
         - traefik.http.services.youtubedl-svc.loadbalancer.server.port=17442
         - homepage.group=Media Acquisition
         - homepage.name=YouTubeDL Material
         - homepage.icon=youtubedl.png
-        - homepage.href=http://youtubedl.local.sch-apps.com
+        - homepage.href=http://youtubedl.eos.local.sch-apps.com
         - homepage.description=YouTube content downloader
         - shepherd.updates=true
 

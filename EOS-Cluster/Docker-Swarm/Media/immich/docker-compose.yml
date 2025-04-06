@@ -36,13 +36,13 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.immich-rtr.entrypoints=web
-        - traefik.http.routers.immich-rtr.rule=Host(`immich.local.sch-apps.com`)
+        - traefik.http.routers.immich-rtr.rule=Host(`immich.eos.local.sch-apps.com`)
         - traefik.http.routers.immich-rtr.service=immich-svc
         - traefik.http.services.immich-svc.loadbalancer.server.port=2283
         - homepage.group=Media Front End
         - homepage.name=immich
         - homepage.icon=immich.png
-        - homepage.href=http://immich.local.sch-apps.com
+        - homepage.href=http://immich.eos.local.sch-apps.com
         - homepage.description=The photo and video repository
 
   machine-learning:
@@ -67,7 +67,7 @@ services:
         - shepherd.updates=true
         - traefik.enable=true
         - traefik.http.routers.immich_ml-rtr.entrypoints=web
-        - traefik.http.routers.immich_ml-rtr.rule=Host(`immich_ml.local.sch-apps.com`)
+        - traefik.http.routers.immich_ml-rtr.rule=Host(`immich_ml.eos.local.sch-apps.com`)
         - traefik.http.routers.immich_ml-rtr.service=immich_ml-svc
         - traefik.http.services.immich_ml-svc.loadbalancer.server.port=3003
 

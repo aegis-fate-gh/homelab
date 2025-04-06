@@ -35,7 +35,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.actual-rtr.entrypoints=web
-        - traefik.http.routers.actual-rtr.rule=Host(`actual.local.sch-apps.com`)
+        - traefik.http.routers.actual-rtr.rule=Host(`actual.eos.local.sch-apps.com`)
         - traefik.http.routers.actual-rtr.service=actual-svc
         - traefik.http.services.actual-svc.loadbalancer.server.port=5006
         - shepherd.updates=true

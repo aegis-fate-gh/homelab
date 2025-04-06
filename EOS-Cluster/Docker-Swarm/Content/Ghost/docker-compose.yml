@@ -27,7 +27,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.ghost-rtr.entrypoints=web"
-        - "traefik.http.routers.ghost-rtr.rule=Host(`ghost.local.sch-apps.com`)"
+        - "traefik.http.routers.ghost-rtr.rule=Host(`ghost.eos.local.sch-apps.com`)"
         - "traefik.http.routers.ghost-rtr.service=ghost-svc"
         - "traefik.http.services.ghost-svc.loadbalancer.server.port=2368"
         - "shepherd.updates=true"

@@ -24,7 +24,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.kavita-rtr.entrypoints=web
-        - traefik.http.routers.kavita-rtr.rule=Host(`kavita.local.sch-apps.com`)
+        - traefik.http.routers.kavita-rtr.rule=Host(`kavita.eos.local.sch-apps.com`)
         - traefik.http.routers.kavita-rtr.service=kavita-svc
         - traefik.http.services.kavita-svc.loadbalancer.server.port=5000
         - shepherd.updates=true

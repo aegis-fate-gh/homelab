@@ -22,14 +22,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.mkvtoolnix-rtr.entrypoints=web
-        - traefik.http.routers.mkvtoolnix-rtr.rule=Host(`mkvtoolnix.local.sch-apps.com`)
+        - traefik.http.routers.mkvtoolnix-rtr.rule=Host(`mkvtoolnix.eos.local.sch-apps.com`)
         - traefik.http.routers.mkvtoolnix-rtr.service=mkvtoolnix-svc
         - traefik.http.services.mkvtoolnix-svc.loadbalancer.server.port=5800
         - shepherd.updates=true
         - homepage.group=Media Tools
         - homepage.name=MKVToolnix
         - homepage.icon=mkvtoolnix.png
-        - homepage.href=http://mkvtoolnix.local.sch-apps.com
+        - homepage.href=http://mkvtoolnix.eos.local.sch-apps.com
         - homepage.description=MKV File manipulation
 
   kometa:

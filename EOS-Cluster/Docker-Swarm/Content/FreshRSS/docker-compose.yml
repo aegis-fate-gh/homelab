@@ -24,7 +24,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.freshrss-rtr.entrypoints=web
-        - traefik.http.routers.freshrss-rtr.rule=Host(`freshrss.local.sch-apps.com`)
+        - traefik.http.routers.freshrss-rtr.rule=Host(`freshrss.eos.local.sch-apps.com`)
         - traefik.http.routers.freshrss-rtr.service=freshrss-svc
         - traefik.http.services.freshrss-svc.loadbalancer.server.port=80
         - shepherd.updates=true

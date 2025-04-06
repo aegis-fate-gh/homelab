@@ -97,14 +97,14 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.tautulli-rtr.entrypoints=web
-        - traefik.http.routers.tautulli-rtr.rule=Host(`tautulli.local.sch-apps.com`)
+        - traefik.http.routers.tautulli-rtr.rule=Host(`tautulli.eos.local.sch-apps.com`)
         - traefik.http.routers.tautulli-rtr.service=tautulli-svc
         - traefik.http.services.tautulli-svc.loadbalancer.server.port=8181
         - shepherd.updates=true
         - homepage.group=Media Tools
         - homepage.name=Tautulli
         - homepage.icon=tautulli.png
-        - homepage.href=http://tautulli.local.sch-apps.com
+        - homepage.href=http://tautulli.eos.local.sch-apps.com
         - homepage.description=Plex server stats and metrics
         - docker-volume-backup.stop-during-backup=plex_backup
 

@@ -81,7 +81,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.jellystat-rtr.entrypoints=web
-        - traefik.http.routers.jellystat-rtr.rule=Host(`jellystat.local.sch-apps.com`)
+        - traefik.http.routers.jellystat-rtr.rule=Host(`jellystat.eos.local.sch-apps.com`)
         - traefik.http.routers.jellystat-rtr.service=jellystat-svc
         - traefik.http.services.jellystat-svc.loadbalancer.server.port=3000
         - shepherd.updates=true
@@ -90,7 +90,7 @@ services:
         - homepage.name=Jellystat
         - homepage.icon=jellystat.png
         - homepage.description=Jellyfin server stats and metrics
-        - homepage.href=http://jellystat.local.sch-apps.com
+        - homepage.href=http://jellystat.eos.local.sch-apps.com
 
   backup:
     image: offen/docker-volume-backup:v2
@@ -147,9 +147,6 @@ networks:
     driver: overlay
   media:
     external: true
-  outside:
-    external:
-      name: "host"
   local_proxy:
     external: true
   cftunnel:
