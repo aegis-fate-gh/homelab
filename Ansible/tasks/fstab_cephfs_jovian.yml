@@ -7,12 +7,12 @@
     group: ansible
     mode: '0775'
   loop:
-    - hdd_pool
+    - nvme_pool
 
 - name: Update fstab to include cephfs mounts
   ansible.posix.mount:
-    path: /mnt/hdd_pool
-    src: 10.1.100.30,10.1.100.31,10.1.100.32:/
+    path: /mnt/nvme_pool
+    src: 10.1.100.30,10.1.100.31,10.1.100.32:/jovian_prod
     fstype: ceph
-    opts: name={{ user1 }},secret={{ secret1 }},mds_namespace=eos-fs-hdd,rw,noatime,_netdev
+    opts: name={{ user1 }},secret={{ secret1 }},mds_namespace=eos-fs,rw,noatime,_netdev
     state: mounted

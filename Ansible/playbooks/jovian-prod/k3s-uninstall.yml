@@ -1,0 +1,25 @@
+# To run:
+# ansible-playbook playbooks/jovian-prod/k3s-uninstall.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/jovian-prod/k3s-uninstall.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Uninstall k3s on the Jovian cluster nodes
+  hosts: jupiter-01, jupiter-02, jupiter-03, ganymede-01, ganymede-02, ganymede-03, callisto-01, callisto-02, callisto-03
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Uninstall K3s from bootsrtap manager
+      ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
+      when: inventory_hostname in groups['bootstrap_manager']
+
+    - name: Uninstall K3s from normal managers
+      ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
+      when: inventory_hostname in groups['normal_manager']
+
+    - name: Uninstall K3s from workers
+      ansible.builtin.command: /usr/local/bin/k3s-agent-uninstall.sh
+      when: inventory_hostname in groups['workers']
+
+
+     

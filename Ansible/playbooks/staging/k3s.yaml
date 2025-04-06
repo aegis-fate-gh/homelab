@@ -1,0 +1,22 @@
+# To run:
+# ansible-playbook playbooks/staging/k3s.yaml -i inventories/staging.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/staging/k3s.yaml --check -i inventories/staging.yml --become-password-file=credentials/ansible_eos_password.txt
+
+- name: Set up and configure K3S nodes
+  hosts: k3s
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Import needed tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/qemu_guest_agent.yml
+      loop_control:
+        loop_var: task_list
+
+    - name: Disable UFW
+      ansible.builtin.shell: |
+        ufw disable

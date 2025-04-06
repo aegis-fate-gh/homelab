@@ -1,0 +1,29 @@
+---
+- name: Update and upgrade all packages
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Install the required packages
+  ansible.builtin.apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+
+- name: Setup helm asc key
+  ansible.builtin.shell: |
+    curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+
+- name: Setup helm GPG key
+  ansible.builtin.shell: |
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+
+- name: Update and upgrade all packages
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install the Helm package
+  ansible.builtin.apt:
+    pkg:
+      - helm
+  when: not ansible_check_mode

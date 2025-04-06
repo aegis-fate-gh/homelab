@@ -1,0 +1,182 @@
+# To run:
+# ansible-playbook playbooks/jovian-prod/helm-base.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/jovian-prod/helm-base.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Configure helm repos and base infrastructure level charts within the Jovian Cluster. Used after initial config
+  hosts: jupiter-01
+  remote_user: ansible
+  become: true
+  vars_files:
+    - ./helm_values/rancher.yml
+    - ./helm_values/ceph-csi.yml
+
+  tasks:
+    - name: Install helm repos
+      kubernetes.core.helm_repository:
+        name: "{{ repo_list.name }}"
+        repo_url: "{{ repo_list.repo }}"
+        state: present
+      loop:
+        - { name: 'rancher-stable', repo: 'https://releases.rancher.com/server-charts/stable' }
+        - { name: 'jetstack', repo: 'https://charts.jetstack.io' }
+        - { name: 'ceph-csi', repo: 'https://ceph.github.io/csi-charts' }
+        - { name: 'k8s-home-lab', repo: 'https://k8s-home-lab.github.io/helm-charts/' }
+        - { name: 'metallb', repo: 'https://metallb.github.io/metallb' }
+        - { name: 'traefik', repo: 'https://helm.traefik.io/traefik' }
+      loop_control:
+        loop_var: repo_list
+
+    # https://github.com/metallb/metallb
+    - name: Deploy Metallb
+      kubernetes.core.helm:
+        name: metallb
+        chart_ref: metallb/metallb
+        release_namespace: metallb-system
+        chart_version: v0.14.9
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+      
+    - name: Copy MetalLB Config  
+      ansible.builtin.copy:
+        src: ./helm_values/metallb.yml
+        dest: /tmp/metallb.yaml
+        owner: ansible
+        group: ansible
+
+    - name: Apply the Metallb config
+      ansible.builtin.shell: |
+        kubectl apply -f /tmp/metallb.yaml
+
+    # https://github.com/traefik/traefik-helm-chart
+    - name: Deploy Traefik
+      kubernetes.core.helm:
+        name: traefik
+        chart_ref: traefik/traefik
+        release_namespace: kube-system
+        chart_version: v34.5.0
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+        values:
+          deployment:
+            enabled: true
+            replicas: 2
+          logs:
+            general:
+              level: INFO
+            access:
+              enabled: true
+          ingressClass:
+            enabled: true
+            isDefaultClass: true
+          rbac:
+            enabled: true
+          api:
+            insecure: true
+          ingressRoute:
+            dashboard:
+              enabled: true
+          providers:
+            kubernetesCRD:
+              enabled: true
+              namespaces: []
+            kubernetesIngress:
+              enabled: true
+              namespaces: []
+              publishedService:
+                enabled: true
+          ports:
+            traefik:
+              expose:
+                default: true
+          service:
+            enabled: true
+            type: LoadBalancer
+            annotations:
+              metallb.io/ip-allocated-from-pool: prod-pool
+              metallb.io/loadBalancerIPs: 192.168.6.3
+              metallb.universe.tf/ip-allocated-from-pool: prod-pool
+            ports:
+            - protocol: TCP
+              port: 80
+              name: web
+              targetPort: 80
+            - protocol: TCP
+              port: 8080
+              name: admin
+              targetPort: 8080
+
+    # https://github.com/cert-manager/cert-manager
+    - name: Deploy Cert manager
+      kubernetes.core.helm:
+        name: cert-manager
+        chart_ref: jetstack/cert-manager
+        release_namespace: cert-manager
+        chart_version: v1.17.1
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+        set_values:
+          - value: crds.enabled=true
+
+    # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-10-3/
+    - name: Deploy Rancher
+      kubernetes.core.helm:
+        name: rancher
+        chart_ref: rancher-stable/rancher 
+        release_namespace: cattle-system
+        chart_version: v2.10.3
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+        values:
+          hostname: "{{ rancher_hostname }}"
+          bootstrapPassword: "{{ rancher_bootstrapPassword }}"
+
+    # https://github.com/ceph/ceph-csi
+    - name: Deploy Ceph CSI
+      kubernetes.core.helm:
+        name: ceph-csi-cephfs
+        chart_ref: ceph-csi/ceph-csi-cephfs 
+        release_namespace: ceph-csi-cephfs
+        chart_version: v3.13.1
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+        values:
+          csiConfig:
+            - clusterID: "{{ CLUSTER_ID }}"
+              monitors:
+                - 10.1.100.30:6789
+                - 10.1.100.31:6789
+                - 10.1.100.32:6789
+              cephFS:
+                subvolumeGroup: "csi"
+          secret:
+            name: csi-cephfs-secret
+            adminID: admin
+            adminKey: "{{ ADMIN_KEY }}"
+            create: true
+          storageClass:
+            create: true
+            name: k8s-cephfs
+            clusterID: "{{ CLUSTER_ID }}"
+            # (required) CephFS filesystem name into which the volume shall be created
+            fsName: eos-fs
+            reclaimPolicy: Delete
+            allowVolumeExpansion: true
+            volumeNamePrefix: "jovian-k3s-"
+            provisionerSecret: csi-cephfs-secret
+            controllerExpandSecret: csi-cephfs-secret
+            nodeStageSecret: csi-cephfs-secret
+
+    - name: Create the jovian-prod namespace
+      ansible.builtin.shell: |
+        kubectl create namespace jovian-prod

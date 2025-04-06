@@ -8,6 +8,38 @@ pve:
       ansible_host: 192.168.6.32
 vms:
   children:
+    k3s:
+      children:
+        managers:
+          children:
+            bootstrap_manager:
+              hosts:
+                jupiter-01:
+                  ansible_host: 192.168.6.120
+            normal_manager:
+              hosts:
+                jupiter-02:
+                  ansible_host: 192.168.6.121
+                jupiter-03:
+                  ansible_host: 192.168.6.122
+        workers:
+          children:
+            gpu:
+              hosts:
+                ganymede-01:
+                  ansible_host: 192.168.6.130
+                ganymede-02:
+                  ansible_host: 192.168.6.131
+                ganymede-03:
+                  ansible_host: 192.168.6.132
+            standard:
+              hosts:
+                callisto-01:
+                  ansible_host: 192.168.6.133
+                callisto-02:
+                  ansible_host: 192.168.6.134
+                callisto-03:
+                  ansible_host: 192.168.6.135
     samba-hosts:
       children:
         ubuntu-noble:
@@ -59,8 +91,8 @@ vms:
                       ansible_host: 192.168.6.50
                     sovereign-02: 
                       ansible_host: 192.168.6.51
-                    sovereign-03: 
-                      ansible_host: 192.168.6.52
+                    #sovereign-03: 
+                    #  ansible_host: 192.168.6.52
                 vpn:
                   hosts:
                     defiant-01: 
@@ -73,3 +105,4 @@ vms:
                       ansible_host: 192.168.11.10
                     excelsior-02: 
                       ansible_host: 192.168.11.11
+                

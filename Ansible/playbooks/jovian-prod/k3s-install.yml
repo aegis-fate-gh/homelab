@@ -1,0 +1,30 @@
+# To run:
+# ansible-playbook playbooks/jovian-prod/k3s-install.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/jovian-prod/k3s-install.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+#Check here for Ranchers officially supported Kubernetes versions: https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-10-3/
+# - In this case 2.10.3, supports K3S versions from 1.28 > 1.31
+
+- name: Install and configure K3S on the Eos Jovian cluster nodes
+  hosts: jupiter-01, jupiter-02, jupiter-03, ganymede-01, ganymede-02, ganymede-03, callisto-01, callisto-02, callisto-03
+  remote_user: ansible
+  become: true
+  vars_files:
+    - ../../vars/k3s.yml
+
+  tasks:
+    - name: Install K3S on the bootstrap manager
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | K3S_TOKEN={{ TOKEN }} INSTALL_K3S_VERSION={{ VERSION }} K3S_NODE_NAME={{ inventory_hostname }} sh -s - server --cluster-init --tls-san="{{ TLS_SAN }}" --disable servicelb --disable traefik
+      when: inventory_hostname in groups['bootstrap_manager']
+
+    - name: Install K3S on the normal managers
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | K3S_TOKEN={{ TOKEN }} INSTALL_K3S_VERSION={{ VERSION }} K3S_NODE_NAME={{ inventory_hostname }} sh -s - server --server https://192.168.6.120:6443 --tls-san="{{ TLS_SAN }}" --disable servicelb --disable traefik
+      when: inventory_hostname in groups['normal_manager']
+
+    - name: Install K3S on the Worker nodes
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | K3S_URL=https://jovian-k3s.local.sch-apps.com:6443 K3S_TOKEN={{ TOKEN }} INSTALL_K3S_VERSION={{ VERSION }} K3S_NODE_NAME={{ inventory_hostname }} sh -
+      when: inventory_hostname in groups['workers']

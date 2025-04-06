@@ -1,0 +1,44 @@
+# To run:
+# ansible-playbook playbooks/jovian-prod/initial-config.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/jovian-prod/initial-config.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Install and configure Eos Jovian k3s nodes
+  hosts: jupiter-01, jupiter-02, jupiter-03, ganymede-01, ganymede-02, ganymede-03, callisto-01, callisto-02, callisto-03
+  remote_user: ansible
+  become: true
+  vars_files:
+    - ../../vars/cephfs_vars.yml
+
+  tasks:
+    - name: Import needed tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/cephfs_keyring.yml
+        - ../../tasks/fstab_cephfs_jovian.yml
+        - ../../tasks/fstab_cephfs_hdd-pool.yml
+        - ../../tasks/helm_install.yml
+        - ../../tasks/docker_setup.yml
+      loop_control:
+        loop_var: task_list
+
+    - name: Add environment variables  
+      ansible.builtin.lineinfile:  
+        path: /etc/environment
+        line: "{{ env_list }}"
+      loop:
+        - line: KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+      loop_control:
+        loop_var: env_list
+
+    - name: Disable UFW
+      ansible.builtin.shell: |
+        ufw disable
+
+    - name: Install git on manager nodes
+      ansible.builtin.apt:
+        pkg:
+          - git
+      when: inventory_hostname in groups['managers']
+

@@ -2,17 +2,15 @@ ubuntu-server:
   hosts:
     grafana-test:
       ansible_host: 192.168.6.19
-k3s-test:
+k3s:
   hosts:
-    k3s-test-01m:
-      ansible_host: 192.168.6.
-    k3s-test-02m:
-      ansible_host: 192.168.6.
-    k3s-test-03m:
-      ansible_host: 192.168.6.
-    k3s-test-01w:
-      ansible_host: 192.168.6.
-    k3s-test-02w:
-      ansible_host: 192.168.6.
-    k3s-test-03w:
-      ansible_host: 192.168.6.
+    k3s-01m:
+      ansible_host: 192.168.7.70
+    k3s-02m:
+      ansible_host: 192.168.7.71
+    k3s-01w:
+      ansible_host: 192.168.7.80
+    k3s-02w:
+      ansible_host: 192.168.7.81
+    k3s-03w:
+      ansible_host: 192.168.7.82
