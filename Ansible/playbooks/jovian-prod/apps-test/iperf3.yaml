@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iperf3
+  namespace: jovian-prod
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: iperf3
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: iperf3
+    spec:
+      containers:
+      - name: iperf3
+        image: networkstatic/iperf3
+        args: ["-s"]
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5201
+          name: input     
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iperf3
+  namespace: jovian-prod
+  annotations:
+    metallb.io/address-pool: prod-pool
+    metallb.io/loadBalancerIPs: 192.168.6.210
+spec:
+  ports:
+  - port: 5201
+    targetPort: input
+    name: input
+  selector:
+    app: iperf3
+  type: LoadBalancer

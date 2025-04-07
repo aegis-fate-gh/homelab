@@ -19,11 +19,10 @@
         state: present
       loop:
         - { name: 'rancher-stable', repo: 'https://releases.rancher.com/server-charts/stable' }
-        - { name: 'jetstack', repo: 'https://charts.jetstack.io' }
         - { name: 'ceph-csi', repo: 'https://ceph.github.io/csi-charts' }
-        - { name: 'k8s-home-lab', repo: 'https://k8s-home-lab.github.io/helm-charts/' }
         - { name: 'metallb', repo: 'https://metallb.github.io/metallb' }
         - { name: 'traefik', repo: 'https://helm.traefik.io/traefik' }
+
       loop_control:
         loop_var: repo_list
 
@@ -64,7 +63,7 @@
         values:
           deployment:
             enabled: true
-            replicas: 2
+            replicas: 1
           logs:
             general:
               level: INFO
@@ -80,13 +79,16 @@
           ingressRoute:
             dashboard:
               enabled: true
+          traefik:
+            expose:
+              default: true
           providers:
             kubernetesCRD:
               enabled: true
-              namespaces: []
+              allowCrossNamespace: true
+              allowExternalNameServices: true
             kubernetesIngress:
               enabled: true
-              namespaces: []
               publishedService:
                 enabled: true
           ports:
@@ -97,14 +99,17 @@
             enabled: true
             type: LoadBalancer
             annotations:
-              metallb.io/ip-allocated-from-pool: prod-pool
+              metallb.io/address-pool: prod-pool
               metallb.io/loadBalancerIPs: 192.168.6.3
-              metallb.universe.tf/ip-allocated-from-pool: prod-pool
             ports:
             - protocol: TCP
               port: 80
               name: web
-              targetPort: 80
+              targetPort: 8000
+            - protocol: TCP
+              port: 443
+              name: websecure
+              targetPort: 8443
             - protocol: TCP
               port: 8080
               name: admin
@@ -138,8 +143,15 @@
         values:
           hostname: "{{ rancher_hostname }}"
           bootstrapPassword: "{{ rancher_bootstrapPassword }}"
+          service:
+            enabled: true
+            type: LoadBalancer
+            annotations:
+              metallb.io/address-pool: prod-pool
+              metallb.io/loadBalancerIPs: 192.168.6.4
 
     # https://github.com/ceph/ceph-csi
+    # https://devopstales.github.io/kubernetes/k8s-cephfs-storage-with-csi-driver/
     - name: Deploy Ceph CSI
       kubernetes.core.helm:
         name: ceph-csi-cephfs
