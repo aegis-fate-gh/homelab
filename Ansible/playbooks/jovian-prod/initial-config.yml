@@ -35,10 +35,3 @@
     - name: Disable UFW
       ansible.builtin.shell: |
         ufw disable
-
-    - name: Install git on manager nodes
-      ansible.builtin.apt:
-        pkg:
-          - git
-      when: inventory_hostname in groups['managers']
-

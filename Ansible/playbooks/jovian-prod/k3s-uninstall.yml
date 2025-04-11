@@ -9,7 +9,7 @@
   become: true
 
   tasks:
-    - name: Uninstall K3s from bootsrtap manager
+    - name: Uninstall K3s from bootstrap manager
       ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
       when: inventory_hostname in groups['bootstrap_manager']
 
@@ -20,6 +20,5 @@
     - name: Uninstall K3s from workers
       ansible.builtin.command: /usr/local/bin/k3s-agent-uninstall.sh
       when: inventory_hostname in groups['workers']
-
 
      

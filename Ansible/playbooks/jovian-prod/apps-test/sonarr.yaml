@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: jovian-prod
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: sonarr
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      containers:
+      - name: sonarr
+        image: ghcr.io/hotio/sonarr
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8989
+          name: http     
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: media
+          mountPath: /media
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: sonarr-pvc
+          readOnly: false
+      - name: media
+        hostPath:
+          path: /mnt/hdd_pool/media
+          type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr-service
+  namespace: jovian-prod
+spec:
+  selector:
+    app: sonarr
+  ports:
+    - port: 8989
+      targetPort: http
+      protocol: TCP
+      name: http
+  
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sonarr
+  namespace: jovian-prod
+spec:
+  rules:
+    - host: sonarr.jovian.local.sch-apps.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name:  sonarr-service
+                port:
+                  number: 8989
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonarr-pvc
+  namespace: jovian-prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: k8s-cephfs
+  resources:
+    requests:
+      storage: 1Gi
