@@ -3,7 +3,7 @@
 # To Test:
 # ansible-playbook playbooks/jovian-prod/helm-base.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
 ---
-- name: Configure helm repos and base infrastructure level charts within the Jovian Cluster. Used after initial config
+- name: Configure helm repos and base infrastructure level charts within the Jovian Cluster. Used after initial-config
   hosts: jupiter-01
   remote_user: ansible
   become: true
@@ -22,7 +22,6 @@
         - { name: 'ceph-csi', repo: 'https://ceph.github.io/csi-charts' }
         - { name: 'metallb', repo: 'https://metallb.github.io/metallb' }
         - { name: 'traefik', repo: 'https://helm.traefik.io/traefik' }
-
       loop_control:
         loop_var: repo_list
 
@@ -155,7 +154,7 @@
     - name: Deploy Ceph CSI
       kubernetes.core.helm:
         name: ceph-csi-cephfs
-        chart_ref: ceph-csi/ceph-csi-cephfs 
+        chart_ref: ceph-csi/ceph-csi-cephfs
         release_namespace: ceph-csi-cephfs
         chart_version: v3.13.1
         update_repo_cache: true
@@ -190,5 +189,13 @@
             nodeStageSecret: csi-cephfs-secret
 
     - name: Create the jovian-prod namespace
-      ansible.builtin.shell: |
-        kubectl create namespace jovian-prod
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: jovian-prod
+            labels:
+              name: jovian-prod

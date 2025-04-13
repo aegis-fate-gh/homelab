@@ -1,0 +1,19 @@
+# To run:
+# ansible-playbook playbooks/jovian-prod/apps-prod.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/jovian-prod/apps-prod.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Run the configured Jovian Prod apps task files
+  hosts: jupiter-01
+  remote_user: ansible
+  become: true
+
+  tasks:
+    - name: Import and execute app setup tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/jovian-prod/iperf3.yml
+        - ../../tasks/jovian-prod/prowlarr.yml
+      loop_control:
+        loop_var: task_list

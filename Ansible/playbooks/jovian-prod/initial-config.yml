@@ -35,3 +35,9 @@
     - name: Disable UFW
       ansible.builtin.shell: |
         ufw disable
+
+    - name: Install the needed Ansible Dependencies
+      ansible.builtin.apt:
+        pkg:
+          - python3-kubernetes
+      when: inventory_hostname in groups['bootstrap_manager'] + groups['normal_manager']
