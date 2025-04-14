@@ -1,5 +1,5 @@
 ---
-- name: Create Prowlarr Deployment
+- name: Create tautulli Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -7,10 +7,10 @@
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: prowlarr
+        name: tautulli
         namespace: jovian-prod
         labels:
-          app: prowlarr
+          app: tautulli
           service: media-backend
       spec:
         progressDeadlineSeconds: 600
@@ -18,22 +18,22 @@
         revisionHistoryLimit: 3
         selector:
           matchLabels:
-            app: prowlarr
+            app: tautulli
         strategy:
           type: Recreate
         template:
           metadata:
             labels:
-              app: prowlarr
+              app: tautulli
           spec:
             containers:
-            - name: prowlarr
-              image: ghcr.io/hotio/prowlarr
+            - name: tautulli
+              image: ghcr.io/tautulli/tautulli:latest
               imagePullPolicy: Always
               ports:
-              - containerPort: 9696
-                name: prowlarr-http
-                protocol: TCP   
+              - containerPort: 8181
+                name: tautulli-http
+                protocol: TCP
               volumeMounts:
               - name: config
                 mountPath: /config
@@ -44,15 +44,13 @@
                 value: '1000'
               - name: PGID
                 value: '1000'
-              - name: UMASK
-                value: '002'
             volumes:
             - name: config
               persistentVolumeClaim:
-                claimName: prowlarr-pvc
+                claimName: tautulli-pvc
                 readOnly: false
 
-- name: Create Prowlarr Service
+- name: Create tautulli Service
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -60,18 +58,18 @@
       apiVersion: v1
       kind: service
       metadata:
-        name: prowlarr-service
+        name: tautulli-service
         namespace: jovian-prod
       spec:
         selector:
-          app: prowlarr
+          app: tautulli
         ports:
-          - port: 9696
-            targetPort: prowlarr-http
+          - port: 8181
+            targetPort: tautulli-http
             protocol: TCP
-            name: prowlarr-http
+            name: tautulli-http
 
-- name: Create Prowlarr Ingress
+- name: Create tautulli Ingress
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -79,22 +77,22 @@
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
-        name: prowlarr-ingress
+        name: tautulli-ingress
         namespace: jovian-prod
       spec:
         rules:
-          - host: prowlarr.jovian.local.sch-apps.com
+          - host: tautulli.jovian.local.sch-apps.com
             http:
               paths:
                 - path: /
                   pathType: Prefix
                   backend:
                     service:
-                      name:  prowlarr-service
+                      name:  tautulli-service
                       port:
-                        number: 9696
+                        number: 8181
 
-- name: Create Prowlarr PVC
+- name: Create tautulli PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -102,7 +100,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: prowlarr-pvc
+        name: tautulli-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -110,4 +108,4 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 1Gi
+            storage: 10Gi

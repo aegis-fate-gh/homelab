@@ -7,6 +7,8 @@
   hosts: jupiter-01
   remote_user: ansible
   become: true
+  vars_files:
+    - ../../vars/jovian-prod/secrets.yml
 
   tasks:
     - name: Import and execute app setup tasks
@@ -15,5 +17,7 @@
       loop:
         - ../../tasks/jovian-prod/iperf3.yml
         - ../../tasks/jovian-prod/prowlarr.yml
+        - ../../tasks/jovian-prod/tautulli.yml
+        - ../../tasks/jovian-prod/cloudflare-tunnel.yml
       loop_control:
         loop_var: task_list

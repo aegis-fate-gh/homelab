@@ -11,6 +11,7 @@
         namespace: jovian-prod
         labels:
           app: iperf3
+          service: networking
       spec:
         progressDeadlineSeconds: 600
         replicas: 1

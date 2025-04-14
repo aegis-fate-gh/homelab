@@ -1,0 +1,34 @@
+---
+- name: Deploy Cloudflare Tunnel
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: cloudflared
+        namespace: jovian-prod
+        labels:
+          app: cloudflared
+          service: networking
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 2
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: cloudflared
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: cloudflared
+          spec:
+            containers:
+            - name: cloudflared
+              image: cloudflare/cloudflared:latest
+              imagePullPolicy: Always
+              # Below via https://oopflow.medium.com/setup-install-cloudflare-tunnel-onto-kubernetes-for-high-availability-4337218d4efe
+              command: ["cloudflared", "tunnel", "--no-autoupdate", "run", "--token", "{{ CFTUNNEL_TOKEN_JOVIAN_PROD }}"]
