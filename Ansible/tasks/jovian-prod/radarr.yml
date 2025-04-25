@@ -1,5 +1,5 @@
 ---
-- name: Create tautulli Deployment
+- name: Create Radarr Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -7,10 +7,10 @@
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: tautulli
+        name: radarr
         namespace: jovian-prod
         labels:
-          app: tautulli
+          app: radarr
           service: media-backend
       spec:
         progressDeadlineSeconds: 600
@@ -18,24 +18,24 @@
         revisionHistoryLimit: 3
         selector:
           matchLabels:
-            app: tautulli
+            app: radarr
         strategy:
           type: Recreate
         template:
           metadata:
             labels:
-              app: tautulli
+              app: radarr
           spec:
             nodeSelector:
-              connection: standard
+              connection: vpn
             containers:
-            - name: tautulli
-              image: ghcr.io/tautulli/tautulli:latest
+            - name: radarr
+              image: ghcr.io/hotio/radarr:latest
               imagePullPolicy: Always
               ports:
-              - containerPort: 8181
-                name: tautulli-http
-                protocol: TCP
+              - containerPort: 7878
+                name: radarr-http
+                protocol: TCP   
               volumeMounts:
               - name: config
                 mountPath: /config
@@ -46,13 +46,15 @@
                 value: '1000'
               - name: PGID
                 value: '1000'
+              - name: UMASK
+                value: '002'
             volumes:
             - name: config
               persistentVolumeClaim:
-                claimName: tautulli-pvc
+                claimName: radarr-pvc
                 readOnly: false
 
-- name: Create tautulli Service
+- name: Create Radarr Service
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -60,18 +62,18 @@
       apiVersion: v1
       kind: service
       metadata:
-        name: tautulli-service
+        name: radarr-service
         namespace: jovian-prod
       spec:
         selector:
-          app: tautulli
+          app: radarr
         ports:
-          - port: 8181
-            targetPort: tautulli-http
+          - port: 7878
+            targetPort: radarr-http
             protocol: TCP
-            name: tautulli-http
+            name: radarr-http
 
-- name: Create tautulli Ingress
+- name: Create Radarr Ingress
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -79,22 +81,22 @@
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
-        name: tautulli-ingress
+        name: radarr-ingress
         namespace: jovian-prod
       spec:
         rules:
-          - host: tautulli.jovian.local.sch-apps.com
+          - host: radarr.jovian.local.sch-apps.com
             http:
               paths:
                 - path: /
                   pathType: Prefix
                   backend:
                     service:
-                      name:  tautulli-service
+                      name:  radarr-service
                       port:
-                        number: 8181
+                        number: 7878
 
-- name: Create tautulli PVC
+- name: Create Radarr PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -102,7 +104,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: tautulli-pvc
+        name: radarr-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -110,4 +112,4 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 10Gi
+            storage: 5Gi

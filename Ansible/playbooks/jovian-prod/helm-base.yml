@@ -199,3 +199,56 @@
             name: jovian-prod
             labels:
               name: jovian-prod
+
+    - name: Create the needed node labels for the GPU Nodes
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Node
+          metadata:
+            name: "{{ gpu_list }}"
+            labels: 
+              gpu: "rtx4060"
+              connection: "standard"
+      loop:
+        #- ganymede-01
+        #- ganymede-02
+        - ganymede-03
+      loop_control:
+        loop_var: gpu_list
+
+    - name: Create the needed node labels for the WAN2 Nodes
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Node
+          metadata:
+            name: "{{ wan2_list }}"
+            labels: 
+              connection: "wan2"
+      loop:
+        - callisto-01
+        - callisto-02
+      loop_control:
+        loop_var: wan2_list
+
+    - name: Create the needed node labels for the VPN Nodes
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Node
+          metadata:
+            name: "{{ vpn_list }}"
+            labels: 
+              connection: "vpn"
+      loop:
+        - europa-01
+        - europa-02
+      loop_control:
+        loop_var: vpn_list

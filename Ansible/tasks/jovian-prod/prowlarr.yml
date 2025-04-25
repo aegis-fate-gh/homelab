@@ -26,9 +26,11 @@
             labels:
               app: prowlarr
           spec:
+            nodeSelector:
+              connection: vpn
             containers:
             - name: prowlarr
-              image: ghcr.io/hotio/prowlarr
+              image: ghcr.io/hotio/prowlarr:latest
               imagePullPolicy: Always
               ports:
               - containerPort: 9696

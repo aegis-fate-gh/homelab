@@ -4,7 +4,7 @@
 # ansible-playbook playbooks/jovian-prod/initial-config.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
 ---
 - name: Install and configure Eos Jovian k3s nodes
-  hosts: jupiter-01, jupiter-02, jupiter-03, ganymede-01, ganymede-02, ganymede-03, callisto-01, callisto-02, callisto-03
+  hosts: jupiter-01, jupiter-02, jupiter-03, ganymede-01, ganymede-02, ganymede-03, callisto-01, callisto-02, europa-01, europa-02 
   remote_user: ansible
   become: true
   vars_files:
@@ -19,7 +19,6 @@
         - ../../tasks/fstab_cephfs_jovian.yml
         - ../../tasks/fstab_cephfs_hdd-pool.yml
         - ../../tasks/helm_install.yml
-        - ../../tasks/docker_setup.yml
       loop_control:
         loop_var: task_list
 

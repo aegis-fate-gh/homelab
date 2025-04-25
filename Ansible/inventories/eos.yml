@@ -32,14 +32,18 @@ vms:
                   ansible_host: 192.168.6.131
                 ganymede-03:
                   ansible_host: 192.168.6.132
-            standard:
+            wan2:
               hosts:
                 callisto-01:
-                  ansible_host: 192.168.6.133
+                  ansible_host: 192.168.11.133
                 callisto-02:
-                  ansible_host: 192.168.6.134
-                callisto-03:
-                  ansible_host: 192.168.6.135
+                  ansible_host: 192.168.11.134
+            vpn:
+              hosts:
+                europa-01:
+                  ansible_host: 192.168.27.140
+                europa-02:
+                  ansible_host: 192.168.27.141
     samba-hosts:
       children:
         ubuntu-noble:

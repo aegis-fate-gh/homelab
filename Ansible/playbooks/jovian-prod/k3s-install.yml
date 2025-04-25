@@ -7,7 +7,7 @@
 # - In this case 2.10.3, supports K3S versions from 1.28 > 1.31
 
 - name: Install and configure K3S on the Eos Jovian cluster nodes
-  hosts: jupiter-01, jupiter-02, jupiter-03, ganymede-01, ganymede-02, ganymede-03, callisto-01, callisto-02, callisto-03
+  hosts: jupiter-01, jupiter-02, jupiter-03, ganymede-01, ganymede-02, ganymede-03, callisto-01, callisto-02, europa-01, europa-02
   remote_user: ansible
   become: true
   vars_files:

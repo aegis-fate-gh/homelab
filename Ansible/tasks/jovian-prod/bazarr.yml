@@ -1,5 +1,5 @@
 ---
-- name: Create tautulli Deployment
+- name: Create Bazarr Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -7,10 +7,10 @@
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: tautulli
+        name: bazarr
         namespace: jovian-prod
         labels:
-          app: tautulli
+          app: bazarr
           service: media-backend
       spec:
         progressDeadlineSeconds: 600
@@ -18,24 +18,24 @@
         revisionHistoryLimit: 3
         selector:
           matchLabels:
-            app: tautulli
+            app: bazarr
         strategy:
           type: Recreate
         template:
           metadata:
             labels:
-              app: tautulli
+              app: bazarr
           spec:
             nodeSelector:
-              connection: standard
+              connection: vpn
             containers:
-            - name: tautulli
-              image: ghcr.io/tautulli/tautulli:latest
+            - name: bazarr
+              image: ghcr.io/hotio/bazarr:latest
               imagePullPolicy: Always
               ports:
-              - containerPort: 8181
-                name: tautulli-http
-                protocol: TCP
+              - containerPort: 6767
+                name: bazarr-http
+                protocol: TCP   
               volumeMounts:
               - name: config
                 mountPath: /config
@@ -46,13 +46,15 @@
                 value: '1000'
               - name: PGID
                 value: '1000'
+              - name: UMASK
+                value: '002'
             volumes:
             - name: config
               persistentVolumeClaim:
-                claimName: tautulli-pvc
+                claimName: bazarr-pvc
                 readOnly: false
 
-- name: Create tautulli Service
+- name: Create Bazarr Service
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -60,18 +62,18 @@
       apiVersion: v1
       kind: service
       metadata:
-        name: tautulli-service
+        name: bazarr-service
         namespace: jovian-prod
       spec:
         selector:
-          app: tautulli
+          app: bazarr
         ports:
-          - port: 8181
-            targetPort: tautulli-http
+          - port: 6767
+            targetPort: bazarr-http
             protocol: TCP
-            name: tautulli-http
+            name: bazarr-http
 
-- name: Create tautulli Ingress
+- name: Create Bazarr Ingress
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -79,22 +81,22 @@
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
-        name: tautulli-ingress
+        name: bazarr-ingress
         namespace: jovian-prod
       spec:
         rules:
-          - host: tautulli.jovian.local.sch-apps.com
+          - host: bazarr.jovian.local.sch-apps.com
             http:
               paths:
                 - path: /
                   pathType: Prefix
                   backend:
                     service:
-                      name:  tautulli-service
+                      name:  bazarr-service
                       port:
-                        number: 8181
+                        number: 6767
 
-- name: Create tautulli PVC
+- name: Create Bazarr PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -102,7 +104,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: tautulli-pvc
+        name: bazarr-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -110,4 +112,4 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 10Gi
+            storage: 5Gi

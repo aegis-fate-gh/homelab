@@ -26,6 +26,8 @@
             labels:
               app: cloudflared
           spec:
+            nodeSelector:
+              connection: standard
             containers:
             - name: cloudflared
               image: cloudflare/cloudflared:latest

@@ -1,5 +1,5 @@
 ---
-- name: Create iperf3 Deployment
+- name: Create openspeedtest Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -7,10 +7,10 @@
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: iperf3
+        name: openspeedtest
         namespace: jovian-prod
         labels:
-          app: iperf3
+          app: openspeedtest
           service: networking
       spec:
         progressDeadlineSeconds: 600
@@ -18,26 +18,27 @@
         revisionHistoryLimit: 3
         selector:
           matchLabels:
-            app: iperf3
+            app: openspeedtest
         strategy:
           type: Recreate
         template:
           metadata:
             labels:
-              app: iperf3
+              app: openspeedtest
           spec:
             nodeSelector:
               connection: standard
             containers:
-            - name: iperf3
-              image: networkstatic/iperf3
-              args: ["-s"]
+            - name: openspeedtest
+              image: openspeedtest/latest
               imagePullPolicy: Always
               ports:
-              - containerPort: 5201
-                name: input 
+              - containerPort: 3000
+                name: http
+              - containerPort: 3001
+                name: https
 
-- name: Create iperf3 LB Service
+- name: Create openspeedtest LB Service
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -45,17 +46,20 @@
       apiVersion: v1
       kind: service
       metadata:
-        name: iperf3-service
+        name: openspeedtest-service
         namespace: jovian-prod
         annotations:
           metallb.io/address-pool: prod-pool
-          metallb.io/loadBalancerIPs: 192.168.6.210
+          metallb.io/loadBalancerIPs: 192.168.6.211
       spec:
         externalTrafficPolicy: Local
         ports:
-        - port: 5201
-          targetPort: input
-          name: input
+        - port: 80
+          targetPort: http
+          name: http
+        - port: 443
+          targetPort: https
+          name: https
         selector:
-          app: iperf3
+          app: openspeedtest
         type: LoadBalancer

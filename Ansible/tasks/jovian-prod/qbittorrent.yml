@@ -1,5 +1,5 @@
 ---
-- name: Create tautulli Deployment
+- name: Create qbittorrent Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -7,10 +7,10 @@
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: tautulli
+        name: qbittorrent
         namespace: jovian-prod
         labels:
-          app: tautulli
+          app: qbittorrent
           service: media-backend
       spec:
         progressDeadlineSeconds: 600
@@ -18,27 +18,29 @@
         revisionHistoryLimit: 3
         selector:
           matchLabels:
-            app: tautulli
+            app: qbittorrent
         strategy:
           type: Recreate
         template:
           metadata:
             labels:
-              app: tautulli
+              app: qbittorrent
           spec:
             nodeSelector:
-              connection: standard
+              connection: vpn
             containers:
-            - name: tautulli
-              image: ghcr.io/tautulli/tautulli:latest
+            - name: qbittorrent
+              image: ghcr.io/hotio/qbittorrent
               imagePullPolicy: Always
               ports:
-              - containerPort: 8181
-                name: tautulli-http
-                protocol: TCP
+              - containerPort: 8080
+                name: qbitt-http
+                protocol: TCP   
               volumeMounts:
               - name: config
                 mountPath: /config
+              - name: media
+                mountPath: /media
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -46,13 +48,22 @@
                 value: '1000'
               - name: PGID
                 value: '1000'
+              - name: UMASK
+                value: '002'
+              - name: WEBUI_PORTS
+                value: '8080/tcp,8080/udp'
             volumes:
             - name: config
               persistentVolumeClaim:
-                claimName: tautulli-pvc
+                claimName: qbittorrent-pvc
+                readOnly: false
+            - name: media
+              hostPath:
+                path: /mnt/hdd_pool/media
+                type: Directory
                 readOnly: false
 
-- name: Create tautulli Service
+- name: Create qbittorrent Service
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -60,18 +71,18 @@
       apiVersion: v1
       kind: service
       metadata:
-        name: tautulli-service
+        name: qbittorrent-service
         namespace: jovian-prod
       spec:
         selector:
-          app: tautulli
+          app: qbittorrent
         ports:
-          - port: 8181
-            targetPort: tautulli-http
+          - port: 8080
+            targetPort: qbitt-http
             protocol: TCP
-            name: tautulli-http
+            name: qbitt-http
 
-- name: Create tautulli Ingress
+- name: Create qbittorrent Ingress
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -79,22 +90,22 @@
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
-        name: tautulli-ingress
+        name: qbittorrent-ingress
         namespace: jovian-prod
       spec:
         rules:
-          - host: tautulli.jovian.local.sch-apps.com
+          - host: qbittorrent.jovian.local.sch-apps.com
             http:
               paths:
                 - path: /
                   pathType: Prefix
                   backend:
                     service:
-                      name:  tautulli-service
+                      name:  qbittorrent-service
                       port:
-                        number: 8181
+                        number: 8080
 
-- name: Create tautulli PVC
+- name: Create qbittorrent PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -102,7 +113,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: tautulli-pvc
+        name: qbittorrent-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -110,4 +121,4 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 10Gi
+            storage: 1Gi
