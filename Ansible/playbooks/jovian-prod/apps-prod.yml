@@ -18,11 +18,8 @@
         - ../../tasks/jovian-prod/iperf3.yml
         - ../../tasks/jovian-prod/tautulli.yml
         - ../../tasks/jovian-prod/cloudflare-tunnel.yml
-        - ../../tasks/jovian-prod/sonarr.yml
-        - ../../tasks/jovian-prod/bazarr.yml
-        - ../../tasks/jovian-prod/radarr.yml
-        - ../../tasks/jovian-prod/prowlarr.yml
         - ../../tasks/jovian-prod/qbittorrent.yml
         - ../../tasks/jovian-prod/openspeedtest.yml
+        - ../../tasks/jovian-prod/arrstack.yml
       loop_control:
         loop_var: task_list

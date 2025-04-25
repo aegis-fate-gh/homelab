@@ -1,0 +1,291 @@
+---
+- name: Create ArrStack Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: arrstack
+        namespace: jovian-prod
+        labels:
+          app: arrstack
+          service: media-backend
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: arrstack
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: arrstack
+          spec:
+            nodeSelector:
+              connection: vpn
+            containers:
+            - name: bazarr
+              image: ghcr.io/hotio/bazarr:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 6767
+                name: bazarr-http
+                protocol: TCP   
+              volumeMounts:
+              - name: bazarr-config
+                mountPath: /config
+              - name: media
+                mountPath: /media
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+            - name: prowlarr
+              image: ghcr.io/hotio/prowlarr:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 9696
+                name: prowlarr-http
+                protocol: TCP   
+              volumeMounts:
+              - name: prowlarr-config
+                mountPath: /config
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+            - name: radarr
+              image: ghcr.io/hotio/radarr:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 7878
+                name: radarr-http
+                protocol: TCP   
+              volumeMounts:
+              - name: radarr-config
+                mountPath: /config
+              - name: media
+                mountPath: /media
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+            - name: sonarr
+              image: ghcr.io/hotio/sonarr:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 8989
+                name: sonarr-http
+                protocol: TCP   
+              volumeMounts:
+              - name: sonarr-config
+                mountPath: /config
+              - name: media
+                mountPath: /media
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+            volumes:
+            - name: media
+              hostPath:
+                path: /mnt/hdd_pool/media
+                type: Directory
+            - name: bazarr-config
+              persistentVolumeClaim:
+                claimName: bazarr-pvc
+                readOnly: false
+            - name: prowlarr-config
+              persistentVolumeClaim:
+                claimName: prowlarr-pvc
+                readOnly: false
+            - name: radarr-config
+              persistentVolumeClaim:
+                claimName: radarr-pvc
+                readOnly: false
+            - name: sonarr-config
+              persistentVolumeClaim:
+                claimName: sonarr-pvc
+                readOnly: false
+
+- name: Create ArrStack Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: arrstack-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: arrstack
+        ports:
+          - port: 6767
+            targetPort: bazarr-http
+            protocol: TCP
+            name: bazarr-http
+          - port: 9696
+            targetPort: prowlarr-http
+            protocol: TCP
+            name: prowlarr-http
+          - port: 7878
+            targetPort: radarr-http
+            protocol: TCP
+            name: radarr-http
+          - port: 8989
+            targetPort: sonarr-http
+            protocol: TCP
+            name: sonarr-http
+
+- name: Create ArrStack Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: arrstack-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: bazarr.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  arrstack-service
+                      port:
+                        number: 6767
+          - host: prowlarr.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  arrstack-service
+                      port:
+                        number: 9696
+          - host: radarr.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  arrstack-service
+                      port:
+                        number: 7878
+          - host: sonarr.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  arrstack-service
+                      port:
+                        number: 8989
+
+
+- name: Create Bazarr PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: bazarr-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 5Gi
+
+- name: Create Prowlarr PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: prowlarr-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 1Gi
+
+- name: Create Radarr PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: radarr-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 5Gi
+
+- name: Create Sonarr PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: sonarr-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 5Gi
