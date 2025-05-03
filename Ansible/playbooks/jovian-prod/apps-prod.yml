@@ -21,5 +21,8 @@
         - ../../tasks/jovian-prod/qbittorrent.yml
         - ../../tasks/jovian-prod/openspeedtest.yml
         - ../../tasks/jovian-prod/arrstack.yml
+        - ../../tasks/jovian-prod/plex.yml
+        - ../../tasks/jovian-prod/overseerr.yml
+        - ../../tasks/jovian-prod/promtail.yml
       loop_control:
         loop_var: task_list

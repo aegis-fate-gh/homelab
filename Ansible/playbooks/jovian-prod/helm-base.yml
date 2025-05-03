@@ -214,7 +214,7 @@
               connection: "standard"
       loop:
         #- ganymede-01
-        #- ganymede-02
+        - ganymede-02
         - ganymede-03
       loop_control:
         loop_var: gpu_list

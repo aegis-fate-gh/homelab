@@ -111,6 +111,16 @@
                 value: '1000'
               - name: UMASK
                 value: '002'
+            - name: flaresolverr
+              image: ghcr.io/flaresolverr/flaresolverr:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 8191
+                name: flare-tcp
+                protocol: TCP   
+              env:
+              - name: TZ
+                value: 'America/Chicago'
             volumes:
             - name: media
               hostPath:
@@ -163,6 +173,10 @@
             targetPort: sonarr-http
             protocol: TCP
             name: sonarr-http
+          - port: 8191
+            targetPort: flare-tcp
+            protocol: TCP
+            name: flare-tcp
 
 - name: Create ArrStack Ingress
   kubernetes.core.k8s:
