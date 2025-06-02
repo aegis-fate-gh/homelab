@@ -1,0 +1,115 @@
+---
+- name: Create freshrss Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: freshrss
+        namespace: jovian-prod
+        labels:
+          app: freshrss
+          service: content
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: freshrss
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: freshrss
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: freshrss
+              image: lscr.io/linuxserver/freshrss:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 80
+                name: freshrss-http
+                protocol: TCP   
+              volumeMounts:
+              - name: config
+                mountPath: /config
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: freshrss-pvc
+                readOnly: false
+
+- name: Create freshrss Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: freshrss-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: freshrss
+        ports:
+          - port: 8090
+            targetPort: freshrss-http
+            protocol: TCP
+            name: freshrss-http
+
+- name: Create freshrss Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: freshrss-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: freshrss.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  freshrss-service
+                      port:
+                        number: 8090
+
+- name: Create freshrss PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: freshrss-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 1Gi

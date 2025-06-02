@@ -24,5 +24,8 @@
         - ../../tasks/jovian-prod/plex.yml
         - ../../tasks/jovian-prod/overseerr.yml
         - ../../tasks/jovian-prod/promtail.yml
+        - ../../tasks/jovian-prod/pterodactyl-panel.yml
+        - ../../tasks/jovian-prod/jellyfin.yml
+        - ../../tasks/jovian-prod/freshrss.yml
       loop_control:
         loop_var: task_list

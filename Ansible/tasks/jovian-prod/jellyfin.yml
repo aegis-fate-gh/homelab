@@ -1,0 +1,140 @@
+---
+- name: Create jellyfin Prod Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: jellyfin
+        namespace: jovian-prod
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: jellyfin
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: jellyfin
+          spec:
+            runtimeClassName: nvidia
+            nodeSelector:
+              gpu: rtx4060
+            containers:
+            - name: jellyfin
+              image: jellyfin/jellyfin:latest
+              imagePullPolicy: Always
+              securityContext:
+                privileged: true
+              ports:
+              - containerPort: 8096
+                name: jellyfin
+                protocol: TCP      
+              volumeMounts:
+              - name: config
+                mountPath: /config
+              - mountPath: /media
+                name: jellyfin-media
+                readOnly: true
+              - name: jellyfin-transcode
+                mountPath: /config/transcodes
+              - name: dev-dri
+                mountPath: /dev/dri
+                readOnly: true
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: NVIDIA_VISIBLE_DEVICES 
+                value: "all"
+              - name: NVIDIA_DRIVER_CAPABILITIES
+                value: compute,video,utility
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: jellyfin-pvc
+                readOnly: false
+            - name: jellyfin-media
+              hostPath:
+                path: /mnt/hdd_pool/media
+                type: Directory
+            - name: jellyfin-transcode
+              hostPath:
+                path: /dev/shm
+            - name: dev-dri
+              hostPath:
+                path: /dev/dri
+
+- name: Create jellyfin Prod PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: jellyfin-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 30Gi
+
+- name: Create jellyfin Prod Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: jellyfin
+        namespace: jovian-prod
+        annotations:
+          metallb.io/address-pool: prod-pool
+          metallb.io/loadBalancerIPs: 192.168.6.221
+      spec:
+        externalTrafficPolicy: Local
+        ports:
+        - port: 8096
+          targetPort: jellyfin
+          name: jellyfin
+          protocol: TCP
+        selector:
+          app: jellyfin
+        type: LoadBalancer
+
+- name: Create Jellyfin Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: jellyfin-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: jellyfin.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  jellyfin
+                      port:
+                        number: 8096
