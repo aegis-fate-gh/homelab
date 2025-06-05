@@ -11,7 +11,7 @@
     - ../../vars/jovian-prod/secrets.yml
 
   tasks:
-    - name: Import and execute app setup tasks
+    - name: Import and execute app deployment tasks
       ansible.builtin.include_tasks:
         file: "{{ task_list }}"
       loop:
@@ -27,5 +27,8 @@
         - ../../tasks/jovian-prod/pterodactyl-panel.yml
         - ../../tasks/jovian-prod/jellyfin.yml
         - ../../tasks/jovian-prod/freshrss.yml
+        - ../../tasks/jovian-prod/homarr.yml
+        - ../../tasks/jovian-prod/grafana.yml
+        - ../../tasks/jovian-prod/uptime-kuma.yml
       loop_control:
         loop_var: task_list

@@ -1,0 +1,113 @@
+---
+- name: Create uptime-kuma Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: uptimekuma
+        namespace: jovian-prod
+        labels:
+          app: uptimekuma
+          service: observability
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: uptimekuma
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: uptimekuma
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: uptimekuma
+              image: louislam/uptime-kuma:1
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 3001
+                name: uptimekuma-http
+                protocol: TCP
+              volumeMounts:
+              - name: config
+                mountPath: /app/data
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: uptimekuma-pvc
+                readOnly: false
+
+- name: Create uptime-kuma Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: uptimekuma-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: uptimekuma
+        ports:
+          - port: 3001
+            targetPort: uptimekuma-http
+            protocol: TCP
+            name: uptimekuma-http
+
+- name: Create uptime-kuma Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: uptimekuma-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: uptimekuma.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  uptimekuma-service
+                      port:
+                        number: 3001
+
+- name: Create uptime-kuma PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: uptimekuma-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 2Gi

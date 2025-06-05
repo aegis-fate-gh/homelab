@@ -1,0 +1,122 @@
+---
+- name: Create homarr Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: homarr
+        namespace: jovian-prod
+        labels:
+          app: homarr
+          service: dashboards
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: homarr
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: homarr
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: homarr
+              image: ghcr.io/ajnart/homarr:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 7575
+                name: homarr-http
+                protocol: TCP   
+              volumeMounts:
+              - name: config
+                mountPath: /app/data/configs
+                subPath: configs
+              - name: config
+                mountPath: /app/public/icons
+                subPath: icons
+              - name: config
+                mountPath: /data
+                subPath: data
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: homarr-pvc
+                readOnly: false
+
+- name: Create homarr Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: homarr-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: homarr
+        ports:
+          - port: 7575
+            targetPort: homarr-http
+            protocol: TCP
+            name: homarr-http
+
+- name: Create homarr Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: homarr-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: homarr.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  homarr-service
+                      port:
+                        number: 7575
+
+- name: Create homarr PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: homarr-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 1Gi

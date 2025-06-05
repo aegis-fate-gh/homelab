@@ -1,0 +1,214 @@
+---
+- name: Create Pterodactyl-Panel Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: ptero-panel
+        namespace: jovian-prod
+        labels:
+          app: ptero-panel
+          service: pterodactyl
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: ptero-panel
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: ptero-panel
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: database
+              image: mariadb:11.7.2
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 3306
+                name: ptero-db
+                protocol: TCP
+              args: ["--default-authentication-plugin=mysql_native_password"]
+              volumeMounts:
+              - name: pterodb-config
+                mountPath: /var/lib/mysql
+              env:
+              - name: MYSQL_DATABASE
+                value: "{{ PTERO_MYSQL_DATABASE }}"
+              - name: MYSQL_USER
+                value: "{{ PTERO_MYSQL_USER }}"
+              - name: MYSQL_PASSWORD
+                value: "{{ PTERO_MYSQL_PASSWORD }}"
+              - name: MYSQL_ROOT_PASSWORD
+                value: "{{ PTERO_MYSQL_ROOT_PASSWORD }}"
+            - name: cache
+              image: redis:alpine
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 6379
+                name: ptero-redis
+                protocol: TCP
+            - name: panel
+              image: ghcr.io/pterodactyl/panel:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 80
+                name: ptero-http
+                protocol: TCP
+              env:
+              - name: APP_ENV
+                value: "production"
+              - name: APP_ENVIRONMENT_ONLY
+                value: "false"
+              - name: APP_SERVICE_AUTHOR
+                value: "{{ PTERO_APP_SERVICE_AUTHOR }}"
+              - name: APP_URL
+                value: "{{ PTERO_APP_URL }}"
+              - name: APP_TIMEZONE
+                value: "America/Chicago"
+              - name: CACHE_DRIVER
+                value: "redis"
+              - name: SESSION_DRIVER
+                value: "redis"
+              - name: QUEUE_DRIVER
+                value: "redis"
+              - name: REDIS_HOST
+                value: "localhost"
+              - name: REDIS_PORT
+                value: "6379"
+              - name: MAIL_FROM
+                value: "{{ PTERO_MAIL_FROM }}"
+              - name: MAIL_DRIVER
+                value: "smtp"
+              - name: MAIL_HOST
+                value: "smtp.gmail.com"
+              - name: MAIL_PORT
+                value: "587"
+              - name: MAIL_USERNAME
+                value: "{{ PTERO_MAIL_USERNAME }}"
+              - name: MAIL_PASSWORD
+                value: "{{ PTERO_MAIL_PASSWORD }}"
+              - name: MAIL_ENCRYPTION
+                value: “true”
+              - name: APP_DEBUG
+                value: “false”
+              - name: TRUSTED_PROXIES
+                value: "{{ PTERO_TRUSTED_PROXIES }}"
+              - name: DB_HOST
+                value: "localhost"
+              - name: DB_PORT
+                value: "3306"
+              - name: DB_USER
+                value: "{{ PTERO_MYSQL_USER }}"
+              - name: DB_PASSWORD
+                value: "{{ PTERO_MYSQL_PASSWORD }}"
+              - name: DB_DATABASE
+                value: "{{ PTERO_MYSQL_DATABASE }}"
+              volumeMounts:
+              - name: ptero-panel-config
+                mountPath: /app/var/
+                subPath: var
+              - name: ptero-panel-config
+                mountPath: /etc/nginx/http.d/
+                subPath: nginx
+              - name: ptero-panel-config
+                mountPath: /etc/letsencrypt/
+                subPath: certs
+              - name: ptero-panel-config
+                mountPath: /app/storage/logs
+                subPath: logs
+            volumes:
+            - name: pterodb-config
+              persistentVolumeClaim:
+                claimName: pterodb-pvc
+                readOnly: false
+            - name: ptero-panel-config
+              persistentVolumeClaim:
+                claimName: ptero-panel-pvc
+                readOnly: false
+
+- name: Create pterodactyl Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: ptero-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: ptero-panel
+        ports:
+          - port: 80
+            targetPort: ptero-http
+            protocol: TCP
+            name: ptero-http
+
+- name: Create Pterodactyl Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: ptero-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: pterodactyl.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  ptero-service
+                      port:
+                        number: 80
+
+- name: Create Pterodactyl Database PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: pterodb-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 1Gi
+
+- name: Create Pterodactyl Panel PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ptero-panel-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 1Gi
