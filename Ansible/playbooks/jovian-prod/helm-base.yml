@@ -22,6 +22,7 @@
         - { name: 'ceph-csi', repo: 'https://ceph.github.io/csi-charts' }
         - { name: 'metallb', repo: 'https://metallb.github.io/metallb' }
         - { name: 'traefik', repo: 'https://helm.traefik.io/traefik' }
+        - { name: 'csi-driver-smb', repo: 'https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts' }
       loop_control:
         loop_var: repo_list
 
@@ -151,7 +152,7 @@
 
     # https://github.com/ceph/ceph-csi
     # https://devopstales.github.io/kubernetes/k8s-cephfs-storage-with-csi-driver/
-    - name: Deploy Ceph CSI
+    - name: Deploy the Ceph CSI
       kubernetes.core.helm:
         name: ceph-csi-cephfs
         chart_ref: ceph-csi/ceph-csi-cephfs
@@ -187,6 +188,17 @@
             provisionerSecret: csi-cephfs-secret
             controllerExpandSecret: csi-cephfs-secret
             nodeStageSecret: csi-cephfs-secret
+
+    # https://github.com/kubernetes-csi/csi-driver-smb/tree/master/charts
+    - name: Deploy the SMB CSI
+      kubernetes.core.helm:
+        name: csi-driver-smb
+        chart_ref: csi-driver-smb/csi-driver-smb
+        release_namespace: kube-system
+        chart_version: v1.9.0
+        update_repo_cache: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
 
     - name: Create the jovian-prod namespace
       kubernetes.core.k8s:
