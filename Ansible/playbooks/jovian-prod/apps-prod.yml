@@ -30,5 +30,8 @@
         - ../../tasks/jovian-prod/homarr.yml
         - ../../tasks/jovian-prod/grafana.yml
         - ../../tasks/jovian-prod/uptime-kuma.yml
+        - ../../tasks/jovian-prod/mkvtoolnix.yml
+        - ../../tasks/jovian-prod/filebrowser.yml
+        - ../../tasks/jovian-prod/ghost.yml
       loop_control:
         loop_var: task_list

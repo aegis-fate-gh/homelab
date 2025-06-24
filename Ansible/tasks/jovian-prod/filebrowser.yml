@@ -1,0 +1,118 @@
+---
+- name: Create Filebrowser Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: filebrowser
+        namespace: jovian-prod
+        labels:
+          app: filebrowser
+          service: tools
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: filebrowser
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: filebrowser
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: filebrowser
+              image: hurlenko/filebrowser:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 8080
+                name: fbrowse-http
+                protocol: TCP   
+              volumeMounts:
+              - name: config
+                mountPath: /config
+              - name: nfs-vol
+                mountPath: /data/nfs
+              env:
+              - name: FB_BASEURL
+                value: '/filebrowser'
+              # https://bcrypt-generator.com
+              - name: FB_PASSWORD
+                value: "{{ FILEBROWSER_PASSWORD }}"
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: filebrowser-pvc
+                readOnly: false
+            - name: nfs-vol
+              nfs:
+                server: 192.168.100.42
+                path: /volume1/Temp
+
+- name: Create filebrowser Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: filebrowser-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: filebrowser
+        ports:
+          - port: 8080
+            targetPort: fbrowse-http
+            protocol: TCP
+            name: fbrowse-http
+
+- name: Create filebrowser Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: filebrowser-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: filebrowser.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  filebrowser-service
+                      port:
+                        number: 8080
+
+- name: Create filebrowser PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: filebrowser-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 1Gi

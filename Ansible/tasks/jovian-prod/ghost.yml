@@ -1,0 +1,134 @@
+---
+- name: Create ghost Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: ghost
+        namespace: jovian-prod
+        labels:
+          app: ghost
+          service: content
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: ghost
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: ghost
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: ghost
+              image: ghost:5
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 2368
+                name: ghost-http
+                protocol: TCP   
+              volumeMounts:
+              - name: config
+                mountPath: /var/lib/ghost/content
+                subPath: ghost
+              env:
+              - name: database__client
+                value: 'mysql'
+              - name: database__connection__host
+                value: 'localhost'
+              - name: database__connection__user
+                value: "{{ GHOST_DB_USER }}"
+              - name: database__connection__password
+                value: "{{ GHOST_DB_PASSWORD }}"
+              - name: database__connection__database
+                value: 'ghost'
+              - name: url
+                value: 'http://ghost.jovian.local.sch-apps.com'
+            - name: db
+              image: mysql:8.0
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 3306
+                name: ghost-db
+                protocol: TCP   
+              volumeMounts:
+              - name: config
+                mountPath: /var/lib/mysql
+                subPath: db
+              env:
+              - name: MYSQL_ROOT_PASSWORD
+                value: "{{ GHOST_DB_PASSWORD }}"
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: ghost-pvc
+                readOnly: false
+
+- name: Create ghost Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: ghost-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: ghost
+        ports:
+          - port: 2368
+            targetPort: ghost-http
+            protocol: TCP
+            name: ghost-http
+
+- name: Create ghost Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: ghost-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: ghost.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  ghost-service
+                      port:
+                        number: 2368
+
+- name: Create ghost PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ghost-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 10Gi

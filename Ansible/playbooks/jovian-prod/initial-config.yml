@@ -40,3 +40,9 @@
         pkg:
           - python3-kubernetes
       when: inventory_hostname in groups['bootstrap_manager'] + groups['normal_manager']
+
+    - name: Install nfs-common
+      ansible.builtin.apt:
+        pkg:
+          - nfs-common
+      when: not ansible_check_mode

@@ -30,24 +30,25 @@
               connection: standard
             containers:
             - name: database
-              image: mariadb:11.7.2
+              image: mariadb:10.5
               imagePullPolicy: Always
               ports:
               - containerPort: 3306
                 name: ptero-db
                 protocol: TCP
-              args: ["--default-authentication-plugin=mysql_native_password"]
+              #args: ["--default-authentication-plugin=mysql_native_password"]
               volumeMounts:
-              - name: pterodb-config
+              - name: ptero-panel-config
                 mountPath: /var/lib/mysql
+                subPath: db
               env:
               - name: MYSQL_DATABASE
                 value: "{{ PTERO_MYSQL_DATABASE }}"
-              - name: MYSQL_USER
+              - name: MARIADB_USER
                 value: "{{ PTERO_MYSQL_USER }}"
-              - name: MYSQL_PASSWORD
+              - name: MARIADB_PASSWORD
                 value: "{{ PTERO_MYSQL_PASSWORD }}"
-              - name: MYSQL_ROOT_PASSWORD
+              - name: MARIADB_ROOT_PASSWORD
                 value: "{{ PTERO_MYSQL_ROOT_PASSWORD }}"
             - name: cache
               image: redis:alpine
@@ -103,7 +104,7 @@
               - name: TRUSTED_PROXIES
                 value: "{{ PTERO_TRUSTED_PROXIES }}"
               - name: DB_HOST
-                value: "localhost"
+                value: "127.0.0.1"
               - name: DB_PORT
                 value: "3306"
               - name: DB_USER
@@ -126,10 +127,6 @@
                 mountPath: /app/storage/logs
                 subPath: logs
             volumes:
-            - name: pterodb-config
-              persistentVolumeClaim:
-                claimName: pterodb-pvc
-                readOnly: false
             - name: ptero-panel-config
               persistentVolumeClaim:
                 claimName: ptero-panel-pvc
@@ -177,24 +174,6 @@
                       port:
                         number: 80
 
-- name: Create Pterodactyl Database PVC
-  kubernetes.core.k8s:
-    kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
-    definition:
-      apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: pterodb-pvc
-        namespace: jovian-prod
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: k8s-cephfs
-        resources:
-          requests:
-            storage: 1Gi
-
 - name: Create Pterodactyl Panel PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -211,4 +190,4 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 1Gi
+            storage: 5Gi

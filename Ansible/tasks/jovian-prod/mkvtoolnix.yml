@@ -1,0 +1,115 @@
+---
+- name: Create mkvtoolnix Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: mkvtoolnix
+        namespace: jovian-prod
+        labels:
+          app: mkvtoolnix
+          service: media
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: mkvtoolnix
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: mkvtoolnix
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: mkvtoolnix
+              image: jlesage/mkvtoolnix:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 5800
+                name: mkvtoolnix-http
+                protocol: TCP   
+              volumeMounts:
+              - name: config
+                mountPath: /config
+              - name: nfs-vol
+                mountPath: /nfs
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: mkvtoolnix-pvc
+                readOnly: false
+            - name: nfs-vol
+              nfs:
+                server: 192.168.100.42
+                path: /volume1/Temp
+
+- name: Create mkvtoolnix Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: mkvtoolnix-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: mkvtoolnix
+        ports:
+          - port: 5800
+            targetPort: mkvtoolnix-http
+            protocol: TCP
+            name: mkvtoolnix-http
+
+- name: Create mkvtoolnix Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: mkvtoolnix-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: mkvtoolnix.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  mkvtoolnix-service
+                      port:
+                        number: 5800
+
+- name: Create mkvtoolnix PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: mkvtoolnix-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 1Gi
