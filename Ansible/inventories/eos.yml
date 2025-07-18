@@ -97,12 +97,12 @@ vms:
                       ansible_host: 192.168.6.51
                     #sovereign-03: 
                     #  ansible_host: 192.168.6.52
-                vpn:
-                  hosts:
-                    defiant-01: 
-                      ansible_host: 192.168.27.60
-                    defiant-02: 
-                      ansible_host: 192.168.27.61
+                # vpn:
+                #   hosts:
+                #     defiant-01: 
+                #       ansible_host: 192.168.27.60
+                #     defiant-02: 
+                #       ansible_host: 192.168.27.61
                 wan2:
                   hosts:
                     excelsior-01: 

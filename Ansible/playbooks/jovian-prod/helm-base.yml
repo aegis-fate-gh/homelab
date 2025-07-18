@@ -23,6 +23,7 @@
         - { name: 'metallb', repo: 'https://metallb.github.io/metallb' }
         - { name: 'traefik', repo: 'https://helm.traefik.io/traefik' }
         - { name: 'csi-driver-smb', repo: 'https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts' }
+        - { name: 'backube', repo: 'https://backube.github.io/helm-charts/' }
       loop_control:
         loop_var: repo_list
 
@@ -130,6 +131,7 @@
           - value: crds.enabled=true
 
     # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-10-3/
+    # To get available stable versions, run this on a control plane node: helm search repo rancher-stable/rancher --versions
     - name: Deploy Rancher
       kubernetes.core.helm:
         name: rancher
@@ -150,9 +152,21 @@
               metallb.io/address-pool: prod-pool
               metallb.io/loadBalancerIPs: 192.168.6.4
 
+    # https://github.com/kubernetes-csi/external-snapshotter/
+    # Ignore errors set to allow for running this playbook more than once
+    - name: Install Snapshot and Volume Group Snapshot CRDs
+      ansible.builtin.shell: |
+        kubectl kustomize https://github.com/kubernetes-csi/external-snapshotter/client/config/crd | kubectl create -f -
+      ignore_errors: true
+
+    - name: Install the Common Snapshot Controller
+      ansible.builtin.shell: |
+        kubectl -n kube-system kustomize https://github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/snapshot-controller | kubectl create -f -
+      ignore_errors: true
+
     # https://github.com/ceph/ceph-csi
     # https://devopstales.github.io/kubernetes/k8s-cephfs-storage-with-csi-driver/
-    - name: Deploy the Ceph CSI
+    - name: Deploy the Cephfs Storage CSI
       kubernetes.core.helm:
         name: ceph-csi-cephfs
         chart_ref: ceph-csi/ceph-csi-cephfs
@@ -188,6 +202,36 @@
             provisionerSecret: csi-cephfs-secret
             controllerExpandSecret: csi-cephfs-secret
             nodeStageSecret: csi-cephfs-secret
+    
+    # https://github.com/ceph/ceph-csi/blob/devel/examples/cephfs/snapshotclass.yaml
+    - name: Create the CephFS Snapshot class
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: snapshot.storage.k8s.io/v1
+          kind: VolumeSnapshotClass
+          metadata:
+            name: csi-cephfsplugin-snapclass
+          driver: cephfs.csi.ceph.com
+          parameters:
+            clusterID: "{{ CLUSTER_ID }}"
+            csi.storage.k8s.io/snapshotter-secret-name: csi-cephfs-secret
+            csi.storage.k8s.io/snapshotter-secret-namespace: ceph-csi-cephfs
+          deletionPolicy: Delete
+
+    # https://volsync.readthedocs.io/en/stable/installation/index.html
+    # https://github.com/backube/volsync
+    - name: Deploy VolSync
+      kubernetes.core.helm:
+        name: volsync
+        chart_ref: backube/volsync
+        release_namespace: volsync-system
+        chart_version: v0.13.0
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
 
     # https://github.com/kubernetes-csi/csi-driver-smb/tree/master/charts
     - name: Deploy the SMB CSI
@@ -200,7 +244,7 @@
         kubeconfig: /etc/rancher/k3s/k3s.yaml
         wait: true
 
-    - name: Create the jovian-prod namespace
+    - name: Create the Jovian-Prod namespace
       kubernetes.core.k8s:
         kubeconfig: /etc/rancher/k3s/k3s.yaml
         state: present
