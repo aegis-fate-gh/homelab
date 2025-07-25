@@ -41,6 +41,8 @@
                 mountPath: /config
               - name: nfs-vol
                 mountPath: /nfs
+              - name: smb-vol
+                mountPath: /smb
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -48,6 +50,10 @@
             - name: config
               persistentVolumeClaim:
                 claimName: mkvtoolnix-pvc
+                readOnly: false
+            - name: smb-vol
+              persistentVolumeClaim:
+                claimName: mkvtoolnix-smb
                 readOnly: false
             - name: nfs-vol
               nfs:
@@ -113,3 +119,22 @@
         resources:
           requests:
             storage: 1Gi
+
+- name: Create mkvtoolnix SMB PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: mkvtoolnix-smb
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: smb-temp
+        resources:
+          requests:
+            storage: 100Gi
+        volumeName: pv-smb-temp

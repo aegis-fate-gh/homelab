@@ -10,6 +10,7 @@
   vars_files:
     - ./helm_values/rancher.yml
     - ./helm_values/ceph-csi.yml
+    - ./helm_values/smb.yml
 
   tasks:
     - name: Install helm repos
@@ -255,6 +256,45 @@
             name: jovian-prod
             labels:
               name: jovian-prod
+
+    # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#prerequisite
+    - name: Create the SMB secret
+      ansible.builtin.shell: |
+        kubectl create secret generic smbcreds -n jovian-prod --from-literal username="{{ smb_user }}" --from-literal password="{{ smb_password }}"
+      ignore_errors: true
+
+    # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+    - name: Create the Jovian-Prod SMB Temp PV
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: v1
+          kind: PersistentVolume
+          metadata:
+            annotations:
+              pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+            name: pv-smb-temp
+          spec:
+            capacity:
+              storage: 100Gi
+            accessModes:
+              - ReadWriteMany
+            persistentVolumeReclaimPolicy: Retain
+            storageClassName: smb-temp
+            mountOptions:
+              - dir_mode=0777
+              - file_mode=0777
+            csi:
+              driver: smb.csi.k8s.io
+              # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+              # make sure this value is unique for every share in the cluster
+              volumeHandle: 192.168.100.42/Temp
+              volumeAttributes:
+                source: //192.168.100.42/Temp
+              nodeStageSecretRef:
+                name: smbcreds
+                namespace: jovian-prod
 
     - name: Create the needed node labels for the GPU Nodes
       kubernetes.core.k8s:
