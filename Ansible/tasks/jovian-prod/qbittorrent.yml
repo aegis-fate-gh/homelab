@@ -39,8 +39,8 @@
               volumeMounts:
               - name: config
                 mountPath: /config
-              - name: media
-                mountPath: /media
+              - name: nfs-media
+                mountPath: /nfs-media
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -48,8 +48,6 @@
                 value: '1000'
               - name: PGID
                 value: '1000'
-              - name: UMASK
-                value: '002'
               - name: WEBUI_PORTS
                 value: '8080/tcp,8080/udp'
             volumes:
@@ -57,11 +55,9 @@
               persistentVolumeClaim:
                 claimName: qbittorrent-pvc
                 readOnly: false
-            - name: media
-              hostPath:
-                path: /mnt/hdd_pool/media
-                type: Directory
-                readOnly: false
+            - name: nfs-media
+              persistentVolumeClaim:
+                claimName: qbittorrent-smb-media-pvc
 
 - name: Create qbittorrent Service
   kubernetes.core.k8s:
@@ -122,3 +118,55 @@
         resources:
           requests:
             storage: 1Gi
+
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+- name: Create the SMB PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+        name: qbittorrent-smb-media
+      spec:
+        capacity:
+          storage: 72Ti
+        accessModes:
+          - ReadWriteMany
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: smb-csi-media
+        mountOptions:
+          - dir_mode=0777
+          - file_mode=0777
+        csi:
+          driver: smb.csi.k8s.io
+          # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+          # make sure this value is unique for every share in the cluster
+          volumeHandle: 192.168.100.162/media
+          volumeAttributes:
+            source: //192.168.100.162/media
+          nodeStageSecretRef:
+            name: smb-media-manangers
+            namespace: jovian-prod
+
+- name: Create qbittorrent SMB PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: qbittorrent-smb-media-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: smb-csi-media
+        resources:
+          requests:
+            storage: 72Ti
+        volumeName: qbittorrent-smb-media

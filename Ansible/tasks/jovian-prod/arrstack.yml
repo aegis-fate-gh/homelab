@@ -39,8 +39,8 @@
               volumeMounts:
               - name: bazarr-config
                 mountPath: /config
-              - name: media
-                mountPath: /media
+              - name: nfs-media
+                mountPath: /nfs-media
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -79,8 +79,8 @@
               volumeMounts:
               - name: radarr-config
                 mountPath: /config
-              - name: media
-                mountPath: /media
+              - name: nfs-media
+                mountPath: /nfs-media
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -100,8 +100,8 @@
               volumeMounts:
               - name: sonarr-config
                 mountPath: /config
-              - name: media
-                mountPath: /media
+              - name: nfs-media
+                mountPath: /nfs-media
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -121,11 +121,20 @@
               env:
               - name: TZ
                 value: 'America/Chicago'
+            - name: cleanuparr
+              image: ghcr.io/cleanuparr/cleanuparr:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 11011
+                name: cleanuparr-tcp
+                protocol: TCP   
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              volumeMounts:
+              - name: cleanuparr-config
+                mountPath: /config
             volumes:
-            - name: media
-              hostPath:
-                path: /mnt/hdd_pool/media
-                type: Directory
             - name: bazarr-config
               persistentVolumeClaim:
                 claimName: bazarr-pvc
@@ -141,6 +150,14 @@
             - name: sonarr-config
               persistentVolumeClaim:
                 claimName: sonarr-pvc
+                readOnly: false
+            - name: cleanuparr-config
+              persistentVolumeClaim:
+                claimName: cleanuparr-pvc
+                readOnly: false
+            - name: nfs-media
+              persistentVolumeClaim:
+                claimName: arrstack-nfs-media-pvc
                 readOnly: false
 
 - name: Create ArrStack Service
@@ -177,6 +194,10 @@
             targetPort: flare-tcp
             protocol: TCP
             name: flare-tcp
+          - port: 11011
+            targetPort: cleanuparr-tcp
+            protocol: TCP
+            name: cleanuparr-tcp
 
 - name: Create ArrStack Ingress
   kubernetes.core.k8s:
@@ -230,6 +251,16 @@
                       name:  arrstack-service
                       port:
                         number: 8989
+          - host: cleanuparr.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  arrstack-service
+                      port:
+                        number: 11011
 
 
 - name: Create Bazarr PVC
@@ -303,3 +334,65 @@
         resources:
           requests:
             storage: 5Gi
+
+- name: Create Cleanuparr PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: cleanuparr-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 5Gi
+
+- name: Create the arrstack NFS Media PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: nfs.csi.k8s.io
+        name: arrstack-nfs-media
+      spec:
+        capacity:
+          storage: 72Ti
+        accessModes:
+          - ReadWriteOnce
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: nfs-csi-media
+        csi:
+          driver: nfs.csi.k8s.io
+          volumeHandle: 192.168.100.162/var/nfs/shared/media
+          volumeAttributes:
+            server: 192.168.100.162
+            share: /var/nfs/shared/media
+
+- name: Create arrstack NFS PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: arrstack-nfs-media-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: nfs-csi-media
+        resources:
+          requests:
+            storage: 72Ti
+        volumeName: arrstack-nfs-media

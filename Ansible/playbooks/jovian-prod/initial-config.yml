@@ -17,7 +17,6 @@
       loop:
         - ../../tasks/cephfs_keyring.yml
         - ../../tasks/fstab_cephfs_jovian.yml
-        - ../../tasks/fstab_cephfs_hdd-pool.yml
         - ../../tasks/helm_install.yml
       loop_control:
         loop_var: task_list

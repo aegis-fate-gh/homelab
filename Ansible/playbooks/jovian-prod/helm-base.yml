@@ -25,6 +25,7 @@
         - { name: 'traefik', repo: 'https://helm.traefik.io/traefik' }
         - { name: 'csi-driver-smb', repo: 'https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts' }
         - { name: 'backube', repo: 'https://backube.github.io/helm-charts/' }
+        - { name: 'csi-driver-nfs', repo: 'https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts' }
       loop_control:
         loop_var: repo_list
 
@@ -245,6 +246,17 @@
         kubeconfig: /etc/rancher/k3s/k3s.yaml
         wait: true
 
+    # https://github.com/kubernetes-csi/csi-driver-nfs/tree/master/charts
+    - name: Deploy the NFS CSI
+      kubernetes.core.helm:
+        name: csi-driver-nfs
+        chart_ref: csi-driver-nfs/csi-driver-nfs
+        release_namespace: kube-system
+        chart_version: v4.9.0
+        update_repo_cache: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+
     - name: Create the Jovian-Prod namespace
       kubernetes.core.k8s:
         kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -258,43 +270,54 @@
               name: jovian-prod
 
     # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#prerequisite
-    - name: Create the SMB secret
+    - name: Create the test SMB secret
       ansible.builtin.shell: |
         kubectl create secret generic smbcreds -n jovian-prod --from-literal username="{{ smb_user }}" --from-literal password="{{ smb_password }}"
       ignore_errors: true
 
-    # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
-    - name: Create the Jovian-Prod SMB Temp PV
+    # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#prerequisite
+    - name: Create the Media Managers SMB secret
+      ansible.builtin.shell: |
+        kubectl create secret generic smb-media-manangers -n jovian-prod --from-literal username="{{ mm_smb_user }}" --from-literal password="{{ mm_smb_password }}"
+      ignore_errors: true
+
+    # https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/deploy/example/README.md
+    - name: Create the Media NFS Storage Class in Jovian-Prod
       kubernetes.core.k8s:
         kubeconfig: /etc/rancher/k3s/k3s.yaml
         state: present
         definition:
           apiVersion: v1
-          kind: PersistentVolume
+          kind: StorageClass
           metadata:
-            annotations:
-              pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
-            name: pv-smb-temp
-          spec:
-            capacity:
-              storage: 100Gi
-            accessModes:
-              - ReadWriteMany
-            persistentVolumeReclaimPolicy: Retain
-            storageClassName: smb-temp
-            mountOptions:
-              - dir_mode=0777
-              - file_mode=0777
-            csi:
-              driver: smb.csi.k8s.io
-              # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
-              # make sure this value is unique for every share in the cluster
-              volumeHandle: 192.168.100.42/Temp
-              volumeAttributes:
-                source: //192.168.100.42/Temp
-              nodeStageSecretRef:
-                name: smbcreds
-                namespace: jovian-prod
+            name: nfs-csi-media
+          provisioner: nfs.csi.k8s.io
+          parameters:
+            server: 192.168.100.162
+            share: /var/nfs/shared/media
+          volumeBindingMode: Immediate
+          reclaimPolicy: Retain
+          mountOptions:
+            - nfsvers=3
+
+    - name: Create the Media SMB Storage Class in Jovian-Prod
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: v1
+          kind: StorageClass
+          metadata:
+            name: smb-csi-media
+          provisioner: smb.csi.k8s.io
+          parameters:
+            source: //192.168.100.162/media
+            csi.storage.k8s.io/node-stage-secret-name: smb-media-manangers
+            csi.storage.k8s.io/node-stage-secret-namespace: jovian-prod
+          volumeBindingMode: Immediate
+          reclaimPolicy: Retain
+          allowVolumeExpansion: true
+
 
     - name: Create the needed node labels for the GPU Nodes
       kubernetes.core.k8s:
@@ -309,7 +332,7 @@
               gpu: "rtx4060"
               connection: "standard"
       loop:
-        #- ganymede-01
+        - ganymede-01
         - ganymede-02
         - ganymede-03
       loop_control:

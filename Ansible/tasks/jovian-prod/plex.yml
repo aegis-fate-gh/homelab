@@ -51,8 +51,8 @@
               volumeMounts:
               - name: config
                 mountPath: /config
-              - mountPath: /media
-                name: plex-media
+              - name: nfs-media
+                mountPath: /nfs-media
                 readOnly: true
               - name: plex-transcode
                 mountPath: /transcode
@@ -81,16 +81,16 @@
               persistentVolumeClaim:
                 claimName: plex-pvc
                 readOnly: false
-            - name: plex-media
-              hostPath:
-                path: /mnt/hdd_pool/media
-                type: Directory
             - name: plex-transcode
               hostPath:
                 path: /dev/shm
             - name: dev-dri
               hostPath:
                 path: /dev/dri
+            - name: nfs-media
+              persistentVolumeClaim:
+                claimName: plex-nfs-media-pvc
+                readOnly: true
 
 - name: Create Plex Prod PVC
   kubernetes.core.k8s:
@@ -149,3 +149,47 @@
         selector:
           app: plex
         type: LoadBalancer
+
+- name: Create the plex NFS Media PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: nfs.csi.k8s.io
+        name: plex-nfs-media
+      spec:
+        capacity:
+          storage: 72Ti
+        accessModes:
+          - ReadWriteOnce
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: nfs-csi-media
+        csi:
+          driver: nfs.csi.k8s.io
+          volumeHandle: 192.168.100.162/var/nfs/shared/media
+          volumeAttributes:
+            server: 192.168.100.162
+            share: /var/nfs/shared/media
+
+- name: Create plex NFS PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: plex-nfs-media-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: nfs-csi-media
+        resources:
+          requests:
+            storage: 72Ti
+        volumeName: plex-nfs-media

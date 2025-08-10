@@ -39,8 +39,8 @@
               volumeMounts:
               - name: config
                 mountPath: /config
-              - mountPath: /media
-                name: jellyfin-media
+              - name: nfs-media
+                mountPath: /nfs-media
                 readOnly: true
               - name: jellyfin-transcode
                 mountPath: /config/transcodes
@@ -63,10 +63,10 @@
               persistentVolumeClaim:
                 claimName: jellyfin-pvc
                 readOnly: false
-            - name: jellyfin-media
-              hostPath:
-                path: /mnt/hdd_pool/media
-                type: Directory
+            - name: nfs-media
+              persistentVolumeClaim:
+                claimName: jellyfin-nfs-media-pvc
+                readOnly: true
             - name: jellyfin-transcode
               hostPath:
                 path: /dev/shm
@@ -138,3 +138,47 @@
                       name:  jellyfin
                       port:
                         number: 8096
+
+- name: Create the jellyfin NFS Media PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: nfs.csi.k8s.io
+        name: jellyfin-nfs-media
+      spec:
+        capacity:
+          storage: 72Ti
+        accessModes:
+          - ReadWriteOnce
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: nfs-csi-media
+        csi:
+          driver: nfs.csi.k8s.io
+          volumeHandle: 192.168.100.162/var/nfs/shared/media
+          volumeAttributes:
+            server: 192.168.100.162
+            share: /var/nfs/shared/media
+
+- name: Create jellyfin NFS PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: jellyfin-nfs-media-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: nfs-csi-media
+        resources:
+          requests:
+            storage: 72Ti
+        volumeName: jellyfin-nfs-media

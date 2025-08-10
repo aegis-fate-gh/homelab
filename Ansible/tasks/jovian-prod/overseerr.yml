@@ -39,8 +39,9 @@
               volumeMounts:
               - name: config
                 mountPath: /config
-              - name: media
-                mountPath: /media
+              - name: nfs-media
+                mountPath: /nfs-media
+                readOnly: true
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -55,11 +56,10 @@
               persistentVolumeClaim:
                 claimName: overseerr-pvc
                 readOnly: false
-            - name: media
-              hostPath:
-                path: /mnt/hdd_pool/media
-                type: Directory
-                readOnly: false
+            - name: nfs-media
+              persistentVolumeClaim:
+                claimName: overseerr-nfs-media-pvc
+                readOnly: true
 
 - name: Create overseerr Service
   kubernetes.core.k8s:
@@ -120,3 +120,47 @@
         resources:
           requests:
             storage: 1Gi
+
+- name: Create the overseerr NFS Media PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: nfs.csi.k8s.io
+        name: overseerr-nfs-media
+      spec:
+        capacity:
+          storage: 72Ti
+        accessModes:
+          - ReadWriteOnce
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: nfs-csi-media
+        csi:
+          driver: nfs.csi.k8s.io
+          volumeHandle: 192.168.100.162/var/nfs/shared/media
+          volumeAttributes:
+            server: 192.168.100.162
+            share: /var/nfs/shared/media
+
+- name: Create overseerr NFS PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: overseerr-nfs-media-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: nfs-csi-media
+        resources:
+          requests:
+            storage: 72Ti
+        volumeName: overseerr-nfs-media

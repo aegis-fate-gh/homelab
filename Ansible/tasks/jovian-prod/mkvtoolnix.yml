@@ -39,10 +39,10 @@
               volumeMounts:
               - name: config
                 mountPath: /config
-              - name: nfs-vol
-                mountPath: /nfs
               - name: smb-vol
                 mountPath: /smb
+              - name: nfs-media
+                mountPath: /nfs-media
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -55,10 +55,10 @@
               persistentVolumeClaim:
                 claimName: mkvtoolnix-smb
                 readOnly: false
-            - name: nfs-vol
-              nfs:
-                server: 192.168.100.42
-                path: /volume1/Temp
+            - name: nfs-media
+              persistentVolumeClaim:
+                claimName: mkvtoolnix-nfs-media-pvc
+                readOnly: false
 
 - name: Create mkvtoolnix Service
   kubernetes.core.k8s:
@@ -138,3 +138,47 @@
           requests:
             storage: 100Gi
         volumeName: pv-smb-temp
+
+- name: Create the MKVToolnix NFS Media PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: nfs.csi.k8s.io
+        name: mkvtoolnix-nfs-media
+      spec:
+        capacity:
+          storage: 72Ti
+        accessModes:
+          - ReadWriteOnce
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: nfs-csi-media
+        csi:
+          driver: nfs.csi.k8s.io
+          volumeHandle: 192.168.100.162/var/nfs/shared/media
+          volumeAttributes:
+            server: 192.168.100.162
+            share: /var/nfs/shared/media
+
+- name: Create mkvtoolnix NFS PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: mkvtoolnix-nfs-media-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: nfs-csi-media
+        resources:
+          requests:
+            storage: 72Ti
+        volumeName: mkvtoolnix-nfs-media

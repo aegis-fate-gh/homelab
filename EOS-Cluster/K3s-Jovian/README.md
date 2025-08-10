@@ -22,7 +22,7 @@ Installing Nvidia Drivers:
 Install Ubuntu drivers
 https://documentation.ubuntu.com/server/how-to/graphics/install-nvidia-drivers/index.html
 
-1. apt install ubuntu-drivers-common
+1. apt install -y ubuntu-drivers-common
 2. ubuntu-drivers install --gpgpu nvidia:570-server
 
 Install the nvidia container toolkit:
