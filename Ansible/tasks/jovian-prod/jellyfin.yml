@@ -73,6 +73,16 @@
             - name: dev-dri
               hostPath:
                 path: /dev/dri
+            affinity:
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                      - plex
+                  topologyKey: "kubernetes.io/hostname"
 
 - name: Create jellyfin Prod PVC
   kubernetes.core.k8s:
