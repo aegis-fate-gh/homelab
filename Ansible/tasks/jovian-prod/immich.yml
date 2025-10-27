@@ -1,0 +1,353 @@
+---
+- name: Create immich Prod Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: immich
+        namespace: jovian-prod
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: immich
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: immich
+          spec:
+            runtimeClassName: nvidia
+            nodeSelector:
+              gpu: rtx4060
+            containers:
+
+            # Immich Front End
+            - name: immich
+              image: ghcr.io/immich-app/immich-server:v2.1.0
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 2283
+                name: immich-http
+                protocol: TCP
+              volumeMounts:
+              - name: immich-upload
+                mountPath: /usr/src/app/upload
+              - name: immich-config
+                mountPath: /var/lib/postgresql/data
+                subPath: db
+              - name: immich-external
+                mountPath: /external_libraries
+                readOnly: true
+              - name: dev-dri
+                mountPath: /dev/dri
+                readOnly: true
+              - name: local-time
+                mountPath: /etc/localtime
+                readOnly: true
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: NVIDIA_VISIBLE_DEVICES 
+                value: "all"
+              - name: NVIDIA_DRIVER_CAPABILITIES
+                value: compute,video,utility
+              - name: UPLOAD_LOCATION
+                value: '/usr/src/app/upload'
+              - name: DB_USERNAME
+                value: "{{ IMMICH_DB_USERNAME }}"
+              - name: DB_PASSWORD
+                value: "{{ IMMICH_DB_PASSWORD }}"
+              - name: DB_DATABASE_NAME
+                value: "{{ IMMICH_DB_NAME }}"
+              - name: DB_DATA_LOCATION
+                value: '/var/lib/postgresql/data'
+              - name: REDIS_HOSTNAME
+                value: 'localhost'
+              - name: DB_HOSTNAME
+                value: 'localhost'
+              - name: 'IMMICH_IGNORE_MOUNT_CHECK_ERRORS'
+                value: 'true'
+
+            # Immich Machine learning
+            - name: machine-learning
+              image: ghcr.io/immich-app/immich-machine-learning:main-cuda
+              imagePullPolicy: Always
+              Ports:
+              - containerPort: 3003
+                name: immich-machine-learning
+                protocol: TCP
+              volumeMounts:
+              - name: dev-dri
+                mountPath: /dev/dri
+                readOnly: true
+              - name: immich-config
+                mountPath: /cache
+                subPath: model-cache
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: NVIDIA_VISIBLE_DEVICES 
+                value: "all"
+              - name: NVIDIA_DRIVER_CAPABILITIES
+                value: compute,utility
+              - name: REDIS_HOSTNAME
+                value: 'localhost'
+
+            # Immich Redis
+            - name: redis
+              image: docker.io/redis:6.2-alpine@sha256:e3b17ba9479deec4b7d1eeec1548a253acc5374d68d3b27937fcfe4df8d18c7e
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 6379
+                name: immich-redis
+                protocol: TCP
+              livenessProbe:
+                exec:
+                  command:
+                    - redis-cli
+                    - ping
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 3
+
+            # Immich Database
+            - name: database
+              image: docker.io/tensorchord/pgvecto-rs:pg14-v0.2.0@sha256:90724186f0a3517cf6914295b5ab410db9ce23190a2d9d0b9dd6463e3fa298f0
+              imagePullPolicy: IfNotPresent
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: POSTGRES_PASSWORD
+                value: "{{ IMMICH_DB_PASSWORD }}"
+              - name: POSTGRES_USER
+                value: "{{ IMMICH_DB_USERNAME }}"
+              - name: POSTGRES_DB
+                value: "{{ IMMICH_DB_NAME }}"
+              - name: POSTGRES_INITDB_ARGS
+                value: '--data-checksums'
+              ports:
+              - containerPort: 5432
+                name: immich-postgres
+                protocol: TCP
+              args:
+                - "-c"
+                - "shared_preload_libraries=vectors.so"
+                - "-c"
+                - 'search_path="$$user", public, vectors'
+                - "-c"
+                - "logging_collector=on"
+                - "-c"
+                - "max_wal_size=2GB"
+                - "-c"
+                - "shared_buffers=512MB"
+                - "-c"
+                - "wal_compression=on"
+              volumeMounts:
+              - name: immich-config
+                mountPath: /var/lib/postgresql/data
+                subPath: db
+
+            volumes:
+            - name: immich-config
+              persistentVolumeClaim:
+                claimName: immich-pvc
+                readOnly: false
+            - name: immich-upload
+              persistentVolumeClaim:
+                claimName: immich-upload-smb-pvc
+                readOnly: false
+            - name: immich-external
+              persistentVolumeClaim:
+                claimName: immich-external-smb-pvc
+                readOnly: true
+            - name: dev-dri
+              hostPath:
+                path: /dev/dri
+            - name: local-time
+              hostPath:
+                path: /etc/localtime
+
+            affinity:
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                      - plex
+                  topologyKey: "kubernetes.io/hostname"
+
+- name: Create Immich PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: immich-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 10Gi
+
+- name: Create immich Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: immich-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: immich
+        ports:
+          - port: 2283
+            targetPort: immich-http
+            protocol: TCP
+            name: immich-http
+
+- name: Create immich Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: immich-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: immich.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  immich-service
+                      port:
+                        number: 2283
+
+# Silo
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+- name: Create the Silo SMB PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+        name: immich-upload-smb
+      spec:
+        capacity:
+          storage: 72Ti
+        accessModes:
+          - ReadWriteMany
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: smb-csi-immich-silo
+        mountOptions:
+          - dir_mode=0777
+          - file_mode=0777
+        csi:
+          driver: smb.csi.k8s.io
+          # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+          # make sure this value is unique for every share in the cluster
+          volumeHandle: 192.168.100.162/immich
+          volumeAttributes:
+            source: //192.168.100.162/immich
+          nodeStageSecretRef:
+            name: smb-silo-immich
+            namespace: jovian-prod
+
+- name: Create immich Silo SMB PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: immich-upload-smb-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: smb-csi-immich-silo
+        resources:
+          requests:
+            storage: 72Ti
+        volumeName: immich-upload-smb
+
+# Syn-Coruscant
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+- name: Create the Syn-Coruscant SMB PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+        name: immich-external-smb
+      spec:
+        capacity:
+          storage: 5Ti
+        accessModes:
+          - ReadWriteMany
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: smb-csi-immich-syn
+        mountOptions:
+          - dir_mode=0444
+          - file_mode=0444
+        csi:
+          driver: smb.csi.k8s.io
+          # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+          # make sure this value is unique for every share in the cluster
+          volumeHandle: 192.168.100.42/Dropbox
+          volumeAttributes:
+            source: //192.168.100.42/Dropbox
+          nodeStageSecretRef:
+            name: smb-syn-immich
+            namespace: jovian-prod
+
+- name: Create immich Syn-Coruscant SMB PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: immich-external-smb-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: smb-csi-immich-syn
+        resources:
+          requests:
+            storage: 5Ti
+        volumeName: immich-external-smb

@@ -15,23 +15,24 @@
       ansible.builtin.include_tasks:
         file: "{{ task_list }}"
       loop:
-        - ../../tasks/jovian-prod/iperf3.yml
-        - ../../tasks/jovian-prod/tautulli.yml
-        - ../../tasks/jovian-prod/cloudflare-tunnel.yml
-        - ../../tasks/jovian-prod/qbittorrent.yml
-        - ../../tasks/jovian-prod/openspeedtest.yml
-        - ../../tasks/jovian-prod/arrstack.yml
-        - ../../tasks/jovian-prod/plex.yml
-        - ../../tasks/jovian-prod/overseerr.yml
-        - ../../tasks/jovian-prod/promtail.yml
-        - ../../tasks/jovian-prod/pterodactyl-panel.yml
-        - ../../tasks/jovian-prod/jellyfin.yml
-        - ../../tasks/jovian-prod/freshrss.yml
-        - ../../tasks/jovian-prod/homarr.yml
-        - ../../tasks/jovian-prod/grafana.yml
-        - ../../tasks/jovian-prod/uptime-kuma.yml
-        - ../../tasks/jovian-prod/mkvtoolnix.yml
-        - ../../tasks/jovian-prod/filebrowser.yml
-        - ../../tasks/jovian-prod/ghost.yml
+        # - ../../tasks/jovian-prod/iperf3.yml
+        # - ../../tasks/jovian-prod/tautulli.yml
+        # - ../../tasks/jovian-prod/cloudflare-tunnel.yml
+        # - ../../tasks/jovian-prod/qbittorrent.yml
+        # - ../../tasks/jovian-prod/openspeedtest.yml
+        # - ../../tasks/jovian-prod/arrstack.yml
+        # - ../../tasks/jovian-prod/plex.yml
+        # - ../../tasks/jovian-prod/overseerr.yml
+        # - ../../tasks/jovian-prod/promtail.yml
+        # - ../../tasks/jovian-prod/pterodactyl-panel.yml
+        # - ../../tasks/jovian-prod/jellyfin.yml
+        # - ../../tasks/jovian-prod/freshrss.yml
+        # - ../../tasks/jovian-prod/homarr.yml
+        # - ../../tasks/jovian-prod/grafana.yml
+        # - ../../tasks/jovian-prod/uptime-kuma.yml
+        # - ../../tasks/jovian-prod/mkvtoolnix.yml
+        # - ../../tasks/jovian-prod/filebrowser.yml
+        # - ../../tasks/jovian-prod/ghost.yml
+        - ../../tasks/jovian-prod/immich.yml
       loop_control:
         loop_var: task_list

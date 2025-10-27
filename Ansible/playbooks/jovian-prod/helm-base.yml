@@ -270,15 +270,15 @@
               name: jovian-prod
 
     # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#prerequisite
-    - name: Create the test SMB secret
+    - name: Create SMB secrets
       ansible.builtin.shell: |
-        kubectl create secret generic smbcreds -n jovian-prod --from-literal username="{{ smb_user }}" --from-literal password="{{ smb_password }}"
-      ignore_errors: true
-
-    # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#prerequisite
-    - name: Create the Media Managers SMB secret
-      ansible.builtin.shell: |
-        kubectl create secret generic smb-media-manangers -n jovian-prod --from-literal username="{{ mm_smb_user }}" --from-literal password="{{ mm_smb_password }}"
+        kubectl create secret generic "{{ smb_list.name }}" -n jovian-prod --from-literal username="{{ smb_list.username }}" --from-literal password="{{ smb_list.password }}"
+      loop:
+        - { name: 'smb-silo-immich', username: "{{ immich_smb_user }}", password: "{{ immich_silo_smb_password }}"}
+        - { name: 'smb-syn-immich', username: "{{ immich_smb_user }}", password: "{{ immich_syn_smb_password }}"}
+        - { name: 'smb-media-manangers', username: "{{ mm_smb_user }}", password: "{{ mm_smb_password }}"}
+      loop_control:
+        loop_var: smb_list
       ignore_errors: true
 
     # https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/deploy/example/README.md
@@ -299,8 +299,8 @@
           reclaimPolicy: Retain
           mountOptions:
             - nfsvers=3
-
-    - name: Create the Media SMB Storage Class in Jovian-Prod
+    
+    - name: Create SMB storage classes
       kubernetes.core.k8s:
         kubeconfig: /etc/rancher/k3s/k3s.yaml
         state: present
@@ -308,15 +308,22 @@
           apiVersion: v1
           kind: StorageClass
           metadata:
-            name: smb-csi-media
+            name: "{{ smb_sc_list.name }}"
           provisioner: smb.csi.k8s.io
           parameters:
-            source: //192.168.100.162/media
-            csi.storage.k8s.io/node-stage-secret-name: smb-media-manangers
-            csi.storage.k8s.io/node-stage-secret-namespace: jovian-prod
+            source: "{{ smb_sc_list.source }}"
+            csi.storage.k8s.io/node-stage-secret-name: "{{ smb_sc_list.name }}"
+            csi.storage.k8s.io/node-stage-secret-namespace: "{{ smb_sc_list.namespace }}"
           volumeBindingMode: Immediate
           reclaimPolicy: Retain
           allowVolumeExpansion: true
+      loop:
+        - { name: 'smb-csi-immich-silo', source: '//192.168.100.162/immich', secret_name: 'smb-silo-immich', namespace: 'jovian-prod'}
+        - { name: 'smb-csi-media', source: '//192.168.100.162/media', secret_name: 'smb-media-manangers', namespace: 'jovian-prod'}
+        - { name: 'smb-csi-immich-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-immich', namespace: 'jovian-prod'}
+      loop_control:
+        loop_var: smb_sc_list
+      ignore_errors: true
 
 
     - name: Create the needed node labels for the GPU Nodes
@@ -337,23 +344,6 @@
         - ganymede-03
       loop_control:
         loop_var: gpu_list
-
-    - name: Create the needed node labels for the WAN2 Nodes
-      kubernetes.core.k8s:
-        kubeconfig: /etc/rancher/k3s/k3s.yaml
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Node
-          metadata:
-            name: "{{ wan2_list }}"
-            labels: 
-              connection: "wan2"
-      loop:
-        - callisto-01
-        - callisto-02
-      loop_control:
-        loop_var: wan2_list
 
     - name: Create the needed node labels for the VPN Nodes
       kubernetes.core.k8s:

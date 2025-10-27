@@ -157,7 +157,7 @@
                 readOnly: false
             - name: nfs-media
               persistentVolumeClaim:
-                claimName: arrstack-nfs-media-pvc
+                claimName: arrstack-smb-media-pvc
                 readOnly: false
 
 - name: Create ArrStack Service
@@ -353,7 +353,8 @@
           requests:
             storage: 5Gi
 
-- name: Create the arrstack NFS Media PV
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+- name: Create the arrstack SMB PV
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -362,23 +363,30 @@
       kind: PersistentVolume
       metadata:
         annotations:
-          pv.kubernetes.io/provisioned-by: nfs.csi.k8s.io
-        name: arrstack-nfs-media
+          pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+        name: arrstack-smb-media
       spec:
         capacity:
           storage: 72Ti
         accessModes:
-          - ReadWriteOnce
+          - ReadWriteMany
         persistentVolumeReclaimPolicy: Retain
-        storageClassName: nfs-csi-media
+        storageClassName: smb-csi-media
+        mountOptions:
+          - dir_mode=0777
+          - file_mode=0777
         csi:
-          driver: nfs.csi.k8s.io
-          volumeHandle: 192.168.100.162/var/nfs/shared/media
+          driver: smb.csi.k8s.io
+          # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+          # make sure this value is unique for every share in the cluster
+          volumeHandle: 192.168.100.162/media
           volumeAttributes:
-            server: 192.168.100.162
-            share: /var/nfs/shared/media
+            source: //192.168.100.162/media
+          nodeStageSecretRef:
+            name: smb-media-manangers
+            namespace: jovian-prod
 
-- name: Create arrstack NFS PVC
+- name: Create arrstack SMB PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -386,13 +394,13 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: arrstack-nfs-media-pvc
+        name: arrstack-smb-media-pvc
         namespace: jovian-prod
       spec:
         accessModes:
-          - ReadWriteOnce
-        storageClassName: nfs-csi-media
+          - ReadWriteMany
+        storageClassName: smb-csi-media
         resources:
           requests:
             storage: 72Ti
-        volumeName: arrstack-nfs-media
+        volumeName: arrstack-smb-media
