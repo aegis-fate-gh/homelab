@@ -1,0 +1,113 @@
+---
+- name: Create littlelink Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: littlelink
+        namespace: jovian-prod
+        labels:
+          app: littlelink
+          service: content
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: littlelink
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: littlelink
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: littlelink
+              image: ghcr.io/timothystewart6/littlelink-server:latest
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 3000
+                name: littlelink-http
+                protocol: TCP
+              env:
+              - name: META_TITLE
+                value: 'Sch-Apps'
+              - name: META_DESCRIPTION
+                value: 'SRE | Nerd | Homelabber | Gamer'
+              - name: META_AUTHOR
+                value: 'Stephen Hudgins'
+              - name: META_KEYWORDS
+                value: 'Homelab, Engineering, Observability, Kubernetes'
+              - name: META_INDEX_STATUS
+                value: 'all'
+              - name: LANG
+                value: 'en'
+              - name: OG_SITE_NAME
+                value: 'Sch-Apps'
+              - name: OG_TITLE
+                value: 'Sch-Apps'
+              - name: OG_DESCRIPTION
+                value: 'The hub for all things on my Homelab'
+              - name: OG_URL
+                value: 'https://sch-apps.com'
+              - name: AVATAR_ALT
+                value: 'Stephen Hudgins Profile Pic'
+              - name: STEAM
+                value: 'https://steamcommunity.com/profiles/76561198021708921/'
+              - name: GITHUB
+                value: 'https://github.com/aegis-fate-gh'
+              - name: INSTAGRAM
+                value: 'https://www.instagram.com/aegis.fate?igsh=bng5MDBsbHR6M3Zm&utm_source=qr'
+              - name: LINKED_IN
+                value: 'https://www.linkedin.com/in/stephen-hudgins-24743829/'
+              - name: FOOTER
+                value: 'Stephen Hudgins © 2025'
+
+- name: Create littlelink Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: littlelink-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: littlelink
+        ports:
+          - port: 3000
+            targetPort: littlelink-http
+            protocol: TCP
+            name: littlelink-http
+
+- name: Create littlelink Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: littlelink-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: littlelink.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  littlelink-service
+                      port:
+                        number: 3000

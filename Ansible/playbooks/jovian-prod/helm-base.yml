@@ -11,6 +11,7 @@
     - ./helm_values/rancher.yml
     - ./helm_values/ceph-csi.yml
     - ./helm_values/smb.yml
+    - ./helm_values/cloudflare.yml
 
   tasks:
     - name: Install helm repos
@@ -51,6 +52,77 @@
     - name: Apply the Metallb config
       ansible.builtin.shell: |
         kubectl apply -f /tmp/metallb.yaml
+
+    # https://github.com/cert-manager/cert-manager
+    - name: Deploy Cert manager
+      kubernetes.core.helm:
+        name: cert-manager
+        chart_ref: jetstack/cert-manager
+        release_namespace: cert-manager
+        chart_version: v1.17.1
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+        set_values:
+          - value: crds.enabled=true
+
+    # https://github.com/ceph/ceph-csi
+    # https://devopstales.github.io/kubernetes/k8s-cephfs-storage-with-csi-driver/
+    - name: Deploy the Cephfs Storage CSI
+      kubernetes.core.helm:
+        name: ceph-csi-cephfs
+        chart_ref: ceph-csi/ceph-csi-cephfs
+        release_namespace: ceph-csi-cephfs
+        chart_version: v3.13.1
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+        values:
+          csiConfig:
+            - clusterID: "{{ CLUSTER_ID }}"
+              monitors:
+                - 10.1.100.30:6789
+                - 10.1.100.31:6789
+                - 10.1.100.32:6789
+              cephFS:
+                subvolumeGroup: "csi"
+          secret:
+            name: csi-cephfs-secret
+            adminID: admin
+            adminKey: "{{ ADMIN_KEY }}"
+            create: true
+          storageClass:
+            create: true
+            name: k8s-cephfs
+            clusterID: "{{ CLUSTER_ID }}"
+            # (required) CephFS filesystem name into which the volume shall be created
+            fsName: eos-fs
+            reclaimPolicy: Delete
+            allowVolumeExpansion: true
+            volumeNamePrefix: "jovian-k3s-"
+            provisionerSecret: csi-cephfs-secret
+            controllerExpandSecret: csi-cephfs-secret
+            nodeStageSecret: csi-cephfs-secret
+
+    - name: Create Traefik PVC
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: traefik-pvc
+            namespace: kube-system
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            storageClassName: k8s-cephfs
+            resources:
+              requests:
+                storage: 128Mi
 
     # https://github.com/traefik/traefik-helm-chart
     - name: Deploy Traefik
@@ -117,20 +189,18 @@
               port: 8080
               name: admin
               targetPort: 8080
-
-    # https://github.com/cert-manager/cert-manager
-    - name: Deploy Cert manager
-      kubernetes.core.helm:
-        name: cert-manager
-        chart_ref: jetstack/cert-manager
-        release_namespace: cert-manager
-        chart_version: v1.17.1
-        update_repo_cache: true
-        create_namespace: true
-        kubeconfig: /etc/rancher/k3s/k3s.yaml
-        wait: true
-        set_values:
-          - value: crds.enabled=true
+          persistence:
+            enabled: true
+            storageClass: k8s-cephfs
+            existingClaim: traefik-pvc
+          # certificatesResolvers:
+          #   cloudflare:
+          #     acme:
+          #       email: "{{ CLOUDFLARE_EMAIL }}"
+          #       storage: "/data/acme.json"
+          #       dnsChallenge:
+          #         provider: cloudflare
+          #           - CF_DNS_API_TOKEN: "{{ CLOUDFLARE_TOKEN }}"
 
     # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-10-3/
     # To get available stable versions, run this on a control plane node: helm search repo rancher-stable/rancher --versions
@@ -165,45 +235,6 @@
       ansible.builtin.shell: |
         kubectl -n kube-system kustomize https://github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/snapshot-controller | kubectl create -f -
       ignore_errors: true
-
-    # https://github.com/ceph/ceph-csi
-    # https://devopstales.github.io/kubernetes/k8s-cephfs-storage-with-csi-driver/
-    - name: Deploy the Cephfs Storage CSI
-      kubernetes.core.helm:
-        name: ceph-csi-cephfs
-        chart_ref: ceph-csi/ceph-csi-cephfs
-        release_namespace: ceph-csi-cephfs
-        chart_version: v3.13.1
-        update_repo_cache: true
-        create_namespace: true
-        kubeconfig: /etc/rancher/k3s/k3s.yaml
-        wait: true
-        values:
-          csiConfig:
-            - clusterID: "{{ CLUSTER_ID }}"
-              monitors:
-                - 10.1.100.30:6789
-                - 10.1.100.31:6789
-                - 10.1.100.32:6789
-              cephFS:
-                subvolumeGroup: "csi"
-          secret:
-            name: csi-cephfs-secret
-            adminID: admin
-            adminKey: "{{ ADMIN_KEY }}"
-            create: true
-          storageClass:
-            create: true
-            name: k8s-cephfs
-            clusterID: "{{ CLUSTER_ID }}"
-            # (required) CephFS filesystem name into which the volume shall be created
-            fsName: eos-fs
-            reclaimPolicy: Delete
-            allowVolumeExpansion: true
-            volumeNamePrefix: "jovian-k3s-"
-            provisionerSecret: csi-cephfs-secret
-            controllerExpandSecret: csi-cephfs-secret
-            nodeStageSecret: csi-cephfs-secret
     
     # https://github.com/ceph/ceph-csi/blob/devel/examples/cephfs/snapshotclass.yaml
     - name: Create the CephFS Snapshot class

@@ -33,6 +33,7 @@
         # - ../../tasks/jovian-prod/mkvtoolnix.yml
         # - ../../tasks/jovian-prod/filebrowser.yml
         # - ../../tasks/jovian-prod/ghost.yml
-        - ../../tasks/jovian-prod/immich.yml
+        # - ../../tasks/jovian-prod/immich.yml
+        - ../../tasks/jovian-prod/littlelink-server.yml
       loop_control:
         loop_var: task_list
