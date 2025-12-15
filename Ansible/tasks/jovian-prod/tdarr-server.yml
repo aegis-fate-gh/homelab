@@ -1,5 +1,5 @@
 ---
-- name: Create qbittorrent Deployment
+- name: Create tdarr-serv Prod Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -7,40 +7,38 @@
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: qbittorrent
+        name: tdarr-serv
         namespace: jovian-prod
-        labels:
-          app: qbittorrent
-          service: media-backend
       spec:
         progressDeadlineSeconds: 600
         replicas: 1
         revisionHistoryLimit: 3
         selector:
           matchLabels:
-            app: qbittorrent
+            app: tdarr-serv
         strategy:
           type: Recreate
         template:
           metadata:
             labels:
-              app: qbittorrent
+              app: tdarr-serv
           spec:
-            nodeSelector:
-              connection: vpn
             containers:
-            - name: qbittorrent
-              image: ghcr.io/hotio/qbittorrent
+            - name: tdarr-serv
+              image: ghcr.io/haveagitgat/tdarr:latest
               imagePullPolicy: IfNotPresent
               ports:
-              - containerPort: 8080
-                name: qbitt-http
-                protocol: TCP   
+              - containerPort: 8265
+                name: tdarr-web
+                protocol: TCP
+              - containerPort: 8266
+                name: tdarr-server
+                protocol: TCP     
               volumeMounts:
               - name: config
                 mountPath: /config
-              - name: nfs-media
-                mountPath: /nfs-media
+              - name: smb-media
+                mountPath: /smb-media
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -48,60 +46,17 @@
                 value: '1000'
               - name: PGID
                 value: '1000'
-              - name: WEBUI_PORTS
-                value: '8080/tcp,8080/udp'
             volumes:
             - name: config
               persistentVolumeClaim:
-                claimName: qbittorrent-pvc
+                claimName: tdarr-serv-pvc
                 readOnly: false
-            - name: nfs-media
+            - name: smb-media
               persistentVolumeClaim:
-                claimName: qbittorrent-smb-media-pvc
+                claimName: tdarr-serv-smb-media-pvc
+                readOnly: true
 
-- name: Create qbittorrent Service
-  kubernetes.core.k8s:
-    kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
-    definition:
-      apiVersion: v1
-      kind: service
-      metadata:
-        name: qbittorrent-service
-        namespace: jovian-prod
-      spec:
-        selector:
-          app: qbittorrent
-        ports:
-          - port: 8080
-            targetPort: qbitt-http
-            protocol: TCP
-            name: qbitt-http
-
-- name: Create qbittorrent Ingress
-  kubernetes.core.k8s:
-    kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
-    definition:
-      apiVersion: networking.k8s.io/v1
-      kind: Ingress
-      metadata:
-        name: qbittorrent-ingress
-        namespace: jovian-prod
-      spec:
-        rules:
-          - host: qbittorrent.jovian.local.sch-apps.com
-            http:
-              paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name:  qbittorrent-service
-                      port:
-                        number: 8080
-
-- name: Create qbittorrent PVC
+- name: Create tdarr-serv Prod PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -109,7 +64,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: qbittorrent-pvc
+        name: tdarr-serv-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -117,10 +72,61 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 1Gi
+            storage: 10Gi
+
+- name: Create tdarr-serv Prod Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: tdarr-serv
+        namespace: jovian-prod
+        annotations:
+          metallb.io/address-pool: prod-pool
+          metallb.io/loadBalancerIPs: 192.168.6.215
+      spec:
+        externalTrafficPolicy: Local
+        ports:
+        - port: 8265
+          targetPort: tdarr-web
+          name: tdarr-web
+          protocol: TCP
+        - port: 8266
+          targetPort: tdarr-server
+          name: tdarr-server
+          protocol: TCP
+        selector:
+          app: tdarr-serv
+        type: LoadBalancer
+
+- name: Create tdarr-serv Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: tdarr-serv-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: tdarr.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  tdarr-serv
+                      port:
+                        number: 8265
 
 # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
-- name: Create the SMB PV
+- name: Create the tdarr-serv SMB PV
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -130,7 +136,7 @@
       metadata:
         annotations:
           pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
-        name: qbittorrent-smb-media
+        name: tdarr-serv-smb-media
       spec:
         capacity:
           storage: 72Ti
@@ -152,7 +158,7 @@
             name: smb-media-manangers
             namespace: jovian-prod
 
-- name: Create qbittorrent SMB PVC
+- name: Create tdarr-serv SMB PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -160,7 +166,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: qbittorrent-smb-media-pvc
+        name: tdarr-serv-smb-media-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -169,4 +175,27 @@
         resources:
           requests:
             storage: 72Ti
-        volumeName: qbittorrent-smb-media
+        volumeName: tdarr-serv-smb-media
+
+version: "3.4"
+services:
+  tdarr:
+    environment:
+      - UMASK_SET=002
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - inContainer=true
+      - ffmpegVersion=7
+      - nodeName=MyInternalNode
+      - auth=false
+      - openBrowser=true
+      - maxLogSizeMB=10
+      - cronPluginUpdate=
+    volumes:
+      - /docker/tdarr/server:/app/server
+      - /docker/tdarr/configs:/app/configs
+      - /docker/tdarr/logs:/app/logs
+      - /media:/media
+      - /transcode_cache:/temp

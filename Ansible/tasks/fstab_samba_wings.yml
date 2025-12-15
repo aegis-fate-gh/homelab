@@ -1,0 +1,39 @@
+---
+- name: Install the required packages for SMB shares
+  ansible.builtin.apt:
+    pkg:
+      - cifs-utils
+
+- name: Create Game Backups Folder
+  ansible.builtin.file:
+    path: /mnt/backups
+    state: directory
+    owner: ansible
+    group: docker
+    mode: '0775'
+
+- name: Create Samba folder
+  ansible.builtin.file:
+    path: /etc/samba
+    state: directory
+    owner: root
+    group: root
+    mode: '0775'
+
+- name: Create credentials file
+  copy:
+    dest: /etc/samba/silo-01-wings
+    content: |
+      username={{ smb_wings_username }}
+      password={{ smb_wings_password }}
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Update fstab to include Silo-01 game_backups mount
+  ansible.posix.mount:
+    path: /mnt/backups
+    src: "//192.168.100.162/game_backups"
+    fstype: cifs
+    opts: "credentials=/etc/samba/silo-01-wings,uid=1000,gid=1000"
+    state: mounted

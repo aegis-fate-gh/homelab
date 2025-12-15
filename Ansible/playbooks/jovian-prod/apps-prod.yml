@@ -1,7 +1,7 @@
 # To run:
-# ansible-playbook playbooks/jovian-prod/apps-prod.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# ansible-playbook playbooks/jovian-prod/apps-prod.yml -i inventories/eos-v2.yml --become-password-file=credentials/ansible_eos_password.txt
 # To Test:
-# ansible-playbook playbooks/jovian-prod/apps-prod.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# ansible-playbook playbooks/jovian-prod/apps-prod.yml --check -i inventories/eos-v2.yml --become-password-file=credentials/ansible_eos_password.txt
 ---
 - name: Run the configured Jovian Prod apps task files
   hosts: jupiter-01
@@ -34,6 +34,7 @@
         # - ../../tasks/jovian-prod/filebrowser.yml
         # - ../../tasks/jovian-prod/ghost.yml
         # - ../../tasks/jovian-prod/immich.yml
-        - ../../tasks/jovian-prod/littlelink-server.yml
+        # - ../../tasks/jovian-prod/littlelink-server.yml
+        - ../../tasks/jovian-prod/portainer.yml
       loop_control:
         loop_var: task_list

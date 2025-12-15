@@ -1,5 +1,5 @@
 ---
-- name: Create qbittorrent Deployment
+- name: Create handbrake Prod Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -7,40 +7,38 @@
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: qbittorrent
+        name: handbrake
         namespace: jovian-prod
-        labels:
-          app: qbittorrent
-          service: media-backend
       spec:
         progressDeadlineSeconds: 600
         replicas: 1
         revisionHistoryLimit: 3
         selector:
           matchLabels:
-            app: qbittorrent
+            app: handbrake
         strategy:
           type: Recreate
         template:
           metadata:
             labels:
-              app: qbittorrent
+              app: handbrake
           spec:
-            nodeSelector:
-              connection: vpn
             containers:
-            - name: qbittorrent
-              image: ghcr.io/hotio/qbittorrent
+            - name: handbrake
+              image: jlesage/handbrake:latest
               imagePullPolicy: IfNotPresent
+              securityContext:
+                privileged: true
               ports:
-              - containerPort: 8080
-                name: qbitt-http
-                protocol: TCP   
+              - containerPort: 5800
+                name: handbrake-http
+                protocol: TCP      
               volumeMounts:
               - name: config
                 mountPath: /config
-              - name: nfs-media
-                mountPath: /nfs-media
+              - name: smb-media
+                mountPath: /storage
+                readOnly: false
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -48,60 +46,27 @@
                 value: '1000'
               - name: PGID
                 value: '1000'
-              - name: WEBUI_PORTS
-                value: '8080/tcp,8080/udp'
             volumes:
             - name: config
               persistentVolumeClaim:
-                claimName: qbittorrent-pvc
+                claimName: handbrake-pvc
                 readOnly: false
-            - name: nfs-media
+            - name: smb-media
               persistentVolumeClaim:
-                claimName: qbittorrent-smb-media-pvc
+                claimName: handbrake-smb-media-pvc
+                readOnly: false
+            affinity:
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                      - plex
+                  topologyKey: "kubernetes.io/hostname"
 
-- name: Create qbittorrent Service
-  kubernetes.core.k8s:
-    kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
-    definition:
-      apiVersion: v1
-      kind: service
-      metadata:
-        name: qbittorrent-service
-        namespace: jovian-prod
-      spec:
-        selector:
-          app: qbittorrent
-        ports:
-          - port: 8080
-            targetPort: qbitt-http
-            protocol: TCP
-            name: qbitt-http
-
-- name: Create qbittorrent Ingress
-  kubernetes.core.k8s:
-    kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
-    definition:
-      apiVersion: networking.k8s.io/v1
-      kind: Ingress
-      metadata:
-        name: qbittorrent-ingress
-        namespace: jovian-prod
-      spec:
-        rules:
-          - host: qbittorrent.jovian.local.sch-apps.com
-            http:
-              paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name:  qbittorrent-service
-                      port:
-                        number: 8080
-
-- name: Create qbittorrent PVC
+- name: Create handbrake Prod PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -109,7 +74,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: qbittorrent-pvc
+        name: handbrake-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -117,10 +82,52 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 1Gi
+            storage: 5Gi
+
+- name: Create handbrake Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: handbrake-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: handbrake
+        ports:
+          - port: 5800
+            targetPort: handbrake-http
+            protocol: TCP
+            name: handbrake-http
+
+- name: Create handbrake Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: handbrake-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: handbrake.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  handbrake-service
+                      port:
+                        number: 5800
 
 # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
-- name: Create the SMB PV
+- name: Create the handbrake SMB PV
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -130,7 +137,7 @@
       metadata:
         annotations:
           pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
-        name: qbittorrent-smb-media
+        name: handbrake-smb-media
       spec:
         capacity:
           storage: 72Ti
@@ -152,7 +159,7 @@
             name: smb-media-manangers
             namespace: jovian-prod
 
-- name: Create qbittorrent SMB PVC
+- name: Create handbrake SMB PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -160,7 +167,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: qbittorrent-smb-media-pvc
+        name: handbrake-smb-media-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -169,4 +176,4 @@
         resources:
           requests:
             storage: 72Ti
-        volumeName: qbittorrent-smb-media
+        volumeName: handbrake-smb-media

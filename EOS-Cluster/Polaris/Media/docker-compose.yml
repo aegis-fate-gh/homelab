@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  handbrake:
+    image: jlesage/handbrake
+    container_name: handbrake
+    ports:
+      - "5800:5800"
+    environment:
+      - "TZ=America/Chicago"
+      - "AUTOMATED_CONVERSION=1"
+      - "AUTOMATED_CONVERSION_PRESET=ReplayConverters/H.265 MKV 2160p60 4K"
+      - "AUTOMATED_CONVERSION_FORMAT=mkv"
+      - "AUTOMATED_CONVERSION_KEEP_SOURCE=1"
+      - "AUTOMATED_CONVERSION_NON_VIDEO_FILE_ACTION=ignore"
+      - "AUTOMATED_CONVERSION_OUTPUT_DIR=/automatic_output"
+      - "AUTOMATED_CONVERSION_OUTPUT_SUBDIR=SAME_AS_SRC"
+    volumes:
+      - "/var/lib/docker/volumes/handbrake_data:/config:rw"
+      - "/mnt/media:/storage:ro"
+      - "/mnt/media/Games/replays_for_conversion:/watch:rw"
+      - "/mnt/media:/output:rw"
+      - "/mnt/media/Games/Videos:/automatic_output:rw"

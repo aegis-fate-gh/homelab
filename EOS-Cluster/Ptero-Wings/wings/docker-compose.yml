@@ -27,7 +27,7 @@ services:
       - "/etc/ssl/certs:/etc/ssl/certs:ro"
       - "/etc/letsencrypt/:/etc/letsencrypt/"
       - "/tmp/:/tmp/"
-      - "/mnt/hdd_pool/backups/pterodactyl/JP02/:/mnt/hdd_pool/backups/pterodactyl/JP02/"
+      - "/mnt/backups/wings-02/:/mnt/backups/wings-02/"
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 

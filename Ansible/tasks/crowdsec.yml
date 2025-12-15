@@ -7,32 +7,14 @@
       - gnupg
       - debian-archive-keyring
 
-- name: Update and upgrade all packages
-  ansible.builtin.apt:
-    update_cache: yes
-
-- name: Create the directory for the Crowdsec gpg key
-  ansible.builtin.file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: '0755'
-
-- name: Add the official Crowdsec GPG key
-  ansible.builtin.apt_key:
-    url: https://packagecloud.io/crowdsec/crowdsec/gpgkey
-    keyring: /etc/apt/trusted.gpg.d/crowdsec_crowdsec.gpg
-    state: present
-
-- name: Add crowdsec apt repository
-  ansible.builtin.apt_repository:
-    repo: deb https://packagecloud.io/crowdsec/crowdsec/ubuntu {{ ansible_distribution_release }} main
-    state: present
-    filename: crowdsec
-    update_cache: true
+- name: Run cwowdsec install script
+  ansible.builtin.shell: |
+    curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | sudo bash
 
 - name: Install Crowdsec
   ansible.builtin.apt:
     name: crowdsec
+    update_cache: yes
 
 - name: Install Crowdsec iptables firewall bouncer
   ansible.builtin.apt:

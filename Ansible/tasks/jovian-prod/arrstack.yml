@@ -31,7 +31,7 @@
             containers:
             - name: bazarr
               image: ghcr.io/hotio/bazarr:latest
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               ports:
               - containerPort: 6767
                 name: bazarr-http
@@ -52,7 +52,7 @@
                 value: '002'
             - name: prowlarr
               image: ghcr.io/hotio/prowlarr:latest
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               ports:
               - containerPort: 9696
                 name: prowlarr-http
@@ -71,7 +71,7 @@
                 value: '002'
             - name: radarr
               image: ghcr.io/hotio/radarr:latest
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               ports:
               - containerPort: 7878
                 name: radarr-http
@@ -92,7 +92,7 @@
                 value: '002'
             - name: sonarr
               image: ghcr.io/hotio/sonarr:latest
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               ports:
               - containerPort: 8989
                 name: sonarr-http
@@ -113,7 +113,7 @@
                 value: '002'
             - name: flaresolverr
               image: ghcr.io/flaresolverr/flaresolverr:latest
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               ports:
               - containerPort: 8191
                 name: flare-tcp
@@ -123,7 +123,7 @@
                 value: 'America/Chicago'
             - name: cleanuparr
               image: ghcr.io/cleanuparr/cleanuparr:latest
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               ports:
               - containerPort: 11011
                 name: cleanuparr-tcp

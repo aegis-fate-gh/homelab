@@ -1,0 +1,76 @@
+# To run:
+# ansible-playbook playbooks/eos-prod/ptero-wings-setup-v2.yml -i inventories/eos-v2.yml --become-password-file=credentials/ansible_eos_password.txt
+# To Test:
+# ansible-playbook playbooks/eos-prod/ptero-wings-setup-v2.yml --check -i inventories/eos-v2.yml --become-password-file=credentials/ansible_eos_password.txt
+---
+- name: Install and configure Pterodactyl Wings nodes
+  hosts: wings
+  remote_user: ansible
+  become: true
+  vars_files:
+    - ../../vars/cloudflare.yml
+    - ../../vars/smb_wings.yml
+
+  tasks:
+    - name: Import needed tasks
+      ansible.builtin.include_tasks:
+        file: "{{ task_list }}"
+      loop:
+        - ../../tasks/qemu_guest_agent.yml
+        - ../../tasks/docker_setup.yml
+        - ../../tasks/ssl_certs_cloudflare.yml
+        - ../../tasks/fstab_samba_wings.yml
+        - ../../tasks/crowdsec.yml
+      loop_control:
+        loop_var: task_list
+
+    - name: Create Pterodactyl folders
+      ansible.builtin.file:
+        path: "{{ ptero_list }}"
+        state: directory
+        owner: ansible
+        group: docker
+        mode: '0775'
+      loop:
+        - /etc/pterodactyl
+        - /var/lib/pterodactyl
+        - /var/log/pterodactyl
+      loop_control:
+        loop_var: ptero_list
+
+    - name: Create Docker volume folders
+      ansible.builtin.file:
+        path: "{{ docker_list }}"
+        state: directory
+        owner: ansible
+        group: docker
+        mode: '0775'
+      loop:
+        - /var/lib/docker/volumes/promtail_data
+        - /var/lib/docker/volumes/promtail_data/positions
+        - /var/lib/docker/volumes/telegraf_data
+        - /var/lib/docker/volumes/crowdsec_data
+        - /var/lib/docker/volumes/crowdsec_data/data
+        - /var/lib/docker/volumes/crowdsec_data/config
+      loop_control:
+        loop_var: docker_list
+
+    - name: Create Letsencrypt folder
+      ansible.builtin.file:
+        path: /etc/letsencrypt/live/{{ inventory_hostname }}.sch-apps.com
+        state: directory
+        owner: root
+        group: sudo
+        mode: '0775'
+
+    - name: Disable UFW for crowdsec
+      ansible.builtin.service:
+        name: ufw.service
+        enabled: no
+
+    - name: Create the SSL Cert
+      ansible.builtin.shell: |
+        ~/.acme.sh/acme.sh --issue --dns dns_cf -d "{{ inventory_hostname }}.sch-apps.com" --server letsencrypt --key-file /etc/letsencrypt/live/{{ inventory_hostname }}.sch-apps.com/privkey.pem --fullchain-file /etc/letsencrypt/live/{{ inventory_hostname }}.sch-apps.com/fullchain.pem
+
+    - name: Reboot immediately
+      ansible.builtin.reboot:

@@ -1,0 +1,12 @@
+# To run:
+# ansible-playbook playbooks/eos-prod/ping_test.yml -i inventories/eos-v2.yml --become-password-file=credentials/ansible_eos_password.txt
+
+---
+- name: Ping everything
+  hosts: all
+  remote_user: ansible
+  gather_facts: no
+
+  tasks:
+    - name: Ping all nodes
+      ansible.builtin.ping:

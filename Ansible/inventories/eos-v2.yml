@@ -1,0 +1,24 @@
+docker:
+  children:
+    wings:
+    standalone_docker:
+
+k3s:
+  hosts:
+    jupiter-[01:03]:
+    ganymede-[01:03]:
+    europa-[01:02]:
+
+wings:
+  hosts:
+    wings-[01:02]:
+
+standalone:
+  hosts:
+    pegasus:
+    zion:
+
+standalone_docker:
+  hosts:
+    polaris:
+    

@@ -49,16 +49,34 @@
                 value: 'all'
               - name: LANG
                 value: 'en'
+              - name: THEME
+                value: 'Auto'
+              - name: BIO
+                value: 'Homelabber | Tech enthusiast | Car guy | Planespotter | Railfan | Gamer | Nerd next door'
               - name: OG_SITE_NAME
                 value: 'Sch-Apps'
               - name: OG_TITLE
                 value: 'Sch-Apps'
               - name: OG_DESCRIPTION
-                value: 'The hub for all things on my Homelab'
+                value: 'The hub for all things in my Homelab'
               - name: OG_URL
-                value: 'https://sch-apps.com'
+                value: 'https://home.sch-apps.com'
+              - name: OG_IMAGE
+                value: 'https://raw.githubusercontent.com/aegis-fate-gh/homelab/refs/heads/main/images/littlelink/profile_400.jpg'
+              - name: OG_IMAGE_WIDTH
+                value: '400'
+              - name: OG_IMAGE_HEIGHT
+                value: '400'
+              - name: FAVICON_URL
+                value: 'https://raw.githubusercontent.com/aegis-fate-gh/homelab/refs/heads/main/images/littlelink/profile_200.jpg'
+              - name: AVATAR_URL
+                value: 'https://raw.githubusercontent.com/aegis-fate-gh/homelab/refs/heads/main/images/littlelink/profile_200.jpg'
+              - name: AVATAR_2X_URL
+                value: 'https://raw.githubusercontent.com/aegis-fate-gh/homelab/refs/heads/main/images/littlelink/profile_400.jpg'
               - name: AVATAR_ALT
                 value: 'Stephen Hudgins Profile Pic'
+              - name: NAME
+                value: 'Stephen Hudgins'
               - name: STEAM
                 value: 'https://steamcommunity.com/profiles/76561198021708921/'
               - name: GITHUB
@@ -67,6 +85,10 @@
                 value: 'https://www.instagram.com/aegis.fate?igsh=bng5MDBsbHR6M3Zm&utm_source=qr'
               - name: LINKED_IN
                 value: 'https://www.linkedin.com/in/stephen-hudgins-24743829/'
+              - name: BUYMEACOFFEE
+                value: 'https://buymeacoffee.com/aegis.fate'
+              - name: YOUTUBE
+                value: 'https://youtube.com/@stephenh2?si=4UopZFLd-sa2cxL2'
               - name: FOOTER
                 value: 'Stephen Hudgins © 2025'
 
