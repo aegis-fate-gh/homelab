@@ -1,0 +1,179 @@
+---
+- name: Create jdownloader Prod Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: jdownloader
+        namespace: jovian-prod
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: jdownloader
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: jdownloader
+          spec:
+            containers:
+            - name: jdownloader
+              image: jlesage/jdownloader:latest
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                privileged: true
+              ports:
+              - containerPort: 5800
+                name: jdownloader-http
+                protocol: TCP      
+              volumeMounts:
+              - name: config
+                mountPath: /config
+              - name: smb-media
+                mountPath: /storage
+                readOnly: false
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: jdownloader-pvc
+                readOnly: false
+            - name: smb-media
+              persistentVolumeClaim:
+                claimName: jdownloader-smb-media-pvc
+                readOnly: false
+            affinity:
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                      - plex
+                  topologyKey: "kubernetes.io/hostname"
+
+- name: Create jdownloader Prod PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: jdownloader-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 5Gi
+
+- name: Create jdownloader Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: jdownloader-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: jdownloader
+        ports:
+          - port: 5800
+            targetPort: jdownloader-http
+            protocol: TCP
+            name: jdownloader-http
+
+- name: Create jdownloader Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: jdownloader-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: jdownloader.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  jdownloader-service
+                      port:
+                        number: 5800
+
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+- name: Create the jdownloader SMB PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+        name: jdownloader-smb-media
+      spec:
+        capacity:
+          storage: 72Ti
+        accessModes:
+          - ReadWriteMany
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: smb-csi-media
+        mountOptions:
+          - dir_mode=0777
+          - file_mode=0777
+        csi:
+          driver: smb.csi.k8s.io
+          # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+          # make sure this value is unique for every share in the cluster
+          volumeHandle: 192.168.100.162/media
+          volumeAttributes:
+            source: //192.168.100.162/media
+          nodeStageSecretRef:
+            name: smb-media-manangers
+            namespace: jovian-prod
+
+- name: Create jdownloader SMB PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: jdownloader-smb-media-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: smb-csi-media
+        resources:
+          requests:
+            storage: 72Ti
+        volumeName: jdownloader-smb-media

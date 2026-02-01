@@ -12,6 +12,7 @@
     - ./helm_values/ceph-csi.yml
     - ./helm_values/smb.yml
     - ./helm_values/cloudflare.yml
+    - ./helm_values/restic.yml
 
   tasks:
     - name: Install helm repos
@@ -299,6 +300,9 @@
             name: jovian-prod
             labels:
               name: jovian-prod
+            annotations:
+              volsync.backube/privileged-movers: "true"
+
 
     # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#prerequisite
     - name: Create SMB secrets
@@ -310,6 +314,25 @@
         - { name: 'smb-media-manangers', username: "{{ mm_smb_user }}", password: "{{ mm_smb_password }}"}
       loop_control:
         loop_var: smb_list
+      ignore_errors: true
+
+    # https://volsync.readthedocs.io/en/stable/usage/restic/database_example.html#backing-up-multiple-pvcs-to-the-same-s3-bucket
+    - name: Create Restic secrets
+      ansible.builtin.shell: |
+        kubectl create secret generic "{{ restic_list.name }}" -n jovian-prod --from-literal RESTIC_REPOSITORY="s3:s3.us-east-005.backblazeb2.com/jovian-prod-backups/{{ restic_list.app_folder }}" --from-literal RESTIC_PASSWORD="{{ RESTIC_ENCRYPTION_PASSWORD }}" --from-literal AWS_ACCESS_KEY_ID="{{ RESTIC_AWS_ACCESS_KEY_ID }}" --from-literal AWS_SECRET_ACCESS_KEY="{{ RESTIC_AWS_SECRET_ACCESS_KEY }}"
+      loop:
+        - { name: 'restic-uptime-kuma', app_folder: 'uptime-kuma'}
+        - { name: 'restic-immich', app_folder: 'immich'}
+        - { name: 'restic-plex', app_folder: 'plex'}
+        - { name: 'restic-jellyfin', app_folder: 'jellyfin'}
+        - { name: 'restic-ghost', app_folder: 'ghost'}
+        - { name: 'restic-pterodactyl', app_folder: 'pterodactyl'}
+        - { name: 'restic-tautulli', app_folder: 'tautulli'}
+        - { name: 'restic-overseerr', app_folder: 'overseerr'}
+        - { name: 'restic-grafana', app_folder: 'grafana'}
+        - { name: 'restic-freshrss', app_folder: 'freshrss'}
+      loop_control:
+        loop_var: restic_list
       ignore_errors: true
 
     # https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/deploy/example/README.md

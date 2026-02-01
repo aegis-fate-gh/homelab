@@ -30,7 +30,7 @@
 
             # Immich Front End
             - name: immich
-              image: ghcr.io/immich-app/immich-server:v2.3.1
+              image: ghcr.io/immich-app/immich-server:v2.5.2
               imagePullPolicy: IfNotPresent
               ports:
               - containerPort: 2283
@@ -351,3 +351,31 @@
           requests:
             storage: 5Ti
         volumeName: immich-external-smb
+
+- name: Create Immich Backup schedule
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationSource
+      metadata:
+        name: immich-backup
+        namespace: jovian-prod
+      spec:
+        # The PVC to be backed up
+        sourcePVC: immich-pvc
+        trigger:
+          # Take a backup every day at 11am
+          schedule: "0 23 * * *"
+        restic:
+          # Prune the repository (repack to free space) every 2 weeks
+          pruneIntervalDays: 14
+          # Name of the Secret with the connection information
+          repository: restic-immich
+          # Retention policy for backups
+          retain:
+            daily: 7
+          # Snapshot the source volume prior to taking a backup to ensure a point-in-time image.
+          copyMethod: Snapshot
+          volumeSnapshotClassName: csi-cephfsplugin-snapclass

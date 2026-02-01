@@ -27,7 +27,7 @@
               app: arrstack
           spec:
             nodeSelector:
-              connection: vpn
+              connection: standard
             containers:
             - name: bazarr
               image: ghcr.io/hotio/bazarr:latest
