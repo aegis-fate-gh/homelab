@@ -30,15 +30,15 @@
               connection: vpn
             containers:
             - name: overseerr
-              image: ghcr.io/hotio/overseerr
-              imagePullPolicy: IfNotPresent
+              image: ghcr.io/seerr-team/seerr:latest
+              imagePullPolicy: Always
               ports:
               - containerPort: 5055
                 name: overseerr-http
                 protocol: TCP   
               volumeMounts:
               - name: config
-                mountPath: /config
+                mountPath: /app/config
               - name: nfs-media
                 mountPath: /nfs-media
                 readOnly: true
@@ -58,7 +58,7 @@
                 readOnly: false
             - name: nfs-media
               persistentVolumeClaim:
-                claimName: overseerr-nfs-media-pvc
+                claimName: overseerr-smb-media-pvc
                 readOnly: true
 
 - name: Create overseerr Service
@@ -121,7 +121,8 @@
           requests:
             storage: 1Gi
 
-- name: Create the overseerr NFS Media PV
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+- name: Create the overseerr SMB PV
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -130,23 +131,30 @@
       kind: PersistentVolume
       metadata:
         annotations:
-          pv.kubernetes.io/provisioned-by: nfs.csi.k8s.io
-        name: overseerr-nfs-media
+          pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+        name: overseerr-smb-media
       spec:
         capacity:
           storage: 72Ti
         accessModes:
-          - ReadWriteOnce
+          - ReadWriteMany
         persistentVolumeReclaimPolicy: Retain
-        storageClassName: nfs-csi-media
+        storageClassName: smb-csi-media
+        mountOptions:
+          - dir_mode=0777
+          - file_mode=0777
         csi:
-          driver: nfs.csi.k8s.io
-          volumeHandle: 192.168.100.162/var/nfs/shared/media
+          driver: smb.csi.k8s.io
+          # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+          # make sure this value is unique for every share in the cluster
+          volumeHandle: 192.168.100.162/media
           volumeAttributes:
-            server: 192.168.100.162
-            share: /var/nfs/shared/media
+            source: //192.168.100.162/media
+          nodeStageSecretRef:
+            name: smb-media-manangers
+            namespace: jovian-prod
 
-- name: Create overseerr NFS PVC
+- name: Create Overseerr SMB PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -154,13 +162,41 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: overseerr-nfs-media-pvc
+        name: overseerr-smb-media-pvc
         namespace: jovian-prod
       spec:
         accessModes:
-          - ReadWriteOnce
-        storageClassName: nfs-csi-media
+          - ReadWriteMany
+        storageClassName: smb-csi-media
         resources:
           requests:
             storage: 72Ti
-        volumeName: overseerr-nfs-media
+        volumeName: overseerr-smb-media
+
+- name: Create Overseerr Backup schedule
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationSource
+      metadata:
+        name: overseerr-backup
+        namespace: jovian-prod
+      spec:
+        # The PVC to be backed up
+        sourcePVC: overseerr-pvc
+        trigger:
+          # Take a backup every day at 2am
+          schedule: "0 2 * * *"
+        restic:
+          # Prune the repository (repack to free space) every 2 weeks
+          pruneIntervalDays: 14
+          # Name of the Secret with the connection information
+          repository: restic-overseerr
+          # Retention policy for backups
+          retain:
+            daily: 7
+          # Snapshot the source volume prior to taking a backup to ensure a point-in-time image.
+          copyMethod: Snapshot
+          volumeSnapshotClassName: csi-cephfsplugin-snapclass

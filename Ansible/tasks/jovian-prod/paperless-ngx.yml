@@ -1,0 +1,218 @@
+---
+- name: Create Paperless-ngx Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: paperless
+        namespace: jovian-prod
+        labels:
+          app: paperless
+          service: paperless
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: paperless
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: paperless
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: redis
+              image: docker.io/library/redis:8
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 6379
+                name: paper-redis
+                protocol: TCP
+              volumeMounts:
+              - name: paperless-config
+                mountPath: /data
+                subPath: redis
+            - name: postgres
+              image: docker.io/library/postgres:18
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 5432
+                name: paper-db
+                protocol: TCP
+              volumeMounts:
+              - name: paperless-config
+                mountPath: /var/lib/postgresql
+                subPath: postgres
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: POSTGRES_DB
+                value: "{{ PAPERLESS_POSTGRES_DB }}"
+              - name: POSTGRES_USER
+                value: "{{ PAPERLESS_POSTGRES_USER }}"
+              - name: POSTGRES_PASSWORD
+                value: "{{ PAPERLESS_POSTGRES_PASSWORD }}"
+            - name: webserver
+              image: ghcr.io/paperless-ngx/paperless-ngx:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 8000
+                name: paper-http
+                protocol: TCP
+              env:
+              - name: PAPERLESS_TIME_ZONE
+                value: 'America/Chicago'
+              - name: USERMAP_UID
+                value: '1000'
+              - name: USERMAP_GID
+                value: '1000'
+              - name: PAPERLESS_OCR_LANGUAGE
+                value: "eng"
+              - name: PAPERLESS_REDIS
+                value: 'redis://localhost:6379'
+              - name: PAPERLESS_DBHOST
+                value: 'localhost'
+              - name: PAPERLESS_DBNAME
+                value: "{{ PAPERLESS_POSTGRES_DB }}"
+              - name: PAPERLESS_DBUSER
+                value: "{{ PAPERLESS_POSTGRES_USER }}"
+              - name: PAPERLESS_DBPASS
+                value: "{{ PAPERLESS_POSTGRES_PASSWORD }}"
+              - name: PAPERLESS_TIKA_ENABLED
+                value: '1'
+              - name: PAPERLESS_TIKA_GOTENBERG_ENDPOINT
+                value: 'http://localhost:3000'
+              - name: PAPERLESS_TIKA_ENDPOINT
+                value: 'http://localhost:9998'
+              volumeMounts:
+              - name: paperless-config
+                mountPath: /usr/src/paperless/data
+                subPath: data
+              - name: paperless-config
+                mountPath: /usr/src/paperless/media
+                subPath: media
+              - name: paperless-config
+                mountPath: /usr/src/paperless/export
+                subPath: export
+              - name: paperless-config
+                mountPath: /usr/src/paperless/consume
+                subPath: consume
+            - name: gotenberg
+              image: docker.io/gotenberg/gotenberg:8.25
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 3000
+                name: paper-gotenberg
+                protocol: TCP
+              args:
+                - "gotenberg"
+                - "--chromium-disable-javascript=true"
+                - "--chromium-allow-list=file:///tmp/.*"
+            - name: tika
+              image: docker.io/apache/tika:latest
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 9998
+                  name: paper-tika
+                  protocol: TCP
+            volumes:
+            - name: paperless-config
+              persistentVolumeClaim:
+                claimName: paperless-pvc
+                readOnly: false
+
+- name: Create Paperless-ngx Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: paper-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: paperless
+        ports:
+          - port: 8000
+            targetPort: paper-http
+            protocol: TCP
+            name: paper-http
+
+- name: Create Paperless-ngx Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: paper-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: paperless.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  paper-service
+                      port:
+                        number: 8000
+
+- name: Create Paperless-ngx Panel PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: paperless-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 10Gi
+
+- name: Create Paperless-ngx Panel Backup schedule
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationSource
+      metadata:
+        name: paperless-backup
+        namespace: jovian-prod
+      spec:
+        # The PVC to be backed up
+        sourcePVC: paperless-pvc
+        trigger:
+          # Take a backup every day at 2am
+          schedule: "0 2 * * *"
+        restic:
+          # Prune the repository (repack to free space) every 2 weeks
+          pruneIntervalDays: 14
+          # Name of the Secret with the connection information
+          repository: restic-paperless
+          # Retention policy for backups
+          retain:
+            daily: 7
+          # Snapshot the source volume prior to taking a backup to ensure a point-in-time image.
+          copyMethod: Snapshot
+          volumeSnapshotClassName: csi-cephfsplugin-snapclass

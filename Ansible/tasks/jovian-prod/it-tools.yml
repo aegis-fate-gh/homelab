@@ -1,0 +1,80 @@
+---
+- name: Create IT-Tools Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: it-tools
+        namespace: jovian-prod
+        labels:
+          app: it-tools
+          service: tools
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: it-tools
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: it-tools
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: it-tools
+              image: ghcr.io/corentinth/it-tools:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 80
+                name: it-tools-http
+                protocol: TCP
+
+- name: Create IT-Tools Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: it-tools-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: it-tools
+        ports:
+          - port: 80
+            targetPort: it-tools-http
+            protocol: TCP
+            name: it-tools-http
+
+- name: Create IT-Tools Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: it-tools-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: it-tools.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  it-tools-service
+                      port:
+                        number: 80

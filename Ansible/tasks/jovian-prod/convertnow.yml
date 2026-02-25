@@ -1,0 +1,80 @@
+---
+- name: Create convertnow Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: convertnow
+        namespace: jovian-prod
+        labels:
+          app: convertnow
+          service: tools
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: convertnow
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: convertnow
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: convertnow
+              image: ghcr.io/ferraridamiano/converternow:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 80
+                name: convertnow-http
+                protocol: TCP
+
+- name: Create convertnow Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: convertnow-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: convertnow
+        ports:
+          - port: 80
+            targetPort: convertnow-http
+            protocol: TCP
+            name: convertnow-http
+
+- name: Create convertnow Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: convertnow-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: conversions.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  convertnow-service
+                      port:
+                        number: 80

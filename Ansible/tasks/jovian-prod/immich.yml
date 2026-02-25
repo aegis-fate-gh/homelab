@@ -366,7 +366,7 @@
         # The PVC to be backed up
         sourcePVC: immich-pvc
         trigger:
-          # Take a backup every day at 11am
+          # Take a backup every day at 11pm
           schedule: "0 23 * * *"
         restic:
           # Prune the repository (repack to free space) every 2 weeks

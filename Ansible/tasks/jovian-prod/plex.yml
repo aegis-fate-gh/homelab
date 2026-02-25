@@ -29,7 +29,7 @@
             containers:
             - name: plex
               image: plexinc/pms-docker:latest
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: Always
               securityContext:
                 privileged: true
               ports:
@@ -201,3 +201,31 @@
           requests:
             storage: 72Ti
         volumeName: plex-smb-media
+
+- name: Create Plex Backup schedule
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationSource
+      metadata:
+        name: plex-backup
+        namespace: jovian-prod
+      spec:
+        # The PVC to be backed up
+        sourcePVC: plex-pvc
+        trigger:
+          # Take a backup every day at 1am to avoid 2am internal DB backups
+          schedule: "0 1 * * *"
+        restic:
+          # Prune the repository (repack to free space) every 2 weeks
+          pruneIntervalDays: 14
+          # Name of the Secret with the connection information
+          repository: restic-plex
+          # Retention policy for backups
+          retain:
+            daily: 7
+          # Snapshot the source volume prior to taking a backup to ensure a point-in-time image.
+          copyMethod: Snapshot
+          volumeSnapshotClassName: csi-cephfsplugin-snapclass

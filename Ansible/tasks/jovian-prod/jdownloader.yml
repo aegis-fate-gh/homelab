@@ -25,19 +25,17 @@
           spec:
             containers:
             - name: jdownloader
-              image: jlesage/jdownloader:latest
+              image: jlesage/jdownloader-2:latest
               imagePullPolicy: IfNotPresent
-              securityContext:
-                privileged: true
               ports:
               - containerPort: 5800
-                name: jdownloader-http
+                name: jdownload-http
                 protocol: TCP      
               volumeMounts:
               - name: config
                 mountPath: /config
               - name: smb-media
-                mountPath: /storage
+                mountPath: /output
                 readOnly: false
               env:
               - name: TZ
@@ -55,16 +53,6 @@
               persistentVolumeClaim:
                 claimName: jdownloader-smb-media-pvc
                 readOnly: false
-            affinity:
-              podAntiAffinity:
-                requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                      - plex
-                  topologyKey: "kubernetes.io/hostname"
 
 - name: Create jdownloader Prod PVC
   kubernetes.core.k8s:
@@ -99,9 +87,9 @@
           app: jdownloader
         ports:
           - port: 5800
-            targetPort: jdownloader-http
+            targetPort: jdownload-http
             protocol: TCP
-            name: jdownloader-http
+            name: jdownload-http
 
 - name: Create jdownloader Ingress
   kubernetes.core.k8s:
