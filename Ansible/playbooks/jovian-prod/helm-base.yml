@@ -332,6 +332,7 @@
         - { name: 'restic-grafana', app_folder: 'grafana'}
         - { name: 'restic-freshrss', app_folder: 'freshrss'}
         - { name: 'restic-paperless', app_folder: 'paperless'}
+        - { name: 'restic-vaultwarden', app_folder: 'vaultwarden'}
       loop_control:
         loop_var: restic_list
       ignore_errors: true

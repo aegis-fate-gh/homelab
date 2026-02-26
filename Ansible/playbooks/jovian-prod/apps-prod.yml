@@ -39,7 +39,8 @@
         # - ../../tasks/jovian-prod/jdownloader.yml
         # - ../../tasks/jovian-prod/convertnow.yml
         # - ../../tasks/jovian-prod/it-tools.yml
-        - ../../tasks/jovian-prod/paperless-ngx.yml
+        # - ../../tasks/jovian-prod/paperless-ngx.yml
+        - ../../tasks/jovian-prod/vaultwarden.yml
 
       loop_control:
         loop_var: task_list

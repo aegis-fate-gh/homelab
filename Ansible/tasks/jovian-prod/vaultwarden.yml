@@ -1,0 +1,147 @@
+---
+- name: Create vaultwarden Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: vaultwarden
+        namespace: jovian-prod
+        labels:
+          app: vaultwarden
+          service: tools
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: vaultwarden
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: vaultwarden
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: vaultwarden
+              image: vaultwarden/server:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 80
+                name: vw-http
+                protocol: TCP   
+              volumeMounts:
+              - name: config
+                mountPath: /data
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+              - name: DOMAIN
+                value: "https://vaultwarden.jovian.local.sch-apps.com"
+              - name: SIGNUPS_ALLOWED
+                value: "true"
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: vw-pvc
+                readOnly: false
+
+- name: Create vaultwarden Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: vw-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: vaultwarden
+        ports:
+          - port: 80
+            targetPort: vw-http
+            protocol: TCP
+            name: vw-http
+
+- name: Create vaultwarden Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: vw-ingress
+        namespace: jovian-prod
+      spec:
+        rules:
+          - host: vaultwarden.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  vw-service
+                      port:
+                        number: 80
+
+- name: Create vaultwarden PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: vw-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 1Gi
+
+- name: Create vaultwarden Backup schedule
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationSource
+      metadata:
+        name: vaultwarden-backup
+        namespace: jovian-prod
+      spec:
+        # The PVC to be backed up
+        sourcePVC: vw-pvc
+        trigger:
+          # Take a backup every day at 5am
+          schedule: "0 5 * * *"
+        restic:
+          # Prune the repository (repack to free space) every 2 weeks
+          pruneIntervalDays: 14
+          # Name of the Secret with the connection information
+          repository: restic-vaultwarden
+          # Retention policy for backups
+          retain:
+            daily: 7
+          # Snapshot the source volume prior to taking a backup to ensure a point-in-time image.
+          copyMethod: Snapshot
+          volumeSnapshotClassName: csi-cephfsplugin-snapclass
