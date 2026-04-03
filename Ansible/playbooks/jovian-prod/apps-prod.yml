@@ -33,14 +33,14 @@
         # - ../../tasks/jovian-prod/mkvtoolnix.yml
         # - ../../tasks/jovian-prod/filebrowser.yml
         # - ../../tasks/jovian-prod/ghost.yml
-        # - ../../tasks/jovian-prod/immich.yml
+        - ../../tasks/jovian-prod/immich.yml
         # - ../../tasks/jovian-prod/littlelink-server.yml
         # - ../../tasks/jovian-prod/handbrake.yml
         # - ../../tasks/jovian-prod/jdownloader.yml
         # - ../../tasks/jovian-prod/convertnow.yml
         # - ../../tasks/jovian-prod/it-tools.yml
         # - ../../tasks/jovian-prod/paperless-ngx.yml
-        - ../../tasks/jovian-prod/vaultwarden.yml
+        # - ../../tasks/jovian-prod/vaultwarden.yml
 
       loop_control:
         loop_var: task_list
