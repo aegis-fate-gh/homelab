@@ -7,6 +7,8 @@ with Diagram("Current Homelab", show=False, direction="TB"):
         backblaze = Custom("Backblaze B2", "./local_icons/backblaze.png")
         dropbox = Custom("Dropbox", "./local_icons/dropbox.png")
         discord = Custom("Discord", "./local_icons/discord.png")
+        proton_mail = Custom("Proton Mail", "./local_icons/proton-mail.png")
+        proton_vpn = Custom("Proton VPN", "./local_icons/proton-vpn.png")
 
     with Cluster("Home - Chicago"):
         silo_01 = Custom("UNAS-Pro - Silo-01\n 5x 24TB Seagate Exos HDD's", "./local_icons/unifi.png")
@@ -120,6 +122,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     jellyfin >> silo_01
 
     tautulli >> Edge(color="darkorange", style="bold") >> plex
+    tautulli >> Edge(color="darkorange", style="bold") >> proton_mail
 
     traefik >> Edge(color="blue", style="dotted") >> jellyfin
     traefik >> Edge(color="blue", style="dotted") >> homarr
@@ -154,7 +157,9 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     w02_pterodactyl_wings >> silo_01
     w02_pterodactyl_wings >> test
 
-    qbittorrent >> silo_01
+    qbittorrent >> Edge(color="deepskyblue", style="solid") >> silo_01
+    qbittorrent >> Edge(color="deepskyblue", style="solid") >> proton_vpn
+
     mkvtoolnix >> silo_01
     jdownloader >> silo_01
     polaris_handbrake >> silo_01

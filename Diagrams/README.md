@@ -10,3 +10,4 @@ For install and usage on a mac:
 8. Run python against the file
 
 CSS Color Names: https://drafts.csswg.org/css-color/#named-colors
+Many amazing icons: https://dashboardicons.com/icons
