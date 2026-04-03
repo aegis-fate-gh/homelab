@@ -6,6 +6,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     with Cluster("Cloud Services"):
         backblaze = Custom("Backblaze B2", "./local_icons/backblaze.png")
         dropbox = Custom("Dropbox", "./local_icons/dropbox.png")
+        discord = Custom("Discord", "./local_icons/discord.png")
 
     with Cluster("Home - Chicago"):
         silo_01 = Custom("UNAS-Pro - Silo-01\n 5x 24TB Seagate Exos HDD's", "./local_icons/unifi.png")
@@ -158,12 +159,16 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     jdownloader >> silo_01
     polaris_handbrake >> silo_01
 
+    uptimekuma >> Edge(color="forestgreen", style="solid") >> discord
+    skyeye_uptimekuma >> Edge(color="forestgreen", style="solid") >> discord
+
     grafana >> Edge(color="orange", style="bold")  >> loki
     grafana >> Edge(color="orange", style="bold") >> prometheus
 
     seerr >> Edge(color="magenta1", style="bold") >> sonarr >> Edge(color="turquoise1", style="bold") >> qbittorrent
     seerr >> Edge(color="magenta1", style="bold") >> radarr >> Edge(color="orange1", style="bold") >> qbittorrent
     seerr >> Edge(color="magenta1", style="bold") >> plex
+    seerr >> Edge(color="magenta1", style="bold") >> discord
 
     sonarr >> Edge(color="turquoise1", style="bold") >> silo_01
     sonarr >> Edge(color="turquoise1", style="bold") >> plex
