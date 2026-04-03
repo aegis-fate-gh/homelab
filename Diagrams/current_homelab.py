@@ -8,8 +8,8 @@ with Diagram("Current Homelab", show=False, direction="TB"):
         dropbox = Custom("Dropbox", "./local_icons/dropbox.png")
 
     with Cluster("Home - Chicago"):
-        silo_01 = Custom("UNAS-Pro - Silo-01\n 5x 24TB Seagate Exos - Raid 6", "./local_icons/unifi.png")
-        silo_02 = Custom("UNAS-Pro - Silo-02\n 5x 24TB Seagate Exos - Raid 6", "./local_icons/unifi.png")
+        silo_01 = Custom("UNAS-Pro - Silo-01\n 5x 24TB Seagate Exos HDD's", "./local_icons/unifi.png")
+        silo_02 = Custom("UNAS-Pro - Silo-02\n 5x 24TB Seagate Exos HDD's", "./local_icons/unifi.png")
         syn_coruscant = Custom("Synology DS923+", "./local_icons/synology.png")
 
         with Cluster("Arc Mac Server\nM2 Pro Mac Mini, 32GB's RAM, 10GBe\n4x 2TB Samsung 870 QVO SSD's"):
@@ -17,7 +17,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
             with Cluster("Docker"):
                 ams_portainer = Custom("Portainer", "./local_icons/portainer.png")
 
-        with Cluster("PVE-Donnager\nThreadripper 1950x, 64GB's RAM, 3x 500GB WD Black SSD's (ZFS Pool), 4x 2TB Samsung 990 EVO Plus (ZFS Pool), 1x Dual SFP+"):
+        with Cluster("PVE-Donnager\nThreadripper 1950x, 64GB's RAM, 3x 500GB WD Black SSD's, 4x 2TB Samsung 990 EVO Plus SSD's, 1x Dual SFP+"):
             with Cluster("Polaris - Docker Host - VM"):
                 polaris_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png")
                 polaris_portainer = Custom("Portainer", "./local_icons/portainer.png")
