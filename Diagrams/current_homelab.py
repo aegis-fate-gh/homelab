@@ -42,7 +42,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 mkvtoolnix = Custom("MKVToolNix", "./local_icons/mkvmerge.png")
                 freshrss = Custom("FreshRSS", "./local_icons/freshrss.png")
                 uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
-                overseerr = Custom("Overseerr", "./local_icons/overseerr.png")
+                seerr = Custom("Seerr", "./local_icons/overseerr.png")
                 iperf3 = Custom("Iperf3", "./local_icons/iperf.gif")
                 homarr = Custom("Homarr", "./local_icons/homarr.png")
                 converternow = Custom("Converter Now", "./local_icons/converternow.jpg")
@@ -99,7 +99,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
             skyeye_watchtower = Custom("Watchtower", "./local_icons/watchtower.png")
             skyeye_cftunnel = Custom("Cloudflare Tunnel", "./local_icons/cf-tunnel.png")
             skyeye_uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
-            gluetun = Custom("Gluetun", "./local_icons/gluetun.svg")
+            gluetun = Custom("Gluetun", "./local_icons/gluetun.png")
 
     with Cluster("Parents House - MD"):
         syn_sanctuary = Custom("Synology RS1221+\n32GB's RAM, Dual SFP+\n2x Intel DC S3700 DC 400GB, 5x Seagate Exos 20TB", "./local_icons/synology.png")
@@ -117,6 +117,8 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     plex >> silo_01
 
     jellyfin >> silo_01
+
+    tautulli >> Edge(color="darkorange", style="bold") >> plex
 
     traefik >> Edge(color="blue", style="dotted") >> jellyfin
     traefik >> Edge(color="blue", style="dotted") >> homarr
@@ -136,7 +138,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     traefik >> Edge(color="blue", style="dotted") >> it_tools
     traefik >> Edge(color="blue", style="dotted") >> jdownloader
     traefik >> Edge(color="blue", style="dotted") >> mkvtoolnix
-    traefik >> Edge(color="blue", style="dotted") >> overseerr
+    traefik >> Edge(color="blue", style="dotted") >> seerr
     traefik >> Edge(color="blue", style="dotted") >> qbittorrent
     traefik >> Edge(color="blue", style="dotted") >> tautulli
     traefik >> Edge(color="blue", style="dotted") >> uptimekuma
@@ -159,9 +161,9 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     grafana >> Edge(color="orange", style="bold")  >> loki
     grafana >> Edge(color="orange", style="bold") >> prometheus
 
-    overseerr >> Edge(color="magenta1", style="bold") >> sonarr >> Edge(color="turquoise1", style="bold") >> qbittorrent
-    overseerr >> Edge(color="magenta1", style="bold") >> radarr >> Edge(color="orange1", style="bold") >> qbittorrent
-    overseerr >> Edge(color="magenta1", style="bold") >> plex
+    seerr >> Edge(color="magenta1", style="bold") >> sonarr >> Edge(color="turquoise1", style="bold") >> qbittorrent
+    seerr >> Edge(color="magenta1", style="bold") >> radarr >> Edge(color="orange1", style="bold") >> qbittorrent
+    seerr >> Edge(color="magenta1", style="bold") >> plex
 
     sonarr >> Edge(color="turquoise1", style="bold") >> silo_01
     sonarr >> Edge(color="turquoise1", style="bold") >> plex
@@ -177,9 +179,9 @@ with Diagram("Current Homelab", show=False, direction="TB"):
 
     prowlarr >> flaresolverr
 
-    cleanuparr >> sonarr
-    cleanuparr >> radarr
-    cleanuparr >> qbittorrent
+    cleanuparr >> Edge(color="darkviolet", style="bold") >> sonarr
+    cleanuparr >> Edge(color="darkviolet", style="bold") >> radarr
+    cleanuparr >> Edge(color="darkviolet", style="bold") >> qbittorrent
 
     bazarr >> Edge(color="black", style="bold") >> sonarr
     bazarr >> Edge(color="black", style="bold") >> radarr
@@ -194,9 +196,11 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     metallb >> Edge(color="navyblue", style="dashed") >> rancher
     metallb >> Edge(color="navyblue", style="dashed") >> openspeedtest
 
+    skyeye_uptimekuma >> gluetun
+
     skyeye_cftunnel >> Edge(color="#CEA400", style="solid") >> skyeye_uptimekuma
     cftunnel >> Edge(color="#CEA400", style="solid") >> freshrss
-    cftunnel >> Edge(color="#CEA400", style="solid") >> overseerr
+    cftunnel >> Edge(color="#CEA400", style="solid") >> seerr
     cftunnel >> Edge(color="#CEA400", style="solid") >> grafana
     cftunnel >> Edge(color="#CEA400", style="solid") >> immich
     cftunnel >> Edge(color="#CEA400", style="solid") >> jellyfin
@@ -210,7 +214,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     grafana >> Edge(color="yellowgreen", style="bold") >> restic
     immich >> Edge(color="yellowgreen", style="bold") >> restic
     jellyfin >> Edge(color="yellowgreen", style="bold") >> restic
-    overseerr >> Edge(color="yellowgreen", style="bold") >> restic
+    seerr >> Edge(color="yellowgreen", style="bold") >> restic
     paperless_ngx >> Edge(color="yellowgreen", style="bold") >> restic
     plex >> Edge(color="yellowgreen", style="bold") >> restic
     pterodactyl_panel >> Edge(color="yellowgreen", style="bold") >> restic
