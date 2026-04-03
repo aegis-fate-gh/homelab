@@ -10,9 +10,9 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     with Cluster("Home - Chicago"):
         silo_01 = Custom("UNAS-Pro - Silo-01\n 5x 24TB Seagate Exos HDD's", "./local_icons/unifi.png")
         silo_02 = Custom("UNAS-Pro - Silo-02\n 5x 24TB Seagate Exos HDD's", "./local_icons/unifi.png")
-        syn_coruscant = Custom("Synology DS923+", "./local_icons/synology.png")
+        syn_coruscant = Custom("Synology DS923+\n4x 2TB Samsung 870 QVO", "./local_icons/synology.png")
 
-        with Cluster("Arc Mac Server\nM2 Pro Mac Mini, 32GB's RAM, 10GBe\n4x 2TB Samsung 870 QVO SSD's"):
+        with Cluster("Arc Mac Server\nM2 Pro Mac Mini, 32GB's RAM, 512GB SSD, 10GBe"):
             lm_studio = Custom("LM Studio", "./local_icons/lmstudio.png")
             with Cluster("Docker"):
                 ams_portainer = Custom("Portainer", "./local_icons/portainer.png")
