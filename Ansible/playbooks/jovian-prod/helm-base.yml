@@ -1,7 +1,7 @@
 # To run:
-# ansible-playbook playbooks/jovian-prod/helm-base.yml -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# ansible-playbook playbooks/jovian-prod/helm-base.yml -i inventories/eos-v2.yml --become-password-file=credentials/ansible_eos_password.txt
 # To Test:
-# ansible-playbook playbooks/jovian-prod/helm-base.yml --check -i inventories/eos.yml --become-password-file=credentials/ansible_eos_password.txt
+# ansible-playbook playbooks/jovian-prod/helm-base.yml --check -i inventories/eos-v2.yml --become-password-file=credentials/ansible_eos_password.txt
 ---
 - name: Configure helm repos and base infrastructure level charts within the Jovian Cluster. Used after initial-config
   hosts: jupiter-01
@@ -28,6 +28,7 @@
         - { name: 'csi-driver-smb', repo: 'https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts' }
         - { name: 'backube', repo: 'https://backube.github.io/helm-charts/' }
         - { name: 'csi-driver-nfs', repo: 'https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts' }
+        - { name: 'prometheus', repo: 'https://prometheus-community.github.io/helm-charts' }
       loop_control:
         loop_var: repo_list
 
@@ -303,6 +304,59 @@
             annotations:
               volsync.backube/privileged-movers: "true"
 
+    # https://github.com/prometheus-community/helm-charts?tab=readme-ov-file
+    # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus
+    - name: Deploy Community Prometheus
+      kubernetes.core.helm:
+        name: prometheus
+        chart_ref: prometheus/prometheus
+        release_namespace: monitoring
+        chart_version: v28.13.0
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+        values:
+          prometheus:
+            server:
+              retention: 14d
+              resources:
+                requests:
+                  memory: 512Mi
+                  cpu: 100m
+                limits:
+                  memory: 1Gi
+                  cpu: 500m
+              persistentVolume:
+                storageClassName: "k8s-cephfs"
+                size: 10Gi
+            alertmanager:
+              persistence:
+                storageClassName: "k8s-cephfs"
+                size: 2Gi          
+
+    - name: Create prometheus Ingress
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: prometheus-ingress
+            namespace: monitoring
+          spec:
+            rules:
+              - host: prometheus.jovian.local.sch-apps.com
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name:  prometheus-server
+                          port:
+                            number: 80
 
     # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#prerequisite
     - name: Create SMB secrets

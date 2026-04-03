@@ -30,7 +30,7 @@
               connection: standard
             containers:
             - name: homarr
-              image: ghcr.io/ajnart/homarr:latest
+              image: ghcr.io/homarr-labs/homarr:latest
               imagePullPolicy: Always
               ports:
               - containerPort: 7575
@@ -38,23 +38,12 @@
                 protocol: TCP   
               volumeMounts:
               - name: config
-                mountPath: /app/data/configs
-                subPath: configs
-              - name: config
-                mountPath: /app/public/icons
-                subPath: icons
-              - name: config
-                mountPath: /data
-                subPath: data
+                mountPath: /appdata
               env:
               - name: TZ
                 value: 'America/Chicago'
-              - name: PUID
-                value: '1000'
-              - name: PGID
-                value: '1000'
-              - name: UMASK
-                value: '002'
+              - name: SECRET_ENCRYPTION_KEY
+                value: "{{ HOMARR_ENCRYPTION_KEY }}"
             volumes:
             - name: config
               persistentVolumeClaim:
@@ -119,4 +108,4 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 1Gi
+            storage: 5Gi

@@ -8,3 +8,5 @@ For install and usage on a mac:
 6. Start pipenv
 7. Navigate to the desired folder
 8. Run python against the file
+
+CSS Color Names: https://drafts.csswg.org/css-color/#named-colors
