@@ -17,6 +17,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
 
         with Cluster("Arc Mac Server\nM2 Pro Mac Mini, 32GB's RAM, 512GB SSD, 10GBe"):
             lm_studio = Custom("LM Studio", "./local_icons/lmstudio.png")
+            ams_handbrake = Custom("Handbrake", "./local_icons/handbrake.png")
             with Cluster("Docker"):
                 ams_portainer = Custom("Portainer", "./local_icons/portainer.png")
 
