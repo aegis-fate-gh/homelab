@@ -126,13 +126,26 @@
               requests:
                 storage: 128Mi
 
+    - name: Create Traefik Cloudflare Secret
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: cloudflare
+            namespace: kube-system
+          stringData:
+            token: "{{ CLOUDFLARE_TOKEN }}"
+
     # https://github.com/traefik/traefik-helm-chart
     - name: Deploy Traefik
       kubernetes.core.helm:
         name: traefik
         chart_ref: traefik/traefik
         release_namespace: kube-system
-        chart_version: v34.5.0
+        chart_version: v39.0.7
         update_repo_cache: true
         create_namespace: true
         kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -140,7 +153,14 @@
         values:
           deployment:
             enabled: true
-            replicas: 1
+            replicas: 2
+            initContainers:
+              - name: volume-permissions
+                image: busybox:latest
+                command: ["sh", "-c", "touch /data/acme.json; chmod -v 600 /data/acme.json"]
+                volumeMounts:
+                  - name: data
+                    mountPath: /data
           logs:
             general:
               level: INFO
@@ -152,13 +172,11 @@
           rbac:
             enabled: true
           api:
+            dashboard: true
             insecure: true
           ingressRoute:
             dashboard:
               enabled: true
-          traefik:
-            expose:
-              default: true
           providers:
             kubernetesCRD:
               enabled: true
@@ -168,10 +186,6 @@
               enabled: true
               publishedService:
                 enabled: true
-          ports:
-            traefik:
-              expose:
-                default: true
           service:
             enabled: true
             type: LoadBalancer
@@ -194,15 +208,21 @@
           persistence:
             enabled: true
             storageClass: k8s-cephfs
-            existingClaim: traefik-pvc
-          # certificatesResolvers:
-          #   cloudflare:
-          #     acme:
-          #       email: "{{ CLOUDFLARE_EMAIL }}"
-          #       storage: "/data/acme.json"
-          #       dnsChallenge:
-          #         provider: cloudflare
-          #           - CF_DNS_API_TOKEN: "{{ CLOUDFLARE_TOKEN }}"
+          certificatesResolvers:
+            letsencrypt:
+              acme:
+                dnsChallenge:
+                  provider: cloudflare
+                storage: /data/acme.json
+          env:
+            - name: CF_DNS_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare
+                  key: token
+          podSecurityContext:
+            fsGroup: 65532
+            fsGroupChangePolicy: "OnRootMismatch"
 
     # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-10-3/
     # To get available stable versions, run this on a control plane node: helm search repo rancher-stable/rancher --versions
