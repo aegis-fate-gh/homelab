@@ -30,7 +30,7 @@
 
             # Immich Front End
             - name: immich
-              image: ghcr.io/immich-app/immich-server:v2.6.1
+              image: ghcr.io/immich-app/immich-server:v2.7.5
               imagePullPolicy: IfNotPresent
               ports:
               - containerPort: 2283
@@ -233,6 +233,10 @@
       metadata:
         name: immich-ingress
         namespace: jovian-prod
+        annotations:
+          traefik.ingress.kubernetes.io/router.tls: "true"
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
       spec:
         rules:
           - host: immich.jovian.local.sch-apps.com

@@ -102,6 +102,10 @@
       metadata:
         name: ghost-ingress
         namespace: jovian-prod
+        annotations:
+          traefik.ingress.kubernetes.io/router.tls: "true"
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
       spec:
         rules:
           - host: ghost.jovian.local.sch-apps.com
