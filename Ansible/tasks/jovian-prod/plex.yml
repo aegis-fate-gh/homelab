@@ -1,4 +1,37 @@
 ---
+- name: Create alloy configmap
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: plex-alloy-config
+        namespace: jovian-prod
+      data:
+        config.alloy: |
+          local.file_match "plex_logs" {
+            path_targets = [{
+              "__path__" = "/plex/Library/Application Support/Plex Media Server/Logs/*.log",
+              "job"    = "plex_alloy",
+              "hostname" = "plex_alloy",
+            },]
+            sync_period = "5s"
+          }
+
+          loki.source.file "plex_log_scraper" {
+            targets    = local.file_match.plex_logs.targets
+            forward_to = [loki.write.grafana_loki.receiver]
+            tail_from_end = true
+          }
+
+          loki.write "grafana_loki" {
+            endpoint {
+              url = "http://192.168.6.195:3100/loki/api/v1/push"
+            }
+          }
+
 - name: Create Plex Prod Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -27,6 +60,26 @@
             nodeSelector:
               gpu: rtx4060
             containers:
+            - name: plex-alloy
+              image: grafana/alloy:latest
+              imagePullPolicy: Always
+              args: ["run", "--server.http.listen-addr=0.0.0.0:12345", "--storage.path=/var/lib/alloy/data", "/etc/alloy/config.alloy"]
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              ports:
+              - containerPort: 12345
+                name: plex-alloy
+              volumeMounts:
+              - name: alloy-config
+                mountPath: /etc/alloy
+              - name: config
+                mountPath: /plex
+                readOnly: true
             - name: plex
               image: plexinc/pms-docker:latest
               imagePullPolicy: Always
@@ -91,7 +144,9 @@
               persistentVolumeClaim:
                 claimName: plex-smb-media-pvc
                 readOnly: true
-
+            - name: alloy-config
+              configMap:
+                name: plex-alloy-config
 - name: Create Plex Prod PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -108,7 +163,7 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 30Gi
+            storage: 40Gi
 
 - name: Create Plex Prod Service
   kubernetes.core.k8s:
@@ -146,6 +201,10 @@
           targetPort: plex-gdm-4
           name: plex-gdm-4
           protocol: UDP
+        - port: 12345
+          targetPort: plex-alloy
+          name: plex-alloy
+          protocol: TCP
         selector:
           app: plex
         type: LoadBalancer

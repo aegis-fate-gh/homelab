@@ -1,0 +1,21 @@
+---
+- name: Restore data from backup
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationDestination
+      metadata:
+        name: restic-restore
+        namespace: jovian-prod
+      spec:
+        trigger:
+          manual: restore-once
+        restic:
+          repository: restic-plex
+          # Number of snapshots to go back
+          previous: 4
+          # Uses an existing PVC
+          destinationPVC: plex-pvc
+          copyMethod: Direct

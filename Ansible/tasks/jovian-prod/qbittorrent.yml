@@ -1,4 +1,17 @@
 ---
+- name: Create Wireguard Secret
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: qbittorrent-wg-conf
+        namespace: jovian-prod
+      stringData:
+        wg0.conf: "{{ QBITTORRENT_WIREGUARD_CONF }}"
+
 - name: Create qbittorrent Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -27,7 +40,63 @@
               app: qbittorrent
           spec:
             nodeSelector:
-              connection: vpn
+              connection: standard
+            initContainers:
+            - name: gluetun
+              # if you do not add restartPolicy the other init containers will never start
+              # it will be an initContainer and not a native sidecar container https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/
+              restartPolicy: Always
+              # Version pinned specifically to account for constant healthcheck failures in later versions
+              image: ghcr.io/qdm12/gluetun:v3.40.4
+              ports:
+              - containerPort: 8080
+                name: qbitt-http
+                protocol: TCP
+              lifecycle:
+                postStart:
+                  exec:
+                    command: ["/bin/sh", "-c", "(ip rule del table 51820; ip -6 rule del table 51820) || true"]
+              imagePullPolicy: Always
+              securityContext:
+                privileged: true
+                capabilities:
+                  add:
+                  - 'NET_ADMIN'
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: VPN_SERVICE_PROVIDER
+                value: 'custom'
+              - name: VPN_TYPE
+                value: 'wireguard'
+              - name: VPN_PORT_FORWARDING
+                value: 'on'
+              - name: VPN_PORT_FORWARDING_PROVIDER
+                value: "{{ PORT_FORWARDING_PROVIDER }}"
+              - name: FIREWALL_OUTBOUND_SUBNETS
+                value: '10.42.0.0/24,192.168.6.0/24'
+              - name: DNS_UPSTREAM_RESOLVER_TYPE
+                value: 'doh'
+              # Manually added these environment variables via Rancher WebUI: https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/vpn-port-forwarding.md
+              volumeMounts:
+              - name: dev-net-tun
+                mountPath: /dev/net/tun
+              - name: wg-conf
+                mountPath: /gluetun/wireguard/wg0.conf
+                subPath: wg0.conf
+            - name: curlpodtest
+              image: curlimages/curl
+              command: ['/bin/sh', '-c']
+              args:
+              - &check-ip |
+                  IP=$(curl -s checkip.amazonaws.com)
+                  EXPECTED_IP="YOUR_IP_ADDRESS"
+                  if [ "$IP" != "$EXPECTED_IP" ]; then
+                    echo "IP is different from $EXPECTED_IP. Current IP is $IP."
+                  else
+                    echo "IP is $EXPECTED_IP. Exiting..."
+                    exit 1
+                  fi
             containers:
             - name: qbittorrent
               image: ghcr.io/hotio/qbittorrent
@@ -50,6 +119,8 @@
                 value: '1000'
               - name: WEBUI_PORTS
                 value: '8080/tcp,8080/udp'
+              - name: LIBTORRENT
+                value: 'v1'
             volumes:
             - name: config
               persistentVolumeClaim:
@@ -58,6 +129,12 @@
             - name: nfs-media
               persistentVolumeClaim:
                 claimName: qbittorrent-smb-media-pvc
+            - name: dev-net-tun
+              hostPath:
+                path: /dev/net/tun
+            - name: wg-conf
+              secret:
+                secretName: qbittorrent-wg-conf
 
 - name: Create qbittorrent Service
   kubernetes.core.k8s:

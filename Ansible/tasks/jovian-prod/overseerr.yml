@@ -27,7 +27,7 @@
               app: overseerr
           spec:
             nodeSelector:
-              connection: vpn
+              connection: standard
             containers:
             - name: overseerr
               image: ghcr.io/seerr-team/seerr:latest
