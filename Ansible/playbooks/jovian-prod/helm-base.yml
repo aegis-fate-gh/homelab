@@ -186,6 +186,11 @@
               enabled: true
               publishedService:
                 enabled: true
+          global:
+            ports:
+              traefik:
+                expose:
+                  default: true
           service:
             enabled: true
             type: LoadBalancer
@@ -203,11 +208,21 @@
               targetPort: 8443
             - protocol: TCP
               port: 8080
-              name: admin
+              name: traefik
               targetPort: 8080
           persistence:
             enabled: true
             storageClass: k8s-cephfs
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: traefik
+                      app.kubernetes.io/instance: traefik-kube-system
+                  topologyKey: kubernetes.io/hostname
+          nodeSelector:
+            connection: standard
           certificatesResolvers:
             letsencrypt:
               acme:
@@ -365,6 +380,10 @@
           metadata:
             name: prometheus-ingress
             namespace: monitoring
+            annotations:
+              traefik.ingress.kubernetes.io/router.tls: "true"
+              traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
           spec:
             rules:
               - host: prometheus.jovian.local.sch-apps.com

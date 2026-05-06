@@ -21,7 +21,7 @@
         # - ../../tasks/jovian-prod/qbittorrent.yml
         # - ../../tasks/jovian-prod/openspeedtest.yml
         # - ../../tasks/jovian-prod/arrstack.yml
-        - ../../tasks/jovian-prod/plex.yml
+        # - ../../tasks/jovian-prod/plex.yml
         # - ../../tasks/jovian-prod/overseerr.yml
         # - ../../tasks/jovian-prod/promtail.yml
         # - ../../tasks/jovian-prod/pterodactyl-panel.yml
@@ -41,6 +41,8 @@
         # - ../../tasks/jovian-prod/it-tools.yml
         # - ../../tasks/jovian-prod/paperless-ngx.yml
         # - ../../tasks/jovian-prod/vaultwarden.yml
+        - ../../tasks/jovian-prod/ytdl.yml
+
         # - ../../tasks/jovian-prod/restic-restore.yml
 
       loop_control:

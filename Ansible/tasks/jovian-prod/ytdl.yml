@@ -1,0 +1,233 @@
+---
+- name: Create YouTubeDL Material Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: ytdl
+        namespace: jovian-prod
+        labels:
+          app: ytdl
+          service: media-backend
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: ytdl
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: ytdl
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: ytdl-material
+              image: tzahi12345/youtubedl-material:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 17442
+                name: ytdl-http
+                protocol: TCP   
+              volumeMounts:
+              - name: config
+                mountPath: /app/appdata
+                subPath: appdata
+              - name: config
+                mountPath: /app/users
+                subPath: users
+              - name: smb-media
+                mountPath: /app/audio
+                subPath: downloads/youtube-dl/audio
+              - name: smb-media
+                mountPath: /app/video
+                subPath: downloads/youtube-dl/video
+              - name: smb-media
+                mountPath: /app/subscriptions
+                subPath: downloads/youtube-dl/subscriptions
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+              - name: ytdl_mongodb_connection_string
+                value: 'mongodb://localhost:27017'
+              - name: ytdl_use_local_db
+                value: 'false'
+              - name: write_ytdl_config
+                value: 'true'
+            - name: ytdl-mongodb
+              image: mongo:4
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 27017
+                name: ytdl-mongo
+                protocol: TCP 
+              volumeMounts:
+              - name: config
+                mountPath: /data/db
+                subPath: db
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: ytdl-pvc
+                readOnly: false
+            - name: smb-media
+              persistentVolumeClaim:
+                claimName: ytdl-smb-media-pvc
+                readOnly: false
+
+- name: Create YouTubeDL Material Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: ytdl-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: ytdl
+        ports:
+          - port: 17442
+            targetPort: ytdl-http
+            protocol: TCP
+            name: ytdl-http
+
+- name: Create YouTubeDL Material Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: ytdl-ingress
+        namespace: jovian-prod
+        annotations:
+          traefik.ingress.kubernetes.io/router.tls: "true"
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+      spec:
+        rules:
+          - host: ytdl.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  ytdl-service
+                      port:
+                        number: 17442
+
+- name: Create YouTubeDL Material PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ytdl-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 1Gi
+
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+- name: Create the YouTubeDL Material SMB PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+        name: ytdl-smb-media
+      spec:
+        capacity:
+          storage: 72Ti
+        accessModes:
+          - ReadWriteMany
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: smb-csi-media
+        mountOptions:
+          - dir_mode=0777
+          - file_mode=0777
+        csi:
+          driver: smb.csi.k8s.io
+          # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+          # make sure this value is unique for every share in the cluster
+          volumeHandle: 192.168.100.162/media
+          volumeAttributes:
+            source: //192.168.100.162/media
+          nodeStageSecretRef:
+            name: smb-media-manangers
+            namespace: jovian-prod
+
+- name: Create YouTubeDL Material SMB PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ytdl-smb-media-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: smb-csi-media
+        resources:
+          requests:
+            storage: 72Ti
+        volumeName: ytdl-smb-media
+
+# - name: Create YouTubeDL Material Backup schedule
+#   kubernetes.core.k8s:
+#     kubeconfig: /etc/rancher/k3s/k3s.yaml
+#     state: present
+#     definition:
+#       apiVersion: volsync.backube/v1alpha1
+#       kind: ReplicationSource
+#       metadata:
+#         name: ytdl-backup
+#         namespace: jovian-prod
+#       spec:
+#         # The PVC to be backed up
+#         sourcePVC: ytdl-pvc
+#         trigger:
+#           # Take a backup every day at 2am
+#           schedule: "0 2 * * *"
+#         restic:
+#           # Prune the repository (repack to free space) every 2 weeks
+#           pruneIntervalDays: 14
+#           # Name of the Secret with the connection information
+#           repository: restic-ytdl
+#           # Retention policy for backups
+#           retain:
+#             daily: 7
+#           # Snapshot the source volume prior to taking a backup to ensure a point-in-time image.
+#           copyMethod: Snapshot
+#           volumeSnapshotClassName: csi-cephfsplugin-snapclass

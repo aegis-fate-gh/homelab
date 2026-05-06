@@ -35,11 +35,9 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 traefik = network.Traefik("Traefik\nInternal Proxy")
                 rancher = Custom("Rancher", "./local_icons/rancher.png")
                 cftunnel = Custom("Cloudflare Tunnel", "./local_icons/cf-tunnel.png")
-                qbittorrent = Custom("qBittorrent", "./local_icons/qBittorrent.png")
                 prometheus = monitoring.Prometheus("Prometheus")
                 metallb = Custom("Metallb", "./local_icons/metallb.png")
                 grafana = monitoring.Grafana("Grafana")
-                plex = Custom("Plex", "./local_icons/plex.jpg")
                 tautulli = Custom("Tautulli", "./local_icons/tautulli.png")
                 jellyfin = Custom("Jellyfin", "./local_icons/jellyfin.png")
                 jdownloader = Custom("JDownloader 2", "./local_icons/jdownloader.png")
@@ -56,6 +54,12 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 vaultwarden = Custom("VaultWarden", "./local_icons/vaultwarden.png")
                 restic = Custom("Restic Backups", "./local_icons/restic.png")
 
+                with Cluster("Plex"):
+                    plex = Custom("Plex", "./local_icons/plex.jpg")
+                    grafana_alloy_plex = Custom("Grafana Alloy", "./local_icons/alloy.png")
+                with Cluster("qbittorrent"):
+                    qbittorrent = Custom("qBittorrent", "./local_icons/qBittorrent.png")
+                    gluetun_qbittorrent = Custom("Gluetun", "./local_icons/gluetun.png")
                 with Cluster("ArrStack"):
                     sonarr = Custom("Sonarr", "./local_icons/sonarr.png")
                     radarr = Custom("Radarr", "./local_icons/radarr.png")
@@ -82,6 +86,9 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                     immich_ml = Custom("Immich Machine Learning", "./local_icons/immich.png") >> immich
                     immich_redis = inmemory.Redis("Immich Redis") >> immich
                     immich_db = database.Postgresql("Immich DB") >> immich
+                with Cluster("YoutubeDL Material"):
+                    ytdl = Custom("Youtube DL Material", "./local_icons/youtube-dl.png")
+                    ytdl_mongo = database.Mongodb("MongoDB")
 
             with Cluster("Wings-01 - Docker Host - VM"):
                 w01_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
@@ -106,7 +113,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
             gluetun = Custom("Gluetun", "./local_icons/gluetun.png")
 
     with Cluster("Parents House - MD"):
-        syn_sanctuary = Custom("Synology RS1221+\n32GB's RAM, Dual SFP+\n2x Intel DC S3700 DC 400GB, 5x Seagate Exos 20TB", "./local_icons/synology.png")
+        syn_sanctuary = Custom("Synology RS1221+\n32GB's RAM, Dual SFP+\n2x Intel DC S3700 DC 400GB\n5x Seagate Exos 20TB", "./local_icons/synology.png")
 
     silo_01 >> Edge(color="royalblue", style="bold") >> silo_02
     silo_01 >> Edge(color="royalblue", style="bold") >> backblaze
@@ -149,6 +156,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     traefik >> Edge(color="blue", style="dotted") >> uptimekuma
     traefik >> Edge(color="blue", style="dotted") >> prometheus
     traefik >> Edge(color="blue", style="dotted") >> grafana
+    traefik >> Edge(color="blue", style="dotted") >> ytdl
 
     pterodactyl_panel >> Edge(color="sienna", style="solid") >> w01_pterodactyl_wings
     pterodactyl_panel >> Edge(color="sienna", style="solid") >> w02_pterodactyl_wings
@@ -159,7 +167,8 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     w02_pterodactyl_wings >> test
 
     qbittorrent >> Edge(color="deepskyblue", style="solid") >> silo_01
-    qbittorrent >> Edge(color="deepskyblue", style="solid") >> proton_vpn
+    qbittorrent >> Edge(color="deepskyblue", style="solid") >> gluetun_qbittorrent
+    gluetun_qbittorrent >> Edge(color="deepskyblue", style="solid") >> proton_vpn
 
     mkvtoolnix >> silo_01
     jdownloader >> silo_01
@@ -168,7 +177,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     uptimekuma >> Edge(color="forestgreen", style="solid") >> discord
     skyeye_uptimekuma >> Edge(color="forestgreen", style="solid") >> discord
 
-    grafana >> Edge(color="orange", style="bold")  >> loki
+    grafana >> Edge(color="orange", style="bold") >> loki
     grafana >> Edge(color="orange", style="bold") >> prometheus
 
     seerr >> Edge(color="magenta1", style="bold") >> sonarr >> Edge(color="turquoise1", style="bold") >> qbittorrent
@@ -233,3 +242,4 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     uptimekuma >> Edge(color="yellowgreen", style="bold") >> restic
     vaultwarden >> Edge(color="yellowgreen", style="bold") >> restic
 
+    plex >> Edge(color="orange", style="bold") >> grafana_alloy_plex >> Edge(color="orange", style="bold") >> loki
