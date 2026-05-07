@@ -54,6 +54,9 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 vaultwarden = Custom("VaultWarden", "./local_icons/vaultwarden.png")
                 restic = Custom("Restic Backups", "./local_icons/restic.png")
 
+                with Cluster("Jobs"):
+                    kometa = Custom("Kometa", "./local_icons/kometa.png")
+                
                 with Cluster("Plex"):
                     plex = Custom("Plex", "./local_icons/plex.jpg")
                     grafana_alloy_plex = Custom("Grafana Alloy", "./local_icons/alloy.png")
@@ -243,5 +246,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     vaultwarden >> Edge(color="yellowgreen", style="bold") >> restic
 
     plex >> Edge(color="orange", style="bold") >> grafana_alloy_plex >> Edge(color="orange", style="bold") >> loki
+    kometa >> Edge(color="orange", style="bold") >> plex
 
     ytdl >> ytdl_mongo
+    ytdl >> silo_01

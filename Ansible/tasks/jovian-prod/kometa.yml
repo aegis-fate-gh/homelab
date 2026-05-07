@@ -1,0 +1,191 @@
+---
+- name: Remove previous Kometa Job
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: absent
+    definition:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: kometa
+        namespace: jovian-prod
+        labels:
+          app: kometa
+          service: media-backend
+
+- name: Create Kometa concerts configmap
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: kometa-concerts-config
+        namespace: jovian-prod
+      data:
+        concerts.yml: |
+          metadata:
+            Ace Combats The Symphony 25th Anniversary:
+              match:
+                title: Ace Combats the Symphony 25th Anniversary
+              sort_title: Ace Combats The Symphony 25th Anniversary
+              originally_available: 2021-08-07
+              summary: | 
+                Conductor: Keiki Kobayashi
+                Performed by: ACE COMBAT 25th anniversary AIR TACTICAL ORCHESTRA
+                ACE COMBAT/S THE SYMPHONY 25TH ANNIVERSARY - A Full-blown musical event conducted solely for our brand game, “ACE COMBAT”
+                Our first concert was held on July 27, 2019 at Haneda Airport “TIAT SKY HALL” and received quite a favorable reception. We would like our audience to enjoy popular pieces of the music from “ACE COMBAT” with full orchestra performance and behind-the-scenes stories revealed by our producers. They will be able to see new sides of ACE COMBAT series.
+                We will offer you online distribution of the movie of our acclaimed concert which was held in Japan (at Ota Citizen Hall in Kamata) on August 7, 2021.
+            Star Trek Concert Prague 02 11 2016:
+              match:
+                title: Star Trek Concert - Prague - 2-11-2016
+              sort_title: Star Trek Concert - Prague - 2-11-2016
+              originally_available: 2016-02-08
+              summary: "Film Music Prague Festival produced STAR TREK CONCERT which was a celebration of 50th Anniversary of this franchise. (www.filmmusicprague.com)"
+            The Witch From Mercury and Asticassia Music Video:
+              match:
+                title: The Witch from Mercury and Asticassia
+              sort_title: The Witch from Mercury and Asticassia
+              originally_available: 2022-12-04
+              summary: |
+                "The Witch From Mercury" is the main theme song and the title song of Mobile Suit Gundam The Witch from Mercury. "Asticassia" is named from the school, which is the sub-theme and the stage of the story.
+                Music by Takashi Ohmama
+            REQUIEM FOR ATTACK ON TITAN Grissini Project Orchestra:
+              match:
+                title: Requiem for Attack on Titan Grissini Project Orchestra
+              sort_title: Requiem for Attack on Titan Grissini Project Orchestra
+              originally_available: 2023-11-02
+              summary: |
+                Symphonic suit for vocalist, choir, piano trio, organ and orchestra
+                Music by Hiroyuki Sawano and Linked Horizon. Arrangement and orchestration Simon Nebout
+                GRISSINI PROJECT ORCHESTRA - Presented by Romain Vaudé
+            Hiroyuki Sawano MOBILE SUIT GUNDAM UNICORN Suite:
+              match:
+                title: Hiroyuki Sawano Mobile Suit Gundam Unicorn Suite
+              sort_title: Hiroyuki Sawano Mobile Suit Gundam Unicorn Suite
+              originally_available: 2021-04-13
+              summary: |
+                On May 7, Hiroyuki Sawano, who is in charge of music at the national road show "Mobile Suit Gundam: Hathaway of the Flash", released a new MV.
+                This song recorded the music in the play of "Mobile Suit Gundam Unicorn" as a sume, and the MV was shot in front of the full-sized "Moving Gundam" of "GUNDAM FACTORY YOKOHAMA".
+                0:13 UNICORN GUNDAM
+                3:36 MOBILE SUIT
+                6:26 EGO
+                9:42 MOBILE ARMOR
+                13:02 ON YOUR MARK
+            Hiroyuki Sawano Project emU Attack on Titan Suite:
+              match:
+                title: Hiroyuki Sawano Project emU Attack on Titan Suite
+              sort_title: Hiroyuki Sawano Project emU Attack on Titan Suite
+              originally_available: 2020-10-02
+              summary: |
+                Project【emU】is the soundtrack revival project by Hiroyuki Sawano.
+                In this time, he has arranged a suite of music for the soundtrack of the TV animation “Attack on Titan” which is the work he composed.
+                0:12 Attack on Titan
+                4:26 Before Lights Out
+                7:06 K2
+                9:20 T:T
+                12:32 Counter Attack-Mankind
+                15:37 Apple Seed
+
+- name: Create Kometa config configmap
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: kometa-config
+        namespace: jovian-prod
+      data:
+        config.yml: |
+          libraries:                           # This is called out once within the config.yml file
+            Concerts:                            # These are names of libraries in your Plex
+              remove_overlays: false           # Set this to true to remove all overlays
+              metadata_files:
+                - file: /config/concerts.yml
+
+          settings:
+            save_report: true
+
+          plex:                                # Can be individually specified per library as well; REQUIRED for the script to run
+            url: "{{ PLEX_URL }}"
+            token: "{{ PLEX_TOKEN }}"
+
+          tmdb:                                # REQUIRED for the script to run
+            apikey: "{{ TMDB_KEY }}"
+            language: en
+
+- name: Create Kometa Job
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: kometa
+        namespace: jovian-prod
+        labels:
+          app: kometa
+          service: media-backend
+      spec:
+        template:
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: kometa
+              image: kometateam/kometa:latest
+              imagePullPolicy: IfNotPresent 
+              args: ["--run", "--read-only-config"]
+              volumeMounts:
+              - name: config
+                mountPath: /config
+              - name: kometa-config
+                mountPath: /config/config.yml
+                subPath: config.yml
+              - name: concert-config
+                mountPath: /config/concerts.yml
+                subPath: concerts.yml
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+            restartPolicy: Never
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: kometa-pvc
+                readOnly: false
+            - name: kometa-config
+              configMap:
+                name: kometa-config
+            - name: concert-config
+              configMap:
+                name: kometa-concerts-config
+        backoffLimit: 2
+
+- name: Create Kometa PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: kometa-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 512Mi

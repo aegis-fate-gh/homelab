@@ -41,7 +41,9 @@
         # - ../../tasks/jovian-prod/it-tools.yml
         # - ../../tasks/jovian-prod/paperless-ngx.yml
         # - ../../tasks/jovian-prod/vaultwarden.yml
-        - ../../tasks/jovian-prod/ytdl.yml
+        # - ../../tasks/jovian-prod/ytdl.yml
+        - ../../tasks/jovian-prod/kometa.yml
+
 
         # - ../../tasks/jovian-prod/restic-restore.yml
 
