@@ -9,6 +9,8 @@ with Diagram("Current Homelab", show=False, direction="TB"):
         discord = Custom("Discord", "./local_icons/discord.png")
         proton_mail = Custom("Proton Mail", "./local_icons/proton-mail.png")
         proton_vpn = Custom("Proton VPN", "./local_icons/proton-vpn.png")
+        cloudflare = Custom("Cloudflare", "./local_icons/cloudflare.png")
+        crowdsec = Custom("Crowdsec", "./local_icons/crowdsec.jpeg")
 
     with Cluster("Home - Chicago"):
         silo_01 = Custom("UNAS-Pro - Silo-01\n 5x 24TB Seagate Exos HDD's", "./local_icons/unifi.png")
@@ -23,11 +25,10 @@ with Diagram("Current Homelab", show=False, direction="TB"):
 
         with Cluster("PVE-Donnager\nThreadripper 1950x, 64GB's RAM, 3x 500GB WD Black SSD's, 4x 2TB Samsung 990 EVO Plus SSD's, 1x Dual SFP+"):
             with Cluster("Polaris - Docker Host - VM"):
-                polaris_monitoring = Custom("Telegraf", "./local_icons/telegraf_logo.png")
                 polaris_portainer = Custom("Portainer", "./local_icons/portainer.png")
                 loki = logging.Loki("Loki")
                 polaris_watchtower = Custom("Watchtower", "./local_icons/watchtower.png")
-                polaris_logging = Custom("Promtail", "./local_icons/promtail.png") >> Edge(color="darkorange", style="solid") >> loki
+                polaris_logging = Custom("Grafana Alloy", "./local_icons/alloy.png") >> Edge(color="orangered", style="bold", minlen="2") >> loki
                 polaris_handbrake = Custom("Handbrake", "./local_icons/handbrake.png")
 
         with Cluster("PVE-EOS-01 > 03\n3x Physical Hosts\nRyzen 7 5700x, 128GB's ECC, 2x 500GB Samsung 870 EVO (Boot), 2x 1TB Micron 7450 (CEPH), 1x Nvidia RTX 4060, 1x Dual SFP+"):
@@ -35,7 +36,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 traefik = network.Traefik("Traefik\nInternal Proxy")
                 rancher = Custom("Rancher", "./local_icons/rancher.png")
                 cftunnel = Custom("Cloudflare Tunnel", "./local_icons/cf-tunnel.png")
-                prometheus = monitoring.Prometheus("Prometheus")
+                prometheus = monitoring.Prometheus("Prometheus - Jovian")
                 metallb = Custom("Metallb", "./local_icons/metallb.png")
                 grafana = monitoring.Grafana("Grafana")
                 tautulli = Custom("Tautulli", "./local_icons/tautulli.png")
@@ -48,11 +49,12 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 iperf3 = Custom("Iperf3", "./local_icons/iperf.gif")
                 homarr = Custom("Homarr", "./local_icons/homarr.png")
                 converternow = Custom("Converter Now", "./local_icons/converternow.jpg")
-                it_tools = Custom("Homarr", "./local_icons/it-tools.png")
+                it_tools = Custom("IT Tools", "./local_icons/it-tools.png")
                 littlelink = Custom("LittleLink", "./local_icons/littlelink.png")
                 openspeedtest = Custom("Openspeedtest", "./local_icons/openspeedtest.png")
                 vaultwarden = Custom("VaultWarden", "./local_icons/vaultwarden.png")
                 restic = Custom("Restic Backups", "./local_icons/restic.png")
+                jovian_promtail = Custom("Promtail", "./local_icons/promtail.png")
 
                 with Cluster("Jobs"):
                     kometa = Custom("Kometa", "./local_icons/kometa.png")
@@ -60,6 +62,9 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 with Cluster("Plex"):
                     plex = Custom("Plex", "./local_icons/plex.jpg")
                     grafana_alloy_plex = Custom("Grafana Alloy", "./local_icons/alloy.png")
+                with Cluster("Plex Beta"):
+                    plex_beta = Custom("Plex Beta", "./local_icons/plex.jpg")
+                    grafana_alloy_beta_plex = Custom("Grafana Alloy", "./local_icons/alloy.png")
                 with Cluster("qbittorrent"):
                     qbittorrent = Custom("qBittorrent", "./local_icons/qBittorrent.png")
                     gluetun_qbittorrent = Custom("Gluetun", "./local_icons/gluetun.png")
@@ -99,6 +104,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 w01_pterodactyl_wings = Custom("Pterodactyl Wings", "./local_icons/pterodactyl.png")
                 w01_crowdsec = Custom("Crowdsec", "./local_icons/crowdsec.jpeg")
                 w01_watchtower = Custom("Watchtower", "./local_icons/watchtower.png")
+                grafana_alloy_wings_01 = Custom("Grafana Alloy", "./local_icons/alloy.png")
 
             with Cluster("Wings-02 - Docker Host - VM"):
                 w02_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
@@ -106,6 +112,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 w02_pterodactyl_wings = Custom("Pterodactyl Wings", "./local_icons/pterodactyl.png")
                 w02_crowdsec = Custom("Crowdsec", "./local_icons/crowdsec.jpeg")
                 w02_watchtower = Custom("Watchtower", "./local_icons/watchtower.png")
+                grafana_alloy_wings_02 = Custom("Grafana Alloy", "./local_icons/alloy.png")
 
     with Cluster("AWS Lightsail\nOhio Zone-A"):
         with Cluster("AWS-SkyEye - 2GB's RAM, 2cpu"):
@@ -113,6 +120,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
             skyeye_watchtower = Custom("Watchtower", "./local_icons/watchtower.png")
             skyeye_cftunnel = Custom("Cloudflare Tunnel", "./local_icons/cf-tunnel.png")
             skyeye_uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
+            skeeye_alloy = Custom("Grafana Alloy", "./local_icons/alloy.png")
             gluetun = Custom("Gluetun", "./local_icons/gluetun.png")
 
     with Cluster("Parents House - MD"):
@@ -129,10 +137,11 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     immich >> Edge(color="violet", style="bold") >> syn_coruscant
 
     plex >> silo_01
+    plex_beta >> silo_01
 
     jellyfin >> silo_01
 
-    tautulli >> Edge(color="darkorange", style="bold") >> plex
+    tautulli >> Edge(color="darkorange", style="bold", minlen="2") >> plex
     tautulli >> Edge(color="darkorange", style="bold") >> proton_mail
 
     traefik >> Edge(color="blue", style="dotted") >> jellyfin
@@ -180,21 +189,25 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     uptimekuma >> Edge(color="forestgreen", style="solid") >> discord
     skyeye_uptimekuma >> Edge(color="forestgreen", style="solid") >> discord
 
-    grafana >> Edge(color="orange", style="bold") >> loki
-    grafana >> Edge(color="orange", style="bold") >> prometheus
+    skeeye_alloy >> Edge(color="orangered", style="bold") >> gluetun >> Edge(color="orangered", style="bold") >> loki
 
-    seerr >> Edge(color="magenta1", style="bold") >> sonarr >> Edge(color="turquoise1", style="bold") >> qbittorrent
-    seerr >> Edge(color="magenta1", style="bold") >> radarr >> Edge(color="orange1", style="bold") >> qbittorrent
+    grafana << Edge(color="orange", style="bold") << loki
+    grafana << Edge(color="orange", style="bold", minlen="2") << prometheus
+
+    seerr >> Edge(color="magenta1", style="bold", minlen="3") >> sonarr >> Edge(color="turquoise1", style="bold", minlen="2") >> qbittorrent
+    seerr >> Edge(color="magenta1", style="bold", minlen="3") >> radarr >> Edge(color="orange1", style="bold", minlen="2") >> qbittorrent
     seerr >> Edge(color="magenta1", style="bold") >> plex
     seerr >> Edge(color="magenta1", style="bold") >> discord
 
     sonarr >> Edge(color="turquoise1", style="bold") >> silo_01
-    sonarr >> Edge(color="turquoise1", style="bold") >> plex
+    sonarr >> Edge(color="turquoise1", style="bold", minlen="2") >> plex
+    sonarr >> Edge(color="turquoise1", style="bold", minlen="2") >> plex_beta
     sonarr >> Edge(color="turquoise1", style="bold") >> jellyfin
     sonarr >> Edge(color="turquoise1", style="bold") >> prowlarr
 
     radarr  >> Edge(color="orange1", style="bold") >> silo_01
-    radarr  >> Edge(color="orange1", style="bold") >> plex
+    radarr  >> Edge(color="orange1", style="bold", minlen="2") >> plex
+    radarr  >> Edge(color="orange1", style="bold", minlen="2") >> plex_beta
     radarr  >> Edge(color="orange1", style="bold") >> jellyfin
     radarr  >> Edge(color="orange1", style="bold") >> prowlarr
 
@@ -218,6 +231,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     metallb >> Edge(color="navyblue", style="dashed") >> traefik
     metallb >> Edge(color="navyblue", style="dashed") >> rancher
     metallb >> Edge(color="navyblue", style="dashed") >> openspeedtest
+    metallb >> Edge(color="navyblue", style="dashed") >> plex_beta
 
     skyeye_uptimekuma >> gluetun
 
@@ -230,6 +244,8 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     cftunnel >> Edge(color="#CEA400", style="solid") >> pterodactyl_panel
     cftunnel >> Edge(color="#CEA400", style="solid") >> littlelink
     cftunnel >> Edge(color="#CEA400", style="solid") >> tautulli
+    cloudflare >> Edge(color="#CEA400", style="solid") >> cftunnel
+    cloudflare >> Edge(color="#CEA400", style="solid") >> skyeye_cftunnel
 
     restic >> Edge(color="yellowgreen", style="bold") >> backblaze
     freshrss >> Edge(color="yellowgreen", style="bold") >> restic
@@ -245,8 +261,18 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     uptimekuma >> Edge(color="yellowgreen", style="bold") >> restic
     vaultwarden >> Edge(color="yellowgreen", style="bold") >> restic
 
-    plex >> Edge(color="orange", style="bold") >> grafana_alloy_plex >> Edge(color="orange", style="bold") >> loki
-    kometa >> Edge(color="orange", style="bold") >> plex
+    jovian_promtail >> Edge(color="orangered", style="bold") >> prometheus
+
+    plex >> Edge(color="orangered", style="bold") >> grafana_alloy_plex >> Edge(color="orangered", style="bold") >> loki
+    plex_beta >> Edge(color="orangered", style="bold") >> grafana_alloy_beta_plex >> Edge(color="orangered", style="bold") >> loki
+
+    kometa >> Edge(color="orange", style="bold", minlen="2") >> plex
+
+    grafana_alloy_wings_01 >> Edge(color="orangered", style="bold") >> loki
+    grafana_alloy_wings_02 >> Edge(color="orangered", style="bold") >> loki
 
     ytdl >> ytdl_mongo
     ytdl >> silo_01
+
+    w01_crowdsec >> crowdsec
+    w02_crowdsec >> crowdsec

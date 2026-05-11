@@ -2,10 +2,11 @@ version: '3.8'
 
 services:
   watchtower:
-    image: containrrr/watchtower
+    image: nickfedor/watchtower
     container_name: watchtower
     restart: always
     environment:
+      - WATCHTOWER_LABEL_ENABLE=true
       - TZ=America/Chicago
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_SCHEDULE=0 0 3 * * * #run every day at 3am

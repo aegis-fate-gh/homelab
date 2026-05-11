@@ -1,41 +1,24 @@
-version: '3'
+version: '3.8'
 
 services:
-  promtail:
-    image: grafana/promtail:latest
+  alloy:
+    image: grafana/alloy:latest
     restart: always
-    container_name: promtail
+    container_name: alloy
     network_mode: "container:gluetun"
-    environment:
-      - "TZ=America/Chicago"
     volumes:
-      - '/var/lib/docker/volumes/promtail_data/promtail.yaml:/etc/promtail/docker-config.yaml'
-      - '/var/lib/docker/volumes/promtail_data/positions:/positions'
-      - /var/lib/docker/containers:/var/lib/docker/containers
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/log:/var/log
-    command: -config.file=/etc/promtail/docker-config.yaml
-
-  telegraf:
-    image: docker.io/telegraf:latest
-    restart: always
-    container_name: telegraf
-
-    user: telegraf:988
-    network_mode: "container:gluetun"
-    environment:
-      - TZ=America/Chicago
-      - HOST_OS=ubuntu
-      - HOST_PROC=/rootfs/proc
-      - HOST_SYS=/rootfs/sys
-      - HOST_ETC=/rootfs/etc
-      - HOST_MOUNT_PREFIX=/rootfs
-      - TELEGRAF_INFLUX_PASS=$TELEGRAF_INFLUX_PASS
-      - TELEGRAF_INFLUX_USER=$TELEGRAF_INFLUX_USER
-      - TELEGRAF_INFLUX_DB=$TELEGRAF_INFLUX_DB
-    volumes:
-      - /var/lib/docker/volumes/telegraf_data/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/lib/docker/volumes/alloy_data/config.alloy:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /sys:/rootfs/sys:ro
-      - /proc:/rootfs/proc:ro
-      - /etc:/rootfs/etc:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log/pterodactyl/:/var/log/pterodactyl/:ro
+    ports:
+      - "12345:12345" # Alloy UI and API
+    command: [
+      "run",
+      "--server.http.listen-addr=0.0.0.0:12345",
+      "--storage.path=/var/lib/alloy/data",
+      "/etc/alloy/config.alloy"
+    ]
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"

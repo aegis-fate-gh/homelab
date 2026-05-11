@@ -1,0 +1,88 @@
+local.file_match "pterodactyl_logs" {
+    path_targets = [{
+        "__path__" = "/var/log/pterodactyl/*.log",
+        "job"    = "wings-01_pterodactyl_logs",
+        "hostname" = "wings-01",
+        "instance" = "wings-01",
+    },]
+    sync_period = "5s"
+}
+
+loki.source.file "pterodactyl_log_scraper" {
+    targets    = local.file_match.pterodactyl_logs.targets
+    forward_to = [loki.write.local.receiver]
+    tail_from_end = true
+}
+
+discovery.docker "linux" {
+    host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "logs_integrations_docker" {
+    targets = []
+
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex = "/(.*)"
+        target_label = "service_name"
+    }
+}
+
+loki.source.docker "default" {
+    host       = "unix:///var/run/docker.sock"
+    targets    = discovery.docker.linux.targets
+    labels     = {"platform" = "docker"}
+    relabel_rules = discovery.relabel.logs_integrations_docker.rules
+    forward_to = [loki.write.local.receiver]
+}
+
+discovery.relabel "logs_integrations_integrations_node_exporter_journal_scrape" {
+  targets = []
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+
+  rule {
+    source_labels = ["__journal__boot_id"]
+    target_label  = "boot_id"
+  }
+
+  rule {
+    source_labels = ["__journal__transport"]
+    target_label  = "transport"
+  }
+
+  rule {
+    source_labels = ["__journal_priority_keyword"]
+    target_label  = "level"
+  }
+}
+
+loki.source.journal "logs_integrations_integrations_node_exporter_journal_scrape" {
+    max_age       = "24h0m0s"
+    relabel_rules = discovery.relabel.logs_integrations_integrations_node_exporter_journal_scrape.rules
+    forward_to    = [loki.write.local.receiver]
+}
+
+local.file_match "logs_integrations_integrations_node_exporter_direct_scrape" {
+    path_targets = [{
+        __address__ = "localhost",
+        __path__    = "/var/log/{syslog,messages,*.log}",
+        instance    = "wings-01",
+        job         = "integrations/node_exporter",
+    }]
+}
+
+loki.source.file "logs_integrations_integrations_node_exporter_direct_scrape" {
+    targets    = local.file_match.logs_integrations_integrations_node_exporter_direct_scrape.targets
+    forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+    endpoint {
+        url = "http://192.168.6.195:3100/loki/api/v1/push"
+        name = "wings-01"
+    }
+}

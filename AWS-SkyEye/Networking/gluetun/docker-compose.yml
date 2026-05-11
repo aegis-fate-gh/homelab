@@ -6,6 +6,7 @@ services:
     restart: always
     cap_add:
       - NET_ADMIN
+
     devices:
       - /dev/net/tun:/dev/net/tun
     environment:
@@ -17,7 +18,9 @@ services:
       - WIREGUARD_PRIVATE_KEY=$PRIVATE_KEY
       - WIREGUARD_ADDRESSES=$IP_ADDRESS
       - HTTPPROXY=on
-      - DNS_ADDRESS=192.168.8.1
+      - DNS_SERVER=off
+      - DNS_UPSTREAM_PLAIN_ADDRESSES=$DNS_UPSTREAM_ADDRESSES
+      - DNS_UPSTREAM_RESOLVER_TYPE=plain
     networks:
       - gluetun
 

@@ -1,5 +1,5 @@
 ---
-- name: Create alloy configmap
+- name: Create alloy configmap for Plex Beta
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -7,15 +7,15 @@
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: plex-alloy-config
+        name: plex-beta-alloy-config
         namespace: jovian-prod
       data:
         config.alloy: |
           local.file_match "plex_logs" {
             path_targets = [{
               "__path__" = "/plex/Library/Application Support/Plex Media Server/Logs/*.log",
-              "job"    = "plex_alloy",
-              "hostname" = "plex_alloy",
+              "job"    = "plex_beta_alloy",
+              "hostname" = "plex_beta_alloy",
             },]
             sync_period = "5s"
           }
@@ -32,7 +32,7 @@
             }
           }
 
-- name: Create Plex Prod Deployment
+- name: Create Plex Beta Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -40,7 +40,7 @@
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: plex
+        name: plex-beta
         namespace: jovian-prod
       spec:
         progressDeadlineSeconds: 600
@@ -48,13 +48,13 @@
         revisionHistoryLimit: 3
         selector:
           matchLabels:
-            app: plex
+            app: plex-beta
         strategy:
           type: Recreate
         template:
           metadata:
             labels:
-              app: plex
+              app: plex-beta
           spec:
             runtimeClassName: nvidia
             nodeSelector:
@@ -80,8 +80,8 @@
               - name: config
                 mountPath: /plex
                 readOnly: true
-            - name: plex
-              image: plexinc/pms-docker:latest
+            - name: plex-beta
+              image: plexinc/pms-docker:beta
               imagePullPolicy: Always
               securityContext:
                 privileged: true
@@ -104,8 +104,8 @@
               volumeMounts:
               - name: config
                 mountPath: /config
-              - name: nfs-media
-                mountPath: /nfs-media
+              - name: smb-media
+                mountPath: /smb-media
                 readOnly: true
               - name: plex-transcode
                 mountPath: /transcode
@@ -114,17 +114,17 @@
                 readOnly: true
               env:
               - name: ADVERTISE_IP
-                value: 'http://192.168.6.220:32430/'
+                value: 'http://192.168.6.222:32420/'
               - name: ALLOWED_NETWORKS
                 value: 192.168.6.0/24,192.168.2.0/26,192.168.100.0/24
-              - name: PLEX_CLAIM
-                value: "{{ PLEX_CLAIM }}"
+              - name: PLEX_BETA_CLAIM
+                value: "{{ PLEX_BETA_CLAIM }}"
               - name: PLEX_UID
                 value: "1000"
               - name: PLEX_GID
                 value: "1000"
               - name: HOSTNAME
-                value: plex
+                value: plex-beta
               - name: NVIDIA_VISIBLE_DEVICES 
                 value: "all"
               - name: NVIDIA_DRIVER_CAPABILITIES
@@ -132,7 +132,7 @@
             volumes:
             - name: config
               persistentVolumeClaim:
-                claimName: plex-pvc
+                claimName: plex-beta-pvc
                 readOnly: false
             - name: plex-transcode
               hostPath:
@@ -140,14 +140,15 @@
             - name: dev-dri
               hostPath:
                 path: /dev/dri
-            - name: nfs-media
+            - name: smb-media
               persistentVolumeClaim:
-                claimName: plex-smb-media-pvc
+                claimName: plex-beta-smb-media-pvc
                 readOnly: true
             - name: alloy-config
               configMap:
-                name: plex-alloy-config
-- name: Create Plex Prod PVC
+                name: plex-beta-alloy-config
+
+- name: Create Plex Beta PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -155,7 +156,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: plex-pvc
+        name: plex-beta-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -165,7 +166,7 @@
           requests:
             storage: 40Gi
 
-- name: Create Plex Prod Service
+- name: Create Plex Beta Service
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -173,15 +174,15 @@
       apiVersion: v1
       kind: Service
       metadata:
-        name: plex
+        name: plex-beta
         namespace: jovian-prod
         annotations:
           metallb.io/address-pool: prod-pool
-          metallb.io/loadBalancerIPs: 192.168.6.220
+          metallb.io/loadBalancerIPs: 192.168.6.222
       spec:
         externalTrafficPolicy: Local
         ports:
-        - port: 32430
+        - port: 32420
           targetPort: plex
           name: plex
           protocol: TCP
@@ -206,11 +207,11 @@
           name: plex-alloy
           protocol: TCP
         selector:
-          app: plex
+          app: plex-beta
         type: LoadBalancer
 
 # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
-- name: Create the plex SMB PV
+- name: Create the plex Beta SMB PV
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -220,7 +221,7 @@
       metadata:
         annotations:
           pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
-        name: plex-smb-media
+        name: plex-beta-smb-media
       spec:
         capacity:
           storage: 72Ti
@@ -242,7 +243,7 @@
             name: smb-media-manangers
             namespace: jovian-prod
 
-- name: Create plex SMB PVC
+- name: Create plex beta SMB PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
     state: present
@@ -250,7 +251,7 @@
       apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: plex-smb-media-pvc
+        name: plex-beta-smb-media-pvc
         namespace: jovian-prod
       spec:
         accessModes:
@@ -259,35 +260,35 @@
         resources:
           requests:
             storage: 72Ti
-        volumeName: plex-smb-media
+        volumeName: plex-beta-smb-media
 
-- name: Create Plex Backup schedule
-  kubernetes.core.k8s:
-    kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
-    definition:
-      apiVersion: volsync.backube/v1alpha1
-      kind: ReplicationSource
-      metadata:
-        name: plex-backup
-        namespace: jovian-prod
-      spec:
-        # The PVC to be backed up
-        sourcePVC: plex-pvc
-        trigger:
-          # Take a backup every day at 1am to avoid 2am internal DB backups
-          schedule: "0 1 * * *"
-        restic:
-          # Prune the repository (repack to free space) every 2 weeks
-          pruneIntervalDays: 14
-          # Name of the Secret with the connection information
-          repository: restic-plex
-          # Retention policy for backups
-          retain:
-            daily: 7
-          # Snapshot the source volume prior to taking a backup to ensure a point-in-time image.
-          copyMethod: Snapshot
-          volumeSnapshotClassName: csi-cephfsplugin-snapclass
+# - name: Create Plex Beta Backup schedule
+#   kubernetes.core.k8s:
+#     kubeconfig: /etc/rancher/k3s/k3s.yaml
+#     state: present
+#     definition:
+#       apiVersion: volsync.backube/v1alpha1
+#       kind: ReplicationSource
+#       metadata:
+#         name: plex-beta-backup
+#         namespace: jovian-prod
+#       spec:
+#         # The PVC to be backed up
+#         sourcePVC: plex-beta-pvc
+#         trigger:
+#           # Take a backup every day at 1am to avoid 2am internal DB backups
+#           schedule: "0 1 * * *"
+#         restic:
+#           # Prune the repository (repack to free space) every 2 weeks
+#           pruneIntervalDays: 14
+#           # Name of the Secret with the connection information
+#           repository: restic-plex-beta
+#           # Retention policy for backups
+#           retain:
+#             daily: 7
+#           # Snapshot the source volume prior to taking a backup to ensure a point-in-time image.
+#           copyMethod: Snapshot
+#           volumeSnapshotClassName: csi-cephfsplugin-snapclass
 
 # Start Plex - ./plex_service.sh -u
 # Stop Plex - ./plex_service.sh -d
