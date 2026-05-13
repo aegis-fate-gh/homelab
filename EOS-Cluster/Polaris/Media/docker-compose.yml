@@ -20,3 +20,8 @@ services:
       - "/mnt/media/Games/replays_for_conversion:/watch:rw"
       - "/mnt/media:/output:rw"
       - "/mnt/media/Games/Videos:/automatic_output:rw"
+    networks:
+      - proxy
+networks:
+  proxy:
+    external: true

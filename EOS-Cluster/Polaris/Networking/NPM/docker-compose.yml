@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  npm:
+    image: 'docker.io/jc21/nginx-proxy-manager:latest'
+    restart: always
+    container_name: nginx-proxy-manager
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - /var/lib/docker/volumes/npm_data/npm:/data
+      - /var/lib/docker/volumes/npm_data/letsencrypt:/etc/letsencrypt
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - proxy
+networks:
+  proxy:
+    name: proxy

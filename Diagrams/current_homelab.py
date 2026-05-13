@@ -1,5 +1,6 @@
 from diagrams import Diagram, Cluster, Edge
 from diagrams.onprem import monitoring, logging, inmemory, database, network, container
+from diagrams.saas import automation
 from diagrams.custom import Custom
 
 with Diagram("Current Homelab", show=False, direction="TB"):
@@ -97,6 +98,11 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 with Cluster("YoutubeDL Material"):
                     ytdl = Custom("Youtube DL Material", "./local_icons/youtube-dl.png")
                     ytdl_mongo = database.Mongodb("MongoDB")
+                with Cluster("N8N"):
+                    n8n = automation.N8N("N8N")
+                    n8n_runner = automation.N8N("N8N Runner") >> n8n
+                    n8n_db = database.Postgresql("Postgres") >> n8n
+                    n8n_init = Custom("Busybox\nPermissions fix", "./local_icons/busybox.png") >> n8n
 
             with Cluster("Wings-01 - Docker Host - VM"):
                 w01_portainer_agent = Custom("Portainer Agent", "./local_icons/portainer.png")
@@ -169,6 +175,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
     traefik >> Edge(color="blue", style="dotted") >> prometheus
     traefik >> Edge(color="blue", style="dotted") >> grafana
     traefik >> Edge(color="blue", style="dotted") >> ytdl
+    traefik >> Edge(color="blue", style="dotted") >> n8n
 
     pterodactyl_panel >> Edge(color="sienna", style="solid") >> w01_pterodactyl_wings
     pterodactyl_panel >> Edge(color="sienna", style="solid") >> w02_pterodactyl_wings

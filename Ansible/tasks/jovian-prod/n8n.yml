@@ -1,0 +1,243 @@
+---
+- name: Create n8n Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: n8n
+        namespace: jovian-prod
+        labels:
+          app: n8n
+          service: n8n
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: n8n
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: n8n
+          spec:
+            nodeSelector:
+              connection: standard
+            initContainers:
+              - name: volume-permissions-fix
+                image: busybox
+                command: ["sh", "-c", "chown -R 1000:1000 /data"]
+                volumeMounts:
+                - name: n8n-config
+                  mountPath: /data
+                securityContext:
+                  runAsUser: 0  # Must run as root to perform chown
+            containers:
+            - name: postgres
+              image: docker.io/library/postgres:18
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 5432
+                name: n8n-db
+                protocol: TCP
+              volumeMounts:
+              - name: n8n-db-config
+                mountPath: /var/lib/postgresql
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: POSTGRES_USER
+                value: "{{ N8N_POSTGRES_USER }}"
+              - name: POSTGRES_PASSWORD
+                value: "{{ N8N_POSTGRES_PASSWORD }}"
+              - name: POSTGRES_DB
+                value: "{{ N8N_POSTGRES_DB }}"
+            - name: n8n
+              image: docker.n8n.io/n8nio/n8n:stable
+              imagePullPolicy: Always
+              securityContext:
+                runAsUser: 1000
+              ports:
+              - containerPort: 5678
+                name: n8n-http
+                protocol: TCP
+              - containerPort: 5679
+                name: n8n-task
+                protocol: TCP
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: DB_TYPE
+                value: 'postgresdb'
+              - name: DB_POSTGRESDB_HOST
+                value: 'localhost'
+              - name: DB_POSTGRESDB_PORT
+                value: '5432'
+              - name: DB_POSTGRESDB_DATABASE
+                value: "{{ N8N_POSTGRES_DB }}"
+              - name: DB_POSTGRESDB_USER
+                value: "{{ N8N_POSTGRES_USER }}"
+              - name: DB_POSTGRESDB_PASSWORD
+                value: "{{ N8N_POSTGRES_PASSWORD }}"
+              - name: N8N_RUNNERS_MODE
+                value: 'external'
+              - name: N8N_RUNNERS_AUTH_TOKEN
+                value: "{{ N8N_RUNNERS_AUTH_TOKEN }}"
+              - name: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
+                value: '0.0.0.0'
+              volumeMounts:
+              - name: n8n-config
+                mountPath: /home/node/.n8n
+            - name: n8n-runner
+              image: n8nio/runners:stable
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 5679
+                name: n8n-runner-task
+                protocol: TCP
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: N8N_RUNNERS_AUTH_TOKEN
+                value: "{{ N8N_RUNNERS_AUTH_TOKEN }}"
+              - name: N8N_RUNNERS_TASK_BROKER_URI
+                value: 'http://localhost:5679'
+            volumes:
+            - name: n8n-config
+              persistentVolumeClaim:
+                claimName: n8n-pvc
+                readOnly: false
+            - name: n8n-db-config
+              persistentVolumeClaim:
+                claimName: n8n-db-pvc
+                readOnly: false
+            - name: db-init-config
+              configMap:
+                name: n8n-db-config
+
+- name: Create n8n Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: n8n-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: n8n
+        ports:
+          - port: 5678
+            targetPort: n8n-http
+            protocol: TCP
+            name: n8n-http
+
+- name: Create n8n Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: n8n-ingress
+        namespace: jovian-prod
+        annotations:
+          traefik.ingress.kubernetes.io/router.tls: "true"
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+      spec:
+        rules:
+          - host: n8n.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  n8n-service
+                      port:
+                        number: 5678
+
+- name: Create n8n PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: n8n-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 5Gi
+
+- name: Create n8n DB PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: n8n-db-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 5Gi
+
+# - name: Create n8n Panel Backup schedule
+#   kubernetes.core.k8s:
+#     kubeconfig: /etc/rancher/k3s/k3s.yaml
+#     state: present
+#     definition:
+#       apiVersion: volsync.backube/v1alpha1
+#       kind: ReplicationSource
+#       metadata:
+#         name: n8n-backup
+#         namespace: jovian-prod
+#       spec:
+#         # The PVC to be backed up
+#         sourcePVC: n8n-pvc
+#         trigger:
+#           # Take a backup every day at 2am
+#           schedule: "0 2 * * *"
+#         restic:
+#           # Prune the repository (repack to free space) every 2 weeks
+#           pruneIntervalDays: 14
+#           # Name of the Secret with the connection information
+#           repository: restic-n8n
+#           # Retention policy for backups
+#           retain:
+#             daily: 7
+#           # Snapshot the source volume prior to taking a backup to ensure a point-in-time image.
+#           copyMethod: Snapshot
+#           volumeSnapshotClassName: csi-cephfsplugin-snapclass
