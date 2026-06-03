@@ -1,0 +1,124 @@
+---
+- name: Create snapotter Deployment
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: snapotter
+        namespace: jovian-prod
+        labels:
+          app: snapotter
+          service: media-backend
+      spec:
+        progressDeadlineSeconds: 600
+        replicas: 1
+        revisionHistoryLimit: 3
+        selector:
+          matchLabels:
+            app: snapotter
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: snapotter
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: snapotter
+              image: snapotter/snapotter:latest
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 1349
+                name: snapotter-http
+                protocol: TCP   
+              volumeMounts:
+              - name: config
+                mountPath: /data
+                subPath: config
+              - name: config
+                mountPath: /tmp/workspace
+                subPath: tmp
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+              - name: AUTH_ENABLED
+                value: 'false'
+            volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: snapotter-pvc
+
+- name: Create snapotter Service
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: service
+      metadata:
+        name: snapotter-service
+        namespace: jovian-prod
+      spec:
+        selector:
+          app: snapotter
+        ports:
+          - port: 1349
+            targetPort: snapotter-http
+            protocol: TCP
+            name: snapotter-http
+
+- name: Create snapotter Ingress
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: snapotter-ingress
+        namespace: jovian-prod
+        annotations:
+          traefik.ingress.kubernetes.io/router.tls: "true"
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+      spec:
+        rules:
+          - host: snapotter.jovian.local.sch-apps.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name:  snapotter-service
+                      port:
+                        number: 1349
+
+- name: Create snapotter PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: snapotter-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: k8s-cephfs
+        resources:
+          requests:
+            storage: 10Gi

@@ -14,3 +14,4 @@ EOS-Cluster/Docker-Swarm/Media/Management/kometa_configs/UUID
 Ansible/playbooks/swarm/docker_secrets.yaml
 Ansible/vars
 Ansible/playbooks/jovian-prod/helm_values/*.yml
+EOS-Cluster/Polaris/Networking/NPM/cloudflare.txt

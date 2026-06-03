@@ -88,6 +88,29 @@
                 12:32 Counter Attack-Mankind
                 15:37 Apple Seed
 
+- name: Create Kometa Web Video configmap
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: kometa-web-video-config
+        namespace: jovian-prod
+      data:
+        web_video.yml: |
+          metadata:
+            Back to the Barn - Penultimate Star Trek short shot:
+              match:
+                title: Back to the Barn - Penultimate Star Trek short shot
+              sort_title: Back to the Barn - Penultimate Star Trek short shot
+              originally_available: 2026-03-14
+              summary: |
+                Source: Youtube
+                Creator: Howard Day
+                Description: Whew. This is by far the longest shot of this short, and I'm delighted I was able to render all this out. At 1540 frames long, it's a true monster. Best of all? This isn't the final version of this! I have to re-render it again! Holy crap! The next one should be awesome and final, tho. I'm also excited to be using an actual Voice Actor for the Captains Log now! The wonderful audio was done by Baldwin Williams Jr. - you can find his website below. Enjoy! 
+
 - name: Create Kometa config configmap
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -105,7 +128,10 @@
               remove_overlays: false           # Set this to true to remove all overlays
               metadata_files:
                 - file: /config/concerts.yml
-
+            Web Videos:                            # These are names of libraries in your Plex
+              remove_overlays: false           # Set this to true to remove all overlays
+              metadata_files:
+                - file: /config/web_video.yml
           settings:
             save_report: true
 
@@ -149,6 +175,9 @@
               - name: concert-config
                 mountPath: /config/concerts.yml
                 subPath: concerts.yml
+              - name: web-video-config
+                mountPath: /config/web_video.yml
+                subPath: web_video.yml
               env:
               - name: TZ
                 value: 'America/Chicago'
@@ -170,6 +199,9 @@
             - name: concert-config
               configMap:
                 name: kometa-concerts-config
+            - name: web-video-config
+              configMap:
+                name: kometa-web-video-config
         backoffLimit: 2
 
 - name: Create Kometa PVC

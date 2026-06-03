@@ -29,6 +29,7 @@
         - { name: 'backube', repo: 'https://backube.github.io/helm-charts/' }
         - { name: 'csi-driver-nfs', repo: 'https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts' }
         - { name: 'prometheus', repo: 'https://prometheus-community.github.io/helm-charts' }
+        - { name: 'argo', repo: 'https://argoproj.github.io/argo-helm' }
       loop_control:
         loop_var: repo_list
 
@@ -145,7 +146,7 @@
         name: traefik
         chart_ref: traefik/traefik
         release_namespace: kube-system
-        chart_version: v39.0.7
+        chart_version: v40.2.0
         update_repo_cache: true
         create_namespace: true
         kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -246,7 +247,8 @@
         name: rancher
         chart_ref: rancher-stable/rancher 
         release_namespace: cattle-system
-        chart_version: v2.10.3
+        # Only go up one minor version 2.XX at a time
+        chart_version: v2.12.3
         update_repo_cache: true
         create_namespace: true
         kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -297,7 +299,7 @@
         name: volsync
         chart_ref: backube/volsync
         release_namespace: volsync-system
-        chart_version: v0.13.0
+        chart_version: v0.15.0
         update_repo_cache: true
         create_namespace: true
         kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -309,7 +311,7 @@
         name: csi-driver-smb
         chart_ref: csi-driver-smb/csi-driver-smb
         release_namespace: kube-system
-        chart_version: v1.9.0
+        chart_version: v1.20.1
         update_repo_cache: true
         kubeconfig: /etc/rancher/k3s/k3s.yaml
         wait: true
@@ -320,24 +322,10 @@
         name: csi-driver-nfs
         chart_ref: csi-driver-nfs/csi-driver-nfs
         release_namespace: kube-system
-        chart_version: v4.9.0
+        chart_version: v4.13.2
         update_repo_cache: true
         kubeconfig: /etc/rancher/k3s/k3s.yaml
         wait: true
-
-    - name: Create the Jovian-Prod namespace
-      kubernetes.core.k8s:
-        kubeconfig: /etc/rancher/k3s/k3s.yaml
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Namespace
-          metadata:
-            name: jovian-prod
-            labels:
-              name: jovian-prod
-            annotations:
-              volsync.backube/privileged-movers: "true"
 
     # https://github.com/prometheus-community/helm-charts?tab=readme-ov-file
     # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus
@@ -397,6 +385,81 @@
                           port:
                             number: 9090
 
+    - name: Create the Jovian-Prod namespace
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: jovian-prod
+            labels:
+              name: jovian-prod
+              argocd.argoproj.io/managed-by: argocd
+            annotations:
+              volsync.backube/privileged-movers: "true"
+
+
+    # https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd
+    # Initial password retrievel: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+    # After config, run this on one of the server nodes, and log in: argocd login argocd.jovian.local.sch-apps.com
+    - name: Deploy Argo CD
+      kubernetes.core.helm:
+        name: argocd
+        chart_ref: argo/argo-cd
+        release_namespace: argocd
+        chart_version: v9.5.17
+        update_repo_cache: true
+        create_namespace: true
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        wait: true
+        values:
+          global:
+            clusterAdminAccess:
+              enabled: true
+            domain: argocd.jovian.local.sch-apps.com
+          configs:
+            params:
+              server.insecure: true
+              application.namespaces: "*"
+          server:
+            replicas: 2
+            ingress:
+              enabled: true
+              annotations:
+                traefik.ingress.kubernetes.io/router.tls: "true"
+                traefik.ingress.kubernetes.io/router.entrypoints: websecure
+                traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+          redis-ha:
+            enabled: true
+          controller:
+            replicas: 1
+          repoServer:
+            replicas: 2
+          applicationSet:
+            replicas: 2
+            allowAnyNamespace: true
+
+    - name: Create the ArgoCD Rolebinding
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        state: present
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: RoleBinding
+          metadata:
+            name: argocd-deploy
+            namespace: jovian-prod
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: admin
+          subjects:
+            - kind: ServiceAccount
+              name: argocd-application-controller
+              namespace: argocd
+
     # https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#prerequisite
     - name: Create SMB secrets
       ansible.builtin.shell: |
@@ -405,6 +468,8 @@
         - { name: 'smb-silo-immich', username: "{{ immich_smb_user }}", password: "{{ immich_silo_smb_password }}"}
         - { name: 'smb-syn-immich', username: "{{ immich_smb_user }}", password: "{{ immich_syn_smb_password }}"}
         - { name: 'smb-media-manangers', username: "{{ mm_smb_user }}", password: "{{ mm_smb_password }}"}
+        - { name: 'smb-syn-n8n', username: "{{ n8n_syn_user }}", password: "{{ n8n_syn_password }}"}
+        - { name: 'smb-syn-mmm', username: "{{ mmm_syn_user }}", password: "{{ mmm_syn_password }}"}
       loop_control:
         loop_var: smb_list
       ignore_errors: true
@@ -470,6 +535,8 @@
         - { name: 'smb-csi-immich-silo', source: '//192.168.100.162/immich', secret_name: 'smb-silo-immich', namespace: 'jovian-prod'}
         - { name: 'smb-csi-media', source: '//192.168.100.162/media', secret_name: 'smb-media-manangers', namespace: 'jovian-prod'}
         - { name: 'smb-csi-immich-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-immich', namespace: 'jovian-prod'}
+        - { name: 'smb-csi-n8n-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-n8n', namespace: 'jovian-prod'}
+        - { name: 'smb-csi-mmm-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-mmm', namespace: 'jovian-prod'}
       loop_control:
         loop_var: smb_sc_list
       ignore_errors: true

@@ -1,0 +1,99 @@
+---
+- name: Create media-metadata-manager Job
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: media-metadata-manager
+        namespace: jovian-prod
+        labels:
+          app: media-metadata-manager
+          service: media-backend
+      spec:
+        ttlSecondsAfterFinished: 90 # Pods and job will be deleted 90 seconds after completion
+        template:
+          spec:
+            nodeSelector:
+              connection: standard
+            containers:
+            - name: media-metadata-manager
+              image: aegisfatedh/media-metadata-mover:latest
+              imagePullPolicy: Always 
+              volumeMounts:
+              - name: media
+                mountPath: /media
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: PUID
+                value: '1000'
+              - name: PGID
+                value: '1000'
+              - name: UMASK
+                value: '002'
+              - name: INPUT_FOLDER
+                value: '/media/Camera Uploads/'
+              - name: OUTPUT_FOLDER
+                value: '/media/My Content/'
+            restartPolicy: Never
+            volumes:
+            - name: media
+              persistentVolumeClaim:
+                claimName: mmm-external-smb-pvc
+        backoffLimit: 2
+
+# Syn-Coruscant
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+- name: Create the media-metadata-manager Syn-Coruscant SMB PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+        name: mmm-sync-external-smb
+      spec:
+        capacity:
+          storage: 5Ti
+        accessModes:
+          - ReadWriteOnce
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: smb-csi-mmm-syn
+        mountOptions:
+          - dir_mode=0777
+          - file_mode=0777
+        csi:
+          driver: smb.csi.k8s.io
+          # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+          # make sure this value is unique for every share in the cluster
+          volumeHandle: 192.168.100.42/Dropbox
+          volumeAttributes:
+            source: //192.168.100.42/Dropbox
+          nodeStageSecretRef:
+            name: smb-syn-mmm
+            namespace: jovian-prod
+
+- name: Create media-metadata-manager Syn-Coruscant SMB PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: mmm-external-smb-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: smb-csi-mmm-syn
+        resources:
+          requests:
+            storage: 5Ti
+        volumeName: mmm-sync-external-smb

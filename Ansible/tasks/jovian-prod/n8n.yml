@@ -30,7 +30,7 @@
               connection: standard
             initContainers:
               - name: volume-permissions-fix
-                image: busybox
+                image: busybox:latest
                 command: ["sh", "-c", "chown -R 1000:1000 /data"]
                 volumeMounts:
                 - name: n8n-config
@@ -62,16 +62,13 @@
               - name: POSTGRES_DB
                 value: "{{ N8N_POSTGRES_DB }}"
             - name: n8n
-              image: docker.n8n.io/n8nio/n8n:stable
+              image: aegisfatedh/n8n-custom:latest
               imagePullPolicy: Always
               securityContext:
                 runAsUser: 1000
               ports:
               - containerPort: 5678
                 name: n8n-http
-                protocol: TCP
-              - containerPort: 5679
-                name: n8n-task
                 protocol: TCP
               env:
               - name: TZ
@@ -98,9 +95,21 @@
                 value: "{{ N8N_RUNNERS_AUTH_TOKEN }}"
               - name: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
                 value: '0.0.0.0'
+              - name: N8N_EXECUTE_COMMAND
+                value: 'true'
+              - name: NODES_EXCLUDE
+                value: '[]'
+              - name: NODE_FUNCTION_ALLOW_BUILTIN
+                value: '*'
+              - name: NODE_FUNCTION_ALLOW_EXTERNAL
+                value: 'exiftool-vendored'
+              - name: N8N_RUNNERS_EXTERNAL_ALLOW
+                value: '*'
               volumeMounts:
               - name: n8n-config
                 mountPath: /home/node/.n8n
+              - name: n8n-syn-coruscant
+                mountPath: /home/node/.n8n-files/dropbox
             - name: n8n-runner
               image: n8nio/runners:stable
               imagePullPolicy: Always
@@ -119,6 +128,15 @@
                 value: "{{ N8N_RUNNERS_AUTH_TOKEN }}"
               - name: N8N_RUNNERS_TASK_BROKER_URI
                 value: 'http://localhost:5679'
+              - name: NODE_FUNCTION_ALLOW_BUILTIN
+                value: '*'
+              - name: NODE_FUNCTION_ALLOW_EXTERNAL
+                value: 'exiftool-vendored'
+              - name: N8N_RUNNERS_STDLIB_ALLOW
+                value: '*'
+              volumeMounts:
+              - name: n8n-syn-coruscant
+                mountPath: /home/node/.n8n-files/dropbox
             volumes:
             - name: n8n-config
               persistentVolumeClaim:
@@ -131,6 +149,10 @@
             - name: db-init-config
               configMap:
                 name: n8n-db-config
+            - name: n8n-syn-coruscant
+              persistentVolumeClaim:
+                claimName: n8n-external-smb-pvc
+                readOnly: false
 
 - name: Create n8n Service
   kubernetes.core.k8s:
@@ -194,7 +216,7 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 5Gi
+            storage: 20Gi
 
 - name: Create n8n DB PVC
   kubernetes.core.k8s:
@@ -212,7 +234,60 @@
         storageClassName: k8s-cephfs
         resources:
           requests:
-            storage: 5Gi
+            storage: 20Gi
+
+# Syn-Coruscant
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/deploy/example/e2e_usage.md#option2-pvpvc-usage
+- name: Create the N8N Syn-Coruscant SMB PV
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        annotations:
+          pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+        name: n8n-sync-external-smb
+      spec:
+        capacity:
+          storage: 5Ti
+        accessModes:
+          - ReadWriteMany
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: smb-csi-n8n-syn
+        mountOptions:
+          - dir_mode=0777
+          - file_mode=0777
+        csi:
+          driver: smb.csi.k8s.io
+          # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+          # make sure this value is unique for every share in the cluster
+          volumeHandle: 192.168.100.42/Dropbox
+          volumeAttributes:
+            source: //192.168.100.42/Dropbox
+          nodeStageSecretRef:
+            name: smb-syn-n8n
+            namespace: jovian-prod
+
+- name: Create N8N Syn-Coruscant SMB PVC
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: n8n-external-smb-pvc
+        namespace: jovian-prod
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: smb-csi-n8n-syn
+        resources:
+          requests:
+            storage: 5Ti
+        volumeName: n8n-sync-external-smb
 
 # - name: Create n8n Panel Backup schedule
 #   kubernetes.core.k8s:

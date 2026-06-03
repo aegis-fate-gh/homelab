@@ -18,11 +18,14 @@ with Diagram("Current Homelab", show=False, direction="TB"):
         silo_02 = Custom("UNAS-Pro - Silo-02\n 5x 24TB Seagate Exos HDD's", "./local_icons/unifi.png")
         syn_coruscant = Custom("Synology DS923+\n8GB's RAM, 4x 2TB Samsung 870 QVO", "./local_icons/synology.png")
 
-        with Cluster("Arc Mac Server\nM2 Pro Mac Mini, 32GB's RAM, 512GB SSD, 10GBe"):
-            lm_studio = Custom("LM Studio", "./local_icons/lmstudio.png")
-            ams_handbrake = Custom("Handbrake", "./local_icons/handbrake.png")
+        with Cluster("Arc\nM2 Pro Mac Mini, 32GB's RAM, 512GB SSD, 10GBe"):
+            with Cluster("Native Apps"):
+                arc_lm_studio = Custom("LM Studio", "./local_icons/lmstudio.png")
+                arc_handbrake = Custom("Handbrake", "./local_icons/handbrake.png")
             with Cluster("Docker"):
-                ams_portainer = Custom("Portainer", "./local_icons/portainer.png")
+                arc_portainer = Custom("Portainer Agent", "./local_icons/portainer.png")
+                arc_uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
+                arc_filebrowser = Custom("File Browser", "./local_icons/file-browser.png")
 
         with Cluster("PVE-Donnager\nThreadripper 1950x, 64GB's RAM, 3x 500GB WD Black SSD's, 4x 2TB Samsung 990 EVO Plus SSD's, 1x Dual SFP+"):
             with Cluster("Polaris - Docker Host - VM"):
@@ -31,6 +34,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
                 polaris_watchtower = Custom("Watchtower", "./local_icons/watchtower.png")
                 polaris_logging = Custom("Grafana Alloy", "./local_icons/alloy.png") >> Edge(color="orangered", style="bold", minlen="2") >> loki
                 polaris_handbrake = Custom("Handbrake", "./local_icons/handbrake.png")
+                polaris_npm = Custom("Nginx Proxy Mapaner", "./local_icons/npm.png")
 
         with Cluster("PVE-EOS-01 > 03\n3x Physical Hosts\nRyzen 7 5700x, 128GB's ECC, 2x 500GB Samsung 870 EVO (Boot), 2x 1TB Micron 7450 (CEPH), 1x Nvidia RTX 4060, 1x Dual SFP+"):
             with Cluster("Jovian Prod - K3s Cluster - 8x VMs"):
@@ -130,7 +134,11 @@ with Diagram("Current Homelab", show=False, direction="TB"):
             gluetun = Custom("Gluetun", "./local_icons/gluetun.png")
 
     with Cluster("Parents House - MD"):
-        syn_sanctuary = Custom("Synology RS1221+\n32GB's RAM, Dual SFP+\n2x Intel DC S3700 DC 400GB\n5x Seagate Exos 20TB", "./local_icons/synology.png")
+        with Cluster("Synology RS1221+\n32GB's RAM, Dual SFP+\n2x Intel DC S3700 DC 400GB\n5x Seagate Exos 20TB"):
+            with Cluster("Native Apps"):
+                syn_sanctuary = Custom("Synology DSM", "./local_icons/synology.png")
+            with Cluster("Container Manager Apps"):
+                syn_sanctuary_uptimekuma = Custom("Uptime Kuma", "./local_icons/uptime-kuma.png")
 
     silo_01 >> Edge(color="royalblue", style="bold") >> silo_02
     silo_01 >> Edge(color="royalblue", style="bold") >> backblaze
@@ -231,6 +239,7 @@ with Diagram("Current Homelab", show=False, direction="TB"):
 
     polaris_portainer >> Edge(color="deeppink", style="solid") >> w01_portainer_agent
     polaris_portainer >> Edge(color="deeppink", style="solid") >> w02_portainer_agent
+    polaris_portainer >> Edge(color="deeppink", style="solid") >> arc_portainer
 
     metallb >> Edge(color="navyblue", style="dashed") >> plex
     metallb >> Edge(color="navyblue", style="dashed") >> jellyfin

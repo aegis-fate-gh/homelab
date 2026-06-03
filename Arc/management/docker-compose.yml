@@ -1,0 +1,17 @@
+---
+version: '3.8'
+
+services:
+  filebrowser:
+    image: hurlenko/filebrowser
+    container_name: filebrowser
+    ports:
+      - 4433:8080
+    volumes:
+      - '/var/lib/docker/volumes/filebrowser:/config'
+      - /var/lib/docker/volumes:/data/docker_volumes
+    environment:
+      - FB_BASE_URL=/filebrowser
+      - PUID=1000
+      - PGID=1000
+    restart: always
