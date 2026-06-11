@@ -43,7 +43,10 @@
               - name: TZ
                 value: 'America/Chicago'
               - name: SECRET_ENCRYPTION_KEY
-                value: "{{ HOMARR_ENCRYPTION_KEY }}"
+                valueFrom:
+                  secretKeyRef:
+                    name: homarr-encryption-key
+                    key: encryption_key
             volumes:
             - name: config
               persistentVolumeClaim:

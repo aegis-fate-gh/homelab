@@ -1,17 +1,4 @@
 ---
-- name: Create Wireguard Secret
-  kubernetes.core.k8s:
-    kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: qbittorrent-wg-conf
-        namespace: jovian-prod
-      stringData:
-        wg0.conf: "{{ QBITTORRENT_WIREGUARD_CONF }}"
-
 - name: Create qbittorrent Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml

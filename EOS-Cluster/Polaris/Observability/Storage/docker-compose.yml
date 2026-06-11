@@ -13,3 +13,23 @@ services:
       - '/var/lib/docker/volumes/loki_data:/etc/loki'
       - '/var/lib/docker/volumes/loki_data/data_store:/data'
     command: -config.file=/etc/loki/local-config.yaml
+
+  victoria-metrics:
+    image: 'victoriametrics/victoria-metrics:latest'
+    container_name: victoriametrics
+    restart: always
+    ports:
+      - '8428:8428'
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - '/var/lib/docker/volumes/victoria_metrics_data:/storage'
+    command:
+      - "--storageDataPath=/storage"
+      - "--retentionPeriod=1y"
+      - "--httpListenAddr=:8428"
+    networks:
+      - proxy
+networks:
+  proxy:
+    external: true

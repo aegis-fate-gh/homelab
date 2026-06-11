@@ -334,7 +334,7 @@
         name: prometheus
         chart_ref: prometheus/prometheus
         release_namespace: monitoring
-        chart_version: v28.13.0
+        chart_version: v29.9.0
         update_repo_cache: true
         create_namespace: true
         kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -532,11 +532,11 @@
           reclaimPolicy: Retain
           allowVolumeExpansion: true
       loop:
-        - { name: 'smb-csi-immich-silo', source: '//192.168.100.162/immich', secret_name: 'smb-silo-immich', namespace: 'jovian-prod'}
-        - { name: 'smb-csi-media', source: '//192.168.100.162/media', secret_name: 'smb-media-manangers', namespace: 'jovian-prod'}
-        - { name: 'smb-csi-immich-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-immich', namespace: 'jovian-prod'}
+        # - { name: 'smb-csi-immich-silo', source: '//192.168.100.162/immich', secret_name: 'smb-silo-immich', namespace: 'jovian-prod'}
+        # - { name: 'smb-csi-media', source: '//192.168.100.162/media', secret_name: 'smb-media-manangers', namespace: 'jovian-prod'}
+        # - { name: 'smb-csi-immich-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-immich', namespace: 'jovian-prod'}
         - { name: 'smb-csi-n8n-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-n8n', namespace: 'jovian-prod'}
-        - { name: 'smb-csi-mmm-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-mmm', namespace: 'jovian-prod'}
+        # - { name: 'smb-csi-mmm-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-mmm', namespace: 'jovian-prod'}
       loop_control:
         loop_var: smb_sc_list
       ignore_errors: true

@@ -15,37 +15,11 @@
       ansible.builtin.include_tasks:
         file: "{{ task_list }}"
       loop:
-        # - ../../tasks/jovian-prod/iperf3.yml
-        # - ../../tasks/jovian-prod/tautulli.yml
-        # - ../../tasks/jovian-prod/cloudflare-tunnel.yml
-        # - ../../tasks/jovian-prod/qbittorrent.yml
-        # - ../../tasks/jovian-prod/openspeedtest.yml
-        # - ../../tasks/jovian-prod/arrstack.yml
-        # - ../../tasks/jovian-prod/plex.yml
-        # - ../../tasks/jovian-prod/plex-beta.yml
-        # - ../../tasks/jovian-prod/overseerr.yml
+        - ../../tasks/jovian-prod/env-secrets.yml
         # - ../../tasks/jovian-prod/promtail.yml
-        # - ../../tasks/jovian-prod/pterodactyl-panel.yml
-        # - ../../tasks/jovian-prod/jellyfin.yml
-        # - ../../tasks/jovian-prod/freshrss.yml
-        # - ../../tasks/jovian-prod/homarr.yml
-        # - ../../tasks/jovian-prod/grafana.yml
-        # - ../../tasks/jovian-prod/uptime-kuma.yml
         # - ../../tasks/jovian-prod/mkvtoolnix.yml
-        # - ../../tasks/jovian-prod/filebrowser.yml
-        # - ../../tasks/jovian-prod/ghost.yml
-        # - ../../tasks/jovian-prod/immich.yml
-        # - ../../tasks/jovian-prod/littlelink-server.yml
-        # - ../../tasks/jovian-prod/handbrake.yml
-        # - ../../tasks/jovian-prod/jdownloader.yml
-        # - ../../tasks/jovian-prod/convertnow.yml
-        # - ../../tasks/jovian-prod/it-tools.yml
-        # - ../../tasks/jovian-prod/paperless-ngx.yml
-        # - ../../tasks/jovian-prod/vaultwarden.yml
-        # - ../../tasks/jovian-prod/ytdl.yml
-        # - ../../tasks/jovian-prod/kometa.yml
-        - ../../tasks/jovian-prod/n8n.yml
 
+        # - ../../tasks/jovian-prod/nvidia-smi-tester.yml
 
         # - ../../tasks/jovian-prod/restic-restore.yml
 

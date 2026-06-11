@@ -1,0 +1,42 @@
+---
+- name: Create nvidia-smi-tester Jovian-Prod Daemonset
+  kubernetes.core.k8s:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: nvidia-smi-tester
+        namespace: jovian-prod
+      spec:
+        runtimeClassName: nvidia
+        selector:
+          matchLabels:
+            name: nvidia-smi-tester
+        template:
+          metadata:
+            labels:
+              name: nvidia-smi-tester
+          spec:
+            nodeSelector:
+              gpu: rtx4060
+            containers:
+            - name: nvidia-smi-tester
+              image: nvidia/cuda:13.2.1-base-ubuntu24.04
+              # command: ["nvidia-smi -l 60"]     
+              volumeMounts:
+              - name: dev-dri
+                mountPath: /dev/dri
+                readOnly: true
+              env:
+              - name: TZ
+                value: 'America/Chicago'
+              - name: NVIDIA_VISIBLE_DEVICES 
+                value: "all"
+              - name: NVIDIA_DRIVER_CAPABILITIES
+                value: compute,video,utility
+            volumes:
+            - name: dev-dri
+              hostPath:
+                path: /dev/dri
