@@ -1,5 +1,5 @@
 # Homelab
-This is centralized repo for everything related to my homelab
+This is centralized repo for most things related to my homelab
 
 ## Physical Infrastructure
 ### Eos 1-3
@@ -12,13 +12,11 @@ What I call "Eos" is composed of 3 identical servers. Using what I learned from 
 - GPU: GIGABYTE GeForce RTX 4060 OC Low Profile
 - SATA SSD (Proxmox boot drives): 2x Samsung 500GB 870 EVO
 - NVME SSD (Ceph NVMe storage): 2x Micron 7450 PRO 960GB
-- SATA HDD (Ceph HDD Storage): 2x Seagate Exos - 1x 24TB, 1x 20TB
-- SATA SSD (Ceph DB/WAL): 1x Intel SSDSC2BA400G3 400GB
 - PSU: Seasonic Focus SGX-650
 - Case: Sliger CX3150x
 - Case Fans: 2x Noctua NF-A12x25 PWM
 
-Outside of those 3 main nodes are two others providing additional capabilities. Both participate in the Proxmox quorum voting process and contain OSD's and Monitors for Ceph. But do not run the Manager service or Metadata 
+Outside of those 3 main nodes are two others providing additional capabilities. Both participate in the Proxmox quorum voting process.
 
 ### Donnager
 By far my oldest server, and formerly my only homelab and storage server. It was originally built for mass video transcoding, and was then setup for remote gaming using GPU passthrough. It was last used with UnRaid, housing 6 6TB SSD's for Plex media storage. Now it runs Proxmox and houses a VM for Dropbox / OneDrive synching, and Proxmox Backup Server.
@@ -30,8 +28,6 @@ By far my oldest server, and formerly my only homelab and storage server. It was
 - GPU: VisionTek AMD Radeon 5450
 - NVME SSD (Boot and VM Storage): 3x 500GB WD Black
 - NVME SSD (VM Storage): 4x 2TB Samsung 990 Evo Plus
-- SATA HDD (Ceph HDD Storage): 2x Seagate Exos - 1x 24TB, 1x 20TB
-- SATA SSD (Ceph DB/WAL): 1x Intel SSDSC2BA400G3 400GB
 - PSU: Corsair RM550x
 - Case: Fractal Design Node 804
 - Case Fans: 3x Noctua NF-A12x25 PWM
@@ -46,23 +42,21 @@ With the CPU from my last gaming PC, this served as my main hardware testing ser
 - GPU: None
 - SATA SSD (Proxmox boot drives): 2x Samsung 500GB 870 EVO
 - NVME SSD (VM Storage): 2x WD Black SN770's
-- SATA HDD (Ceph HDD Storage): 2x Seagate Exos - 1x 24TB, 1x 20TB
-- SATA SSD (Ceph DB/WAL): 1x Intel SSDSC2BA400G3 400GB
 - PSU: Corsair SF750
 - Case: Sliger CX3170a XL
 - Case Fans: 3x Noctua NF-A12x25 PWM
 
 Non clustered storage is primarily provided by two Synology devices
 
-### Syn-Vault
-- Synology RS1221+: Currently my main media storage server, but will soon become the backup for my media storage. Was upgraded to 32GB's of ram to enable VM testing.
-    - 5x Seagate Exos 18TB HDD's
-    - 2x Samsung 500GB 870 EVO SSD's (VM Storage)
+### Syn-Sanctuary
+- Synology RS1221+: Offsite backup located at my parents house. Also runs Uptime-Kuma for offsite monitoring. That secondary role resulted in removing a AWS lightsail instance (AWS-Skyeye) I was using for this purpose.
+    - 5x Seagate Exos 20TB HDD's
+    - 2x Intel 400GB 870 EVO SSD's
     - Synology E10G21-F2 dual SFP+
     - 32GB's OWC DDR4 2666 ECC RAM
 
 ### Syn-Coruscant
-- Synology DS923+: Primarily used for when Blu-Ray / DVD's are being imported.
+- Synology DS923+: Primarily used for syncing immich related data between my parents house and my homelab
     - 4x SAMSUNG 870 QVO 2TB SSD's
     - Synology E10G22-T1-Mini 10GBe
 
@@ -78,15 +72,22 @@ The VM's are a mix of Ubuntu server for everything related to Docker, and Window
 Consists of a single VM for now, named Golden Gate.
 
 ### Ubuntu
-Within the Eos Proxmox cluster there is the Eos Docker swarm cluster. Any VM's in the swarm cluster are not set up for HA, as that is handled by the swarm and swarm managers. All also run on Ubuntu Server. They consist of:
-- 3x Manager VM's (1 per proxmox host) which provide 2 floating VIPS for cluster access. These are the "Starbase" nodes
-- 3x Worker VM's (1 per Proxmox host, with 1 GPU attached) for general purpose containers. These are the "Sovereign" nodes
-- 2x Worker VM's hat have VPN connections for anything I need secured. These are the "Defiant" nodes
+Most of my homelab is running on an ubuntu server VM in some configuration. With the exception of the kubernetes nodes and Polaris, all other nodes are set up with High Availability to enable moving between hosts as needed.
 
-Yes, those are all Star Trek references.
+Kubernetes Cluster - Runs on EOS-01-03:
+The majority of the apps I run are now within my kubernetes cluster, named Jovian. It replaced the Eos Docker Swarm Cluster in 2025. This currently consists of 8 nodes.
+3x Nodes for the control plane / etcd, named Jupiter 01-03
+3x Worker nodes with GPU's passed through for the majority of applications, named Ganymede 01-03
+2x Worker nodes with internet provided through a VPN, named Ganymede 01-02. These nodes are due for replacement due to increased knowledge with pods rendering them redundant
 
-Additionally, there are 2 standalone VM's for Docker, each set up in HA mode on Proxmox
-- 1 For any containers I didn't want in the Swarm, also hosts the Pterodactyl Panel and associated services, known as Wing Commander
-- 1 For hosting Pterodactyl Wings, known as Jurassic Park 01
+Polaris - Runs on Donnager:
+Runs docker containers I don't want in the main kubernetes cluster.
 
-Finally, there is the Voyager type of node, which has / will run on the Synology NAS's (Or whatever replaces them...), and act as the lower powered version of the Sovereign nodes. The basic premise is that anything not requiring a GPU or VPN connection would run on the Voyager nodes.
+Zion - Runs on EOS-01-03:
+Prior to the switch to UNAS-Pro's, this enabled SMB access to the HDD based CEPH pool.
+
+Wings-01-02 - Runs on EOS-01-03:
+Host the Pterodactyl Wings docker containers for game server hosting.
+
+LunaLand - Runs on EOS-01-03:
+Used for testing and experiments by a friend. Is located in a separate VLAN from the rest of my homelab.

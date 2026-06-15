@@ -358,33 +358,6 @@
                 storageClassName: "k8s-cephfs"
                 size: 2Gi          
 
-    - name: Create prometheus Ingress
-      kubernetes.core.k8s:
-        kubeconfig: /etc/rancher/k3s/k3s.yaml
-        state: present
-        definition:
-          apiVersion: networking.k8s.io/v1
-          kind: Ingress
-          metadata:
-            name: prometheus-ingress
-            namespace: monitoring
-            annotations:
-              traefik.ingress.kubernetes.io/router.tls: "true"
-              traefik.ingress.kubernetes.io/router.entrypoints: websecure
-              traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
-          spec:
-            rules:
-              - host: prometheus.jovian.local.sch-apps.com
-                http:
-                  paths:
-                    - path: /
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name:  prometheus-server
-                          port:
-                            number: 9090
-
     - name: Create the Jovian-Prod namespace
       kubernetes.core.k8s:
         kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -513,34 +486,6 @@
           reclaimPolicy: Retain
           mountOptions:
             - nfsvers=3
-    
-    - name: Create SMB storage classes
-      kubernetes.core.k8s:
-        kubeconfig: /etc/rancher/k3s/k3s.yaml
-        state: present
-        definition:
-          apiVersion: v1
-          kind: StorageClass
-          metadata:
-            name: "{{ smb_sc_list.name }}"
-          provisioner: smb.csi.k8s.io
-          parameters:
-            source: "{{ smb_sc_list.source }}"
-            csi.storage.k8s.io/node-stage-secret-name: "{{ smb_sc_list.name }}"
-            csi.storage.k8s.io/node-stage-secret-namespace: "{{ smb_sc_list.namespace }}"
-          volumeBindingMode: Immediate
-          reclaimPolicy: Retain
-          allowVolumeExpansion: true
-      loop:
-        # - { name: 'smb-csi-immich-silo', source: '//192.168.100.162/immich', secret_name: 'smb-silo-immich', namespace: 'jovian-prod'}
-        # - { name: 'smb-csi-media', source: '//192.168.100.162/media', secret_name: 'smb-media-manangers', namespace: 'jovian-prod'}
-        # - { name: 'smb-csi-immich-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-immich', namespace: 'jovian-prod'}
-        - { name: 'smb-csi-n8n-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-n8n', namespace: 'jovian-prod'}
-        # - { name: 'smb-csi-mmm-syn', source: '//192.168.100.42/Dropbox', secret_name: 'smb-syn-mmm', namespace: 'jovian-prod'}
-      loop_control:
-        loop_var: smb_sc_list
-      ignore_errors: true
-
 
     - name: Create the needed node labels for the GPU Nodes
       kubernetes.core.k8s:
