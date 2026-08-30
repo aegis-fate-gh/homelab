@@ -464,6 +464,7 @@
         - { name: 'restic-freshrss', app_folder: 'freshrss'}
         - { name: 'restic-paperless', app_folder: 'paperless'}
         - { name: 'restic-vaultwarden', app_folder: 'vaultwarden'}
+        - { name: 'restic-sure', app_folder: 'sure'}
       loop_control:
         loop_var: restic_list
       ignore_errors: true

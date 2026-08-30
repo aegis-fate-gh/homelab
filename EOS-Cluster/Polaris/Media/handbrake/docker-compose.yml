@@ -22,6 +22,29 @@ services:
       - "/mnt/media/Games/Videos:/automatic_output:rw"
     networks:
       - proxy
+    
+  handbrake-downloads:
+    image: jlesage/handbrake
+    container_name: handbrake-downloads
+    ports:
+      - "5801:5800"
+    environment:
+      - "TZ=America/Chicago"
+      - "AUTOMATED_CONVERSION=1"
+      - "AUTOMATED_CONVERSION_PRESET=DownloadConverters/AV1 MKV 2160p60 4K"
+      - "AUTOMATED_CONVERSION_FORMAT=mkv"
+      - "AUTOMATED_CONVERSION_KEEP_SOURCE=1"
+      - "AUTOMATED_CONVERSION_NON_VIDEO_FILE_ACTION=ignore"
+      - "AUTOMATED_CONVERSION_OUTPUT_DIR=/automatic_output"
+      - "AUTOMATED_CONVERSION_OUTPUT_SUBDIR=SAME_AS_SRC"
+    volumes:
+      - "/var/lib/docker/volumes/handbrake_data:/config:rw"
+      - "/mnt/media:/storage:ro"
+      - "/mnt/media/downloads/handbrake-in:/watch:rw"
+      - "/mnt/media:/output:rw"
+      - "/mnt/media/downloads/completed:/automatic_output:rw"
+    networks:
+      - proxy
 networks:
   proxy:
     external: true

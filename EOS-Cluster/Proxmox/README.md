@@ -97,13 +97,6 @@ sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
 - rados -p eos cleanup
 - rados -p eos-fs-hdd_data cleanup
 
-## Proxmox Maintenance Mode
-### Enable Maintenance mode on a node:
-ha-manager crm-command node-maintenance enable put-node-here
-
-### Disable Maintenance mode on a node:
-ha-manager crm-command node-maintenance disable put-node-here
-
 ## Creating multiple Ceph and CephFS Pools
 In order to do this, you'll need to ensure the device classes are set correctly, and then you'll need to create new crush rules that take that into account. Note that a given device class needs to exist before creating the crush rule for it.
 
@@ -135,3 +128,27 @@ Display detailed info on a given id: ceph crash info <id>
 Clear it: ceph crash archive <id>
 
 Clear all of them: ceph crash archive-all
+
+## Proxmox Maintenance Mode
+### Enable Maintenance mode on a node:
+ha-manager crm-command node-maintenance enable put-node-here
+
+### Disable Maintenance mode on a node:
+ha-manager crm-command node-maintenance disable put-node-here
+
+## Proxmox CPU Efficiency
+### Installing cpupower
+apt install linux-cpupower
+
+### Checking efficiency / Power Governor
+cpupower frequency-info
+
+### Checking available power governors
+cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors 
+
+### Set power governor
+echo "powersave" | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+
+### Set power governor at reboot
+crontab -e
+@reboot echo "powersave" | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
