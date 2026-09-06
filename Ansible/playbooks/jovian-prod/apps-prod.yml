@@ -16,7 +16,6 @@
         file: "{{ task_list }}"
       loop:
         - ../../tasks/jovian-prod/env-secrets.yml
-        # - ../../tasks/jovian-prod/promtail.yml
         # - ../../tasks/jovian-prod/mkvtoolnix.yml
 
         # - ../../tasks/jovian-prod/nvidia-smi-tester.yml

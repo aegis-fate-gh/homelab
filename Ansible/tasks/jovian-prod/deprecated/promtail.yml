@@ -43,7 +43,7 @@
             volumes:
             - name: logs
               hostPath:
-                path: /var/log
+                path: /var/log/pods
             - name: varlibdockercontainers
               hostPath:
                 path: /var/lib/docker/containers

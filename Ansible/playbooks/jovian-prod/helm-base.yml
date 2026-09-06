@@ -507,7 +507,7 @@
       loop_control:
         loop_var: gpu_list
 
-    - name: Create the needed node labels for the VPN Nodes
+    - name: Create the needed node labels for the Standard Nodes
       kubernetes.core.k8s:
         kubeconfig: /etc/rancher/k3s/k3s.yaml
         state: present
@@ -515,11 +515,11 @@
           apiVersion: v1
           kind: Node
           metadata:
-            name: "{{ vpn_list }}"
+            name: "{{ standard_list }}"
             labels: 
-              connection: "vpn"
+              connection: "standard"
       loop:
         - europa-01
         - europa-02
       loop_control:
-        loop_var: vpn_list
+        loop_var: standard_list
