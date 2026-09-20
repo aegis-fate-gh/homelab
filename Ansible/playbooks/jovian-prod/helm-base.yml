@@ -353,6 +353,8 @@
               persistentVolume:
                 storageClassName: "k8s-cephfs"
                 size: 10Gi
+              extraFlags:
+                - "web.enable-remote-write-receiver"
             alertmanager:
               persistence:
                 storageClassName: "k8s-cephfs"

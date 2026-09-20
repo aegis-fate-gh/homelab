@@ -2,7 +2,7 @@
 - name: Create mkvtoolnix Deployment
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
+    state: absent
     definition:
       apiVersion: apps/v1
       kind: Deployment
@@ -63,7 +63,7 @@
 - name: Create mkvtoolnix Service
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
+    state: absent
     definition:
       apiVersion: v1
       kind: service
@@ -82,7 +82,7 @@
 - name: Create mkvtoolnix Ingress
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
+    state: absent
     definition:
       apiVersion: networking.k8s.io/v1
       kind: Ingress
@@ -109,7 +109,7 @@
 - name: Create mkvtoolnix PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
+    state: absent
     definition:
       apiVersion: v1
       kind: PersistentVolumeClaim
@@ -127,7 +127,7 @@
 - name: Create mkvtoolnix SMB PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
+    state: absent
     definition:
       apiVersion: v1
       kind: PersistentVolumeClaim
@@ -146,7 +146,7 @@
 - name: Create the MKVToolnix NFS Media PV
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
+    state: absent
     definition:
       apiVersion: v1
       kind: PersistentVolume
@@ -171,7 +171,7 @@
 - name: Create mkvtoolnix NFS PVC
   kubernetes.core.k8s:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
-    state: present
+    state: absent
     definition:
       apiVersion: v1
       kind: PersistentVolumeClaim
